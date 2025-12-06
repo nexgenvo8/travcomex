@@ -937,6 +937,13 @@ export default function ({ route, tabBarVisible }) {
     const fullFormattedText = formatText(item?.PostText);
     const rawShortText = truncateText(item?.PostText || "");
     const shortFormattedText = formatText(rawShortText);
+    function convertUrlsToLinks(text) {
+      const urlRegex = /(https?:\/\/[^\s]+)/g;
+      return text.replace(urlRegex, (url) => `<a href="${url}">${url}</a>`);
+    }
+    const processedHTML = convertUrlsToLinks(
+      isExpanded ? fullFormattedText : shortFormattedText
+    );
     return (
       <View
         style={{
@@ -1031,29 +1038,22 @@ export default function ({ route, tabBarVisible }) {
           ) : null}
           <RenderHTML
             contentWidth={windowWidth}
-            source={{
-              html: isExpanded ? fullFormattedText : shortFormattedText,
-            }}
+            source={{ html: processedHTML }}
+            ignoredDomTags={["table", "tbody", "tr", "td", "img"]}
             tagsStyles={{
+              a: {
+                color: colors.AppmainColor,
+                textDecorationLine: "underline",
+                fontWeight: "600",
+              },
               p: {
                 color: colors.textColor,
                 fontSize: 14,
-                lineHeight: 20,
-                textAlign: "justify",
-                marginTop: 0,
-                marginBottom: 0,
-                padding: 0,
               },
-              body: {
-                margin: 0,
-                padding: 0,
-                color: colors.textColor,
-              },
-              h4: {
-                color: colors.AppmainColor,
-                fontWeight: "700",
-                marginTop: 0,
-                marginBottom: 0,
+            }}
+            renderersProps={{
+              a: {
+                onPress: (_, href) => Linking.openURL(href),
               },
             }}
           />

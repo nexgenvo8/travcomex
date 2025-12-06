@@ -9,6 +9,7 @@ export const Addlogindetails = "addlogin-details";
 //Registration
 export const RegistrationApi = "adduser";
 export const coursenameApi = "coursename";
+export const destinationlistApi = "destinationlist";
 export const departmentnameApi = "departmentname";
 export const listindustriesApi = "listindustries";
 

@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   ScrollView,
   Modal,
+  ActivityIndicator,
+  FlatList,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import Colors from "./color";
@@ -19,6 +21,7 @@ import {
   RegistrationApi,
   coursenameApi,
   departmentnameApi,
+  destinationlistApi,
   listindustriesApi,
 } from "./baseURL/api";
 import { useNavigation } from "@react-navigation/native";
@@ -48,25 +51,64 @@ const Registration = () => {
   const [phone, setPhone] = useState("");
   const [passingYear, setPassingYear] = useState("");
   const [selectedCourse, setSelectedCourse] = useState(null);
-  const [selectedRole, setSelectedRole] = useState("Student");
+  const [selectedRole, setSelectedRole] = useState("DMC");
+  const [selectedSegments, setSelectedSegments] = useState("");
+
   const [courseList, setCourseList] = useState(null);
-  const [departmentList, setDepartmentList] = useState([]);
+  // const [departmentList, setDepartmentList] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState(null);
+  const [destinationList, setDestinationList] = useState([]);
+  const [destinationPage, setDestinationPage] = useState(1);
+  const [destinationLastPage, setDestinationLastPage] = useState(1);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [selectedDestination, setSelectedDestination] = useState(null);
+  const [designation, setDesignation] = useState("");
+  const [department, setDepartment] = useState("");
+  const [websiteUrl, setWebsiteUrl] = useState("");
   const [jobTitle, setJobTitle] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [industryList, setIndustryList] = useState([]);
   const [selectedIndustry, setSelectedIndustry] = useState(null);
   const roleTypeMap = {
-    Student: 1,
-    Faculty: 2,
-    Alumni: 3,
-    "Industry Professional": 4,
+    DMC: 1,
+    "Travel Agent": 2,
+    "Hotel/Resort": 3,
+    Airline: 4,
+    "Tourism Board": 5,
+    Media: 6,
+    Cruze: 7,
+    "Transport Company": 8,
+    "Travel Association": 9,
+    "Travel Consultant": 10,
+    "Tour Escort": 11,
+    "Tour Guide": 12,
+    "Institute/College": 13,
+    Student: 14,
+    "IT Company": 15,
+    "Digital Marketing Company": 16,
+    "Government Department": 17,
+    "International organisation": 18,
+    Restaurant: 19,
+    "Activity Company": 20,
   };
+
   const isValidEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
+  const segmentsMap = {
+    "Inbound Tourism": 1,
+    "Outbound Tourism": 2,
+    "MICE Tourism": 3,
+    "Domestic Tourism": 4,
+    OTA: 5,
+    "Corporate Travel": 6,
+    "Medical Tourism": 7,
+    Hospitality: 8,
+    Logistic: 9,
+    Others: 10,
+  };
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
   const months = [
     "January",
@@ -83,21 +125,158 @@ const Registration = () => {
     "December",
   ];
   const currentYear = new Date().getFullYear();
-  const passingyears =
-    selectedRole == "Alumni"
-      ? Array.from({ length: 100 }, (_, i) => currentYear - i)
-      : Array.from({ length: 8 }, (_, i) => 2023 + i);
+  const passingyears = Array.from({ length: 8 }, (_, i) => currentYear + i);
   const startYear = currentYear - 10;
   const years = Array.from({ length: 100 }, (_, i) => startYear - i);
 
   const [searchQuery, setSearchQuery] = useState("");
+  const isCloseToBottom = ({
+    layoutMeasurement,
+    contentOffset,
+    contentSize,
+  }) => {
+    return (
+      layoutMeasurement.height + contentOffset.y >= contentSize.height - 20
+    );
+  };
+
+  // const renderPaginatedOptions = ({
+  //   data,
+  //   onSelect,
+  //   onEndReached = null,
+  //   isLoadingMore = false,
+  // }) => (
+  //   <FlatList
+  //     style={[styles.modalContent, { maxHeight: 400 }]} // scrollable
+  //     data={data}
+  //     keyExtractor={(item, index) =>
+  //       item.id ? item.id.toString() : index.toString()
+  //     }
+  //     renderItem={({ item }) => {
+  //       const label =
+  //         typeof item === "object" ? item.Name || item.name || "" : item;
+  //       return (
+  //         <TouchableOpacity
+  //           onPress={() => {
+  //             onSelect(item);
+  //             setCurrentPicker(null);
+  //           }}
+  //         >
+  //           <Text
+  //             style={{
+  //               ...styles.optionText,
+  //               borderColor: colors.textinputbordercolor,
+  //               color: colors.textColor,
+  //             }}
+  //           >
+  //             {label}
+  //           </Text>
+  //         </TouchableOpacity>
+  //       );
+  //     }}
+  //     onEndReachedThreshold={0.1} // call when 10% from bottom
+  //     onEndReached={() => {
+  //       if (onEndReached && !isLoadingMore) {
+  //         onEndReached();
+  //       }
+  //     }}
+  //     ListFooterComponent={
+  //       isLoadingMore ? (
+  //         <ActivityIndicator
+  //           size="small"
+  //           color={colors.textColor}
+  //           style={{ margin: 10 }}
+  //         />
+  //       ) : null
+  //     }
+  //   />
+  // );
+  const renderPaginatedOptions = ({
+    data,
+    onSelect,
+    onEndReached = null,
+    isLoadingMore = false,
+  }) => {
+    // Check if data is empty or null
+    if (!data || data.length === 0) {
+      return (
+        <View
+          style={[
+            styles.modalContent,
+            {
+              alignItems: "center",
+              justifyContent: "center",
+              //height: 400,
+            },
+          ]}
+        >
+          <Text
+            style={{
+              // textAlign: "center",
+              color: colors.textColor,
+              fontSize: 16,
+            }}
+          >
+            No data found
+          </Text>
+        </View>
+      );
+    }
+
+    return (
+      <FlatList
+        style={[styles.modalContent]} // scrollable
+        data={data}
+        keyExtractor={(item, index) =>
+          item.id ? item.id.toString() : index.toString()
+        }
+        renderItem={({ item }) => {
+          const label =
+            typeof item === "object" ? item.Name || item.name || "" : item;
+          return (
+            <TouchableOpacity
+              onPress={() => {
+                onSelect(item);
+                setCurrentPicker(null);
+              }}
+            >
+              <Text
+                style={{
+                  ...styles.optionText,
+                  borderColor: colors.textinputbordercolor,
+                  color: colors.textColor,
+                }}
+              >
+                {label}
+              </Text>
+            </TouchableOpacity>
+          );
+        }}
+        onEndReachedThreshold={0.1}
+        onEndReached={() => {
+          if (onEndReached && !isLoadingMore) {
+            onEndReached();
+          }
+        }}
+        ListFooterComponent={
+          isLoadingMore ? (
+            <ActivityIndicator
+              size="small"
+              color={colors.AppmainColor}
+              style={{ margin: 10 }}
+            />
+          ) : null
+        }
+      />
+    );
+  };
 
   const renderOptions = (data, onSelect) => (
     <ScrollView style={styles.modalContent}>
       {data.map((item, index) => {
         // const label = typeof item === 'object' ? item.Name : item;
-        const label =
-          typeof item === "object" ? item.Name || item.DepartmentName : item;
+        // const label = typeof item === "object" ? item.name : item;
+        const label = typeof item === "object" ? item.Name || item.name : item;
 
         return (
           <TouchableOpacity
@@ -121,11 +300,70 @@ const Registration = () => {
       })}
     </ScrollView>
   );
+  // useEffect(() => {
+
+  //   // fetchCourses();
+  //   //fetchDepartments();
+  //   //fetchIndustries();
+  // }, []);
+  // Initial load
   useEffect(() => {
-    fetchCourses();
-    fetchDepartments();
-    fetchIndustries();
+    loadDestinations(1, "");
   }, []);
+
+  useEffect(() => {
+    if (currentPicker === "Destination") {
+      loadDestinations(1, searchQuery);
+    }
+  }, [searchQuery, currentPicker]);
+
+  const fetchDestinationsLists = async (page = 1, search = "") => {
+    try {
+      const response = await fetch(`${baseUrl}${destinationlistApi}`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: search,
+          page: page,
+          per_page: 500,
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success === true) {
+        return data;
+      }
+    } catch (error) {
+      console.error("Error fetching destination list:", error);
+    }
+    return null;
+  };
+
+  const loadDestinations = async (page, search) => {
+    const res = await fetchDestinationsLists(page, search);
+
+    if (res) {
+      setDestinationPage(res.current_page);
+      setDestinationLastPage(res.last_page);
+
+      if (page === 1) {
+        setDestinationList(res.data);
+      } else {
+        setDestinationList((prev) => [...prev, ...res.data]);
+      }
+    }
+  };
+
+  const loadMoreDestinations = async () => {
+    if (destinationPage >= destinationLastPage) return;
+
+    setIsLoadingMore(true);
+    await loadDestinations(destinationPage + 1, searchQuery);
+    setIsLoadingMore(false);
+  };
 
   const fetchCourses = async () => {
     try {
@@ -147,6 +385,7 @@ const Registration = () => {
       console.error("Error fetching courses:", error);
     }
   };
+
   const fetchDepartments = async () => {
     try {
       const response = await fetch(`${baseUrl}${departmentnameApi}`, {
@@ -206,14 +445,22 @@ const Registration = () => {
       day: selectedDay,
       month: months.indexOf(selectedMonth) + 1,
       year: selectedYear,
-      gender: selectedGender === "male" ? "Male" : "Female",
+      // gender: selectedGender === "male" ? "Male" : "Female",
+      gender:
+        selectedGender === "male"
+          ? "Male"
+          : selectedGender === "female"
+          ? "Female"
+          : "Other",
+
       userstype: roleTypeMap[selectedRole],
+      segments: segmentsMap[selectedSegments] || "Null",
       employmentId: 101,
       membershipId: 2001,
       templateId: 45,
       jobTitle: jobTitle || "Null",
       passingyear: parseInt(passingYear) || 0,
-      departmentname: selectedDepartment?.DepartmentName || "Null",
+      departmentname: department || "Null",
       companyName: companyName || "Company Name.",
       industryId: selectedIndustry?.Id || 1,
       countryName: "India",
@@ -240,6 +487,9 @@ const Registration = () => {
       coursename: selectedCourse?.Name || "Null",
       numberofMentees: 10,
       profilePhoto: null,
+      destination: selectedDestination?.name || "Null",
+      designation: designation || "Null",
+      CompanyWebsite: websiteUrl || "Null",
     };
     console.log(payload, "payloadpayloadpayloadpayloadpayload");
     try {
@@ -264,7 +514,2580 @@ const Registration = () => {
       showError("Network error. Please try again.");
     }
   };
+  const renderRoleSpecificFields = () => {
+    switch (selectedRole) {
+      case "DMC":
+        return (
+          <>
+            <View style={styles.studentMainBox}>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("role")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedRole ? selectedRole : "Select Role"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("Destination")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedDestination
+                    ? selectedDestination.name
+                    : "Destination"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                  // style={{right: 6}}
+                />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={designation}
+                  onChangeText={setDesignation}
+                  placeholder={`Designation`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={department}
+                  onChangeText={setDepartment}
+                  placeholder={`Department`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={companyName}
+                  onChangeText={setCompanyName}
+                  placeholder={`${selectedRole || ""} Name`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={websiteUrl}
+                  onChangeText={setWebsiteUrl}
+                  placeholder={`Website Url`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+          </>
+        );
+      case "Travel Agent":
+        return (
+          <>
+            <View style={styles.studentMainBox}>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("role")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedRole ? selectedRole : "Select Role"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("Segments")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedSegments ? selectedSegments : "Segments"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.studentMainBox}>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("Destination")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedDepartment
+                    ? selectedDepartment.DepartmentName
+                    : "Destination"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                  // style={{right: 6}}
+                />
+              </TouchableOpacity>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={websiteUrl}
+                  onChangeText={setWebsiteUrl}
+                  placeholder={`Website Url`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={designation}
+                  onChangeText={setDesignation}
+                  placeholder={`Designation`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={department}
+                  onChangeText={setDepartment}
+                  placeholder={`Department`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={companyName}
+                  onChangeText={setCompanyName}
+                  placeholder={`${selectedRole || ""} Name`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+          </>
+        );
+      case "Hotel/Resort":
+        return (
+          <>
+            <View style={styles.studentMainBox}>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("role")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedRole ? selectedRole : "Select Role"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("Segments")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedSegments ? selectedSegments : "Segments"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.studentMainBox}>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("Destination")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedDepartment
+                    ? selectedDepartment.DepartmentName
+                    : "Location"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                  // style={{right: 6}}
+                />
+              </TouchableOpacity>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={websiteUrl}
+                  onChangeText={setWebsiteUrl}
+                  placeholder={`Website Url`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={designation}
+                  onChangeText={setDesignation}
+                  placeholder={`Designation`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={department}
+                  onChangeText={setDepartment}
+                  placeholder={`Department`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                    includeFontPadding: false,
+                  }}
+                  value={companyName}
+                  onChangeText={setCompanyName}
+                  placeholder={`${selectedRole || ""} Name`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+          </>
+        );
+      case "Airline":
+        return (
+          <>
+            <View style={styles.studentMainBox}>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("role")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedRole ? selectedRole : "Select Role"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                />
+              </TouchableOpacity>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={websiteUrl}
+                  onChangeText={setWebsiteUrl}
+                  placeholder={`Website Url`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
 
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={designation}
+                  onChangeText={setDesignation}
+                  placeholder={`Designation`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={department}
+                  onChangeText={setDepartment}
+                  placeholder={`Department`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                    includeFontPadding: false,
+                  }}
+                  value={companyName}
+                  onChangeText={setCompanyName}
+                  placeholder={`${selectedRole || ""} Name`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+          </>
+        );
+      case "Tourism Board":
+        return (
+          <>
+            <View style={styles.studentMainBox}>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("role")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedRole ? selectedRole : "Select Role"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("Destination")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedDepartment
+                    ? selectedDepartment.DepartmentName
+                    : "Location"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                  // style={{right: 6}}
+                />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={websiteUrl}
+                  onChangeText={setWebsiteUrl}
+                  placeholder={`Website Url`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={designation}
+                  onChangeText={setDesignation}
+                  placeholder={`Designation`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={department}
+                  onChangeText={setDepartment}
+                  placeholder={`Department`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                    includeFontPadding: false,
+                  }}
+                  value={companyName}
+                  onChangeText={setCompanyName}
+                  placeholder={`${selectedRole || ""} Name`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+          </>
+        );
+      case "Media":
+        return (
+          <>
+            <View style={styles.studentMainBox}>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("role")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedRole ? selectedRole : "Select Role"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("Segments")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedSegments ? selectedSegments : "Segments"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.studentMainBox}>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("Destination")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedDepartment
+                    ? selectedDepartment.DepartmentName
+                    : "Location"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                  // style={{right: 6}}
+                />
+              </TouchableOpacity>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={websiteUrl}
+                  onChangeText={setWebsiteUrl}
+                  placeholder={`Website Url`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={designation}
+                  onChangeText={setDesignation}
+                  placeholder={`Designation`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={department}
+                  onChangeText={setDepartment}
+                  placeholder={`Department`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                    includeFontPadding: false,
+                  }}
+                  value={companyName}
+                  onChangeText={setCompanyName}
+                  placeholder={`${selectedRole || ""} Name`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+          </>
+        );
+      case "Cruze":
+        return (
+          <>
+            <View style={styles.studentMainBox}>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("role")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedRole ? selectedRole : "Select Role"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("Destination")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedDepartment
+                    ? selectedDepartment.DepartmentName
+                    : "Destination"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                  // style={{right: 6}}
+                />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={websiteUrl}
+                  onChangeText={setWebsiteUrl}
+                  placeholder={`Website Url`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={designation}
+                  onChangeText={setDesignation}
+                  placeholder={`Designation`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={department}
+                  onChangeText={setDepartment}
+                  placeholder={`Department`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                    includeFontPadding: false,
+                  }}
+                  value={companyName}
+                  onChangeText={setCompanyName}
+                  placeholder={`${selectedRole || ""} Name`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+          </>
+        );
+      case "Transport Company":
+        return (
+          <>
+            <View style={styles.studentMainBox}>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("role")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedRole ? selectedRole : "Select Role"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("Segments")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedSegments ? selectedSegments : "Segments"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.studentMainBox}>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("Destination")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedDepartment
+                    ? selectedDepartment.DepartmentName
+                    : "Destination"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                  // style={{right: 6}}
+                />
+              </TouchableOpacity>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={websiteUrl}
+                  onChangeText={setWebsiteUrl}
+                  placeholder={`Website Url`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={designation}
+                  onChangeText={setDesignation}
+                  placeholder={`Designation`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={department}
+                  onChangeText={setDepartment}
+                  placeholder={`Department`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                    includeFontPadding: false,
+                  }}
+                  value={companyName}
+                  onChangeText={setCompanyName}
+                  placeholder={`${selectedRole || ""} Name`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+          </>
+        );
+      case "Travel Association":
+        return (
+          <>
+            <View style={styles.studentMainBox}>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("role")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedRole ? selectedRole : "Select Role"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("Segments")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedSegments ? selectedSegments : "Segments"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.studentMainBox}>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("Destination")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedDepartment
+                    ? selectedDepartment.DepartmentName
+                    : "Location"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                  // style={{right: 6}}
+                />
+              </TouchableOpacity>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={websiteUrl}
+                  onChangeText={setWebsiteUrl}
+                  placeholder={`Website Url`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={designation}
+                  onChangeText={setDesignation}
+                  placeholder={`Designation`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={department}
+                  onChangeText={setDepartment}
+                  placeholder={`Department`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                    includeFontPadding: false,
+                  }}
+                  value={companyName}
+                  onChangeText={setCompanyName}
+                  placeholder={`Name Of ${selectedRole || ""}`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+          </>
+        );
+      case "Travel Consultant":
+        return (
+          <>
+            <View style={styles.studentMainBox}>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("role")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedRole ? selectedRole : "Select Role"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("Segments")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedSegments ? selectedSegments : "Segments"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.studentMainBox}>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("Destination")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedDepartment
+                    ? selectedDepartment.DepartmentName
+                    : "Destination"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                  // style={{right: 6}}
+                />
+              </TouchableOpacity>
+            </View>
+          </>
+        );
+      case "Tour Escort":
+        return (
+          <>
+            <View style={styles.studentMainBox}>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("role")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedRole ? selectedRole : "Select Role"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("Segments")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedSegments ? selectedSegments : "Segments"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.studentMainBox}>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("Destination")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedDepartment
+                    ? selectedDepartment.DepartmentName
+                    : "Destination"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                  // style={{right: 6}}
+                />
+              </TouchableOpacity>
+            </View>
+          </>
+        );
+      case "Tour Guide":
+        return (
+          <>
+            <View style={styles.studentMainBox}>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("role")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedRole ? selectedRole : "Select Role"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("Segments")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedSegments ? selectedSegments : "Segments"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.studentMainBox}>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("Destination")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedDepartment
+                    ? selectedDepartment.DepartmentName
+                    : "Destination"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                  // style={{right: 6}}
+                />
+              </TouchableOpacity>
+            </View>
+          </>
+        );
+      case "Institute/College":
+        return (
+          <>
+            <View style={styles.studentMainBox}>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("role")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedRole ? selectedRole : "Select Role"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("Destination")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedDepartment
+                    ? selectedDepartment.DepartmentName
+                    : "Location"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                  // style={{right: 6}}
+                />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={designation}
+                  onChangeText={setDesignation}
+                  placeholder={`Designation`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={department}
+                  onChangeText={setDepartment}
+                  placeholder={`Department`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                    includeFontPadding: false,
+                  }}
+                  value={companyName}
+                  onChangeText={setCompanyName}
+                  placeholder={`${selectedRole || ""} Name`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+          </>
+        );
+      case "Student":
+        return (
+          <>
+            <View style={styles.studentMainBox}>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("role")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedRole ? selectedRole : "Select Role"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("Destination")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedDepartment
+                    ? selectedDepartment.DepartmentName
+                    : "Location"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                  // style={{right: 6}}
+                />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={companyName}
+                  onChangeText={setCompanyName}
+                  placeholder={`Course`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={department}
+                  onChangeText={setDepartment}
+                  placeholder={`Department`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+            <View style={styles.studentMainBox}>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("passingYear")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {passingYear ? passingYear : "Passing Year"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                />
+              </TouchableOpacity>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                    includeFontPadding: false,
+                  }}
+                  value={companyName}
+                  onChangeText={setCompanyName}
+                  placeholder={`${selectedRole || ""} Name`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+          </>
+        );
+      case "IT Company":
+        return (
+          <>
+            <View style={styles.studentMainBox}>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("role")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedRole ? selectedRole : "Select Role"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("Destination")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedDepartment
+                    ? selectedDepartment.DepartmentName
+                    : "Location"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                  // style={{right: 6}}
+                />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={designation}
+                  onChangeText={setDesignation}
+                  placeholder={`Designation`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={department}
+                  onChangeText={setDepartment}
+                  placeholder={`Department`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                    includeFontPadding: false,
+                  }}
+                  value={companyName}
+                  onChangeText={setCompanyName}
+                  placeholder={`${selectedRole || ""} Name`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+          </>
+        );
+      case "Digital Marketing Company":
+        return (
+          <>
+            <View style={styles.studentMainBox}>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("role")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedRole ? selectedRole : "Select Role"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("Destination")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedDepartment
+                    ? selectedDepartment.DepartmentName
+                    : "Location"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                  // style={{right: 6}}
+                />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={designation}
+                  onChangeText={setDesignation}
+                  placeholder={`Designation`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={department}
+                  onChangeText={setDepartment}
+                  placeholder={`Department`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={companyName}
+                  onChangeText={setCompanyName}
+                  placeholder={`Name of ${selectedRole || ""}`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+          </>
+        );
+      case "Government Department":
+        return (
+          <>
+            <View style={styles.studentMainBox}>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("role")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedRole ? selectedRole : "Select Role"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("Destination")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedDepartment
+                    ? selectedDepartment.DepartmentName
+                    : "Location"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                  // style={{right: 6}}
+                />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={designation}
+                  onChangeText={setDesignation}
+                  placeholder={`Designation`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={department}
+                  onChangeText={setDepartment}
+                  placeholder={`Department`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={companyName}
+                  onChangeText={setCompanyName}
+                  placeholder={`Name Of Ministry`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+          </>
+        );
+      case "International organisation":
+        return (
+          <>
+            <View style={styles.studentMainBox}>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("role")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedRole ? selectedRole : "Select Role"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("Destination")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedDepartment
+                    ? selectedDepartment.DepartmentName
+                    : "Location"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                  // style={{right: 6}}
+                />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={designation}
+                  onChangeText={setDesignation}
+                  placeholder={`Designation`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={department}
+                  onChangeText={setDepartment}
+                  placeholder={`Department`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={companyName}
+                  onChangeText={setCompanyName}
+                  placeholder={`Name of ${selectedRole || ""}`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+          </>
+        );
+      case "Restaurant":
+        return (
+          <>
+            <View style={styles.studentMainBox}>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("role")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedRole ? selectedRole : "Select Role"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("Destination")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedDepartment
+                    ? selectedDepartment.DepartmentName
+                    : "Location"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                  // style={{right: 6}}
+                />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={designation}
+                  onChangeText={setDesignation}
+                  placeholder={`Designation`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={department}
+                  onChangeText={setDepartment}
+                  placeholder={`Department`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={companyName}
+                  onChangeText={setCompanyName}
+                  placeholder={`Name of ${selectedRole || ""}`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+          </>
+        );
+      case "Activity Company":
+        return (
+          <>
+            <View style={styles.studentMainBox}>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("role")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedRole ? selectedRole : "Select Role"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setCurrentPicker("Destination")}
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ ...styles.StudentText, color: colors.textColor }}
+                >
+                  {selectedDepartment
+                    ? selectedDepartment.DepartmentName
+                    : "Location"}
+                </Text>
+                <Icon
+                  name="down"
+                  type="AntDesign"
+                  size={15}
+                  color={colors.placeholderTextColor}
+                  // style={{right: 6}}
+                />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={designation}
+                  onChangeText={setDesignation}
+                  placeholder={`Designation`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={department}
+                  onChangeText={setDepartment}
+                  placeholder={`Department`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+            <View style={styles.studentMainBox}>
+              <View
+                style={{
+                  ...styles.StudentBox,
+                  borderColor: colors.textinputbordercolor,
+                  includeFontPadding: false,
+                }}
+              >
+                <TextInput
+                  style={{
+                    ...styles.inputTextinsideBox,
+                    color: colors.textColor,
+                  }}
+                  value={companyName}
+                  onChangeText={setCompanyName}
+                  placeholder={`Name of ${selectedRole || ""}`}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  multiline={false}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                />
+              </View>
+            </View>
+          </>
+        );
+      default:
+        return null;
+    }
+  };
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -473,33 +3296,33 @@ const Registration = () => {
                   Female
                 </Text>
               </TouchableOpacity>
-              <View></View>
-            </View>
-
-            <View style={styles.studentMainBox}>
+              {/* <View></View> */}
               <TouchableOpacity
-                onPress={() => setCurrentPicker("role")}
-                style={{
-                  ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
-                }}
+                style={styles.maleBox}
+                onPress={() => setSelectedGender("Others")}
               >
-                <Text
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                  style={{ ...styles.StudentText, color: colors.textColor }}
+                <View
+                  style={{
+                    ...styles.maleCircleBox,
+                    borderColor: colors.textinputbordercolor,
+                  }}
                 >
-                  {selectedRole ? selectedRole : "Select Role"}
+                  {selectedGender === "Others" && (
+                    <View
+                      style={{
+                        ...styles.selectedCircle,
+                        backgroundColor: colors.AppmainColor,
+                      }}
+                    />
+                  )}
+                </View>
+                <Text style={{ ...styles.maleText, color: colors.textColor }}>
+                  Others
                 </Text>
-                <Icon
-                  name="down"
-                  type="AntDesign"
-                  size={15}
-                  color={colors.placeholderTextColor}
-                />
               </TouchableOpacity>
-
-              {selectedRole == "Faculty" && (
+            </View>
+            {renderRoleSpecificFields()}
+            {/* {selectedRole == "Faculty" && (
                 <TouchableOpacity
                   onPress={() => setCurrentPicker("department")}
                   style={{
@@ -524,8 +3347,8 @@ const Registration = () => {
                     // style={{right: 6}}
                   />
                 </TouchableOpacity>
-              )}
-              {selectedRole == "Industry Professional" && (
+              )} */}
+            {/* {selectedRole == "Industry Professional" && (
                 <TouchableOpacity
                   onPress={() => setCurrentPicker("Industry")}
                   style={{
@@ -548,9 +3371,9 @@ const Registration = () => {
                     // style={{right: 6}}
                   />
                 </TouchableOpacity>
-              )}
+              )} */}
 
-              {selectedRole !== "Faculty" &&
+            {/* {selectedRole !== "Faculty" &&
                 selectedRole !== "Industry Professional" && (
                   <TouchableOpacity
                     onPress={() => setCurrentPicker("course")}
@@ -573,9 +3396,9 @@ const Registration = () => {
                       color={colors.placeholderTextColor}
                     />
                   </TouchableOpacity>
-                )}
-            </View>
-            {selectedRole !== "Faculty" &&
+                )} */}
+
+            {/* {selectedRole !== "Faculty" &&
               selectedRole !== "Industry Professional" && (
                 <View style={styles.studentMainBox}>
                   <TouchableOpacity
@@ -719,7 +3542,8 @@ const Registration = () => {
                 placeholder={universityName}
                 placeholderTextColor={colors.placeholderTextColor}
               />
-            )}
+            )} */}
+
             <View style={styles.tickTextBox}>
               <PlaneIcon
                 name="checksquare"
@@ -791,7 +3615,8 @@ const Registration = () => {
               backgroundColor: colors.modelBackground,
             }}
           >
-            {(currentPicker === "course" || currentPicker === "department") && (
+            {(currentPicker === "course" ||
+              currentPicker === "Destination") && (
               <TextInput
                 // style={styles.searchInput}
                 placeholder={`Search ${currentPicker}`}
@@ -816,9 +3641,48 @@ const Registration = () => {
               renderOptions(passingyears, setPassingYear)}
             {currentPicker === "role" &&
               renderOptions(
-                ["Student", "Faculty", "Alumni", "Industry Professional"],
+                [
+                  "DMC",
+                  "Travel Agent",
+                  "Hotel/Resort",
+                  "Airline",
+                  "Tourism Board",
+                  "Media",
+                  "Cruze",
+                  "Transport Company",
+                  "Travel Association",
+                  "Travel Consultant",
+                  "Tour Escort",
+                  "Tour Guide",
+                  "Institute/College",
+                  "Student",
+                  "IT Company",
+                  "Digital Marketing Company",
+                  "Government Department",
+                  "International organisation",
+                  "Restaurant",
+                  "Activity Company",
+                ],
                 setSelectedRole
               )}
+
+            {currentPicker === "Segments" &&
+              renderOptions(
+                [
+                  "Inbound Tourism",
+                  "Outbound Tourism",
+                  "MICE Tourism",
+                  "Domestic Tourism",
+                  "OTA",
+                  "Corporate Travel",
+                  "Medical Tourism",
+                  "Hospitality",
+                  "Logistic",
+                  "Others",
+                ],
+                setSelectedSegments
+              )}
+
             {/* {currentPicker === 'course' &&
               renderOptions(courseList, setSelectedCourse)}
             {currentPicker === 'department' &&
@@ -850,9 +3714,9 @@ const Registration = () => {
                 }
               )}
 
-            {currentPicker === "department" &&
+            {/* {currentPicker === "Destination" &&
               renderOptions(
-                departmentList.filter(
+                destinationList.filter(
                   (d) =>
                     d?.DepartmentName &&
                     d.DepartmentName.toLowerCase().includes(
@@ -864,7 +3728,31 @@ const Registration = () => {
                   setCurrentPicker(null);
                   setSearchQuery("");
                 }
-              )}
+              )} */}
+            {currentPicker === "Destination" &&
+              renderPaginatedOptions({
+                data: destinationList,
+                onSelect: (d) => {
+                  setSelectedDestination(d);
+                  setCurrentPicker(null);
+                  setSearchQuery("");
+                },
+                onEndReached: loadMoreDestinations,
+                isLoadingMore: isLoadingMore,
+              })}
+            {/* {currentPicker === "Destination" &&
+              renderOptions(
+                destinationList.filter(
+                  (d) =>
+                    d?.name &&
+                    d.name.toLowerCase().includes(searchQuery.toLowerCase())
+                ),
+                (d) => {
+                  setSelectedDestination(d);
+                  setCurrentPicker(null);
+                  setSearchQuery("");
+                }
+              )} */}
 
             <TouchableOpacity
               style={styles.cancelButton}
@@ -914,6 +3802,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 8,
   },
+  inputTextinsideBox: { flex: 1 },
   nameBox: {
     flexDirection: "row",
     width: "100%",
@@ -1013,10 +3902,12 @@ const styles = StyleSheet.create({
   modalBox: {
     borderRadius: 8,
     maxHeight: "70%",
+    flex: 1,
   },
   modalContent: {
     // padding: 20,
     paddingHorizontal: 20,
+    flex: 1,
   },
   optionText: {
     fontSize: 16,

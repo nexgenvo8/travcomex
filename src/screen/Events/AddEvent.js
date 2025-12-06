@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -13,13 +13,13 @@ import {
   Modal,
   ActivityIndicator,
   Button,
-} from 'react-native';
-import globalStyles from '../GlobalCSS';
-import Header from '../Header/Header';
-import Colors from '../color';
-import Icon from '../Icons/Icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import PlaneIcon from 'react-native-vector-icons/AntDesign';
+} from "react-native";
+import globalStyles from "../GlobalCSS";
+import Header from "../Header/Header";
+import Colors from "../color";
+import Icon from "../Icons/Icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import PlaneIcon from "react-native-vector-icons/AntDesign";
 import {
   AddCompanyApi,
   AddEvents,
@@ -29,27 +29,27 @@ import {
   UpdateCompany,
   UpdateEvents,
   updatejob,
-} from '../baseURL/api';
-import ImagePicker from 'react-native-image-crop-picker';
-import DatePicker from 'react-native-date-picker';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {showError, showSuccess} from '../components/Toast';
-import {useTheme} from '../../theme/ThemeContext';
-import KeyboardAvoidingWrapper from '../components/KeyboardAvoidingWrapper';
+} from "../baseURL/api";
+import ImagePicker from "react-native-image-crop-picker";
+import DatePicker from "react-native-date-picker";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import { showError, showSuccess } from "../components/Toast";
+import { useTheme } from "../../theme/ThemeContext";
+import KeyboardAvoidingWrapper from "../components/KeyboardAvoidingWrapper";
 
-const AddEvent = ({navigation, route}) => {
-  const {Item = {}} = route.params || {};
-  console.log('Item ----->>>>', Item);
-  const {isDark, colors, toggleTheme} = useTheme();
-  const [number, onChangeNumber] = useState('');
-  const [selectedValue5, setSelectedValue5] = useState('Select');
-  const [selectedValueComp, setSelectedValueComp] = useState('Select');
-  const [selectedValue2, setSelectedValue2] = useState('Select');
+const AddEvent = ({ navigation, route }) => {
+  const { Item = {} } = route.params || {};
+  console.log("Item ----->>>>", Item);
+  const { isDark, colors, toggleTheme } = useTheme();
+  const [number, onChangeNumber] = useState("");
+  const [selectedValue5, setSelectedValue5] = useState("Select");
+  const [selectedValueComp, setSelectedValueComp] = useState("Select");
+  const [selectedValue2, setSelectedValue2] = useState("Select");
   const [isOpen2, setIsOpen2] = useState(false);
-  const [selectedValue3, setSelectedValue3] = useState('Select');
+  const [selectedValue3, setSelectedValue3] = useState("Select");
   const [isOpen3, setIsOpen3] = useState(false);
-  const [perfID1, setPerfID1] = useState('');
-  const [description, setDescription] = useState('');
+  const [perfID1, setPerfID1] = useState("");
+  const [description, setDescription] = useState("");
   const [userData, setUserData] = useState(null);
   const [errorTitle, setErrorTitle] = useState(false);
   const [errorCategory, setErrorCategory] = useState(false);
@@ -57,19 +57,19 @@ const AddEvent = ({navigation, route}) => {
   const [errorCareerLevel1, setErrorCareerLevel1] = useState(false);
   // const [errorDescription, setErrorDescription] = useState(false);
   const [errorCompany, setErrorCompany] = useState(false);
-  const [tag, setTag] = useState('');
-  const [errorCountry, setErrorCountry] = useState('');
-  const [errorState, setErrorState] = useState('');
+  const [tag, setTag] = useState("");
+  const [errorCountry, setErrorCountry] = useState("");
+  const [errorState, setErrorState] = useState("");
   const [errorTag, setErrorTag] = useState(false);
   const [errorImg, setErrorImg] = useState(false);
-  const [city, setCity] = useState('');
+  const [city, setCity] = useState("");
   // const [errorCity, setErrorCity] = useState(false);
   const [errorPostalCode, setErrorPostalCode] = useState(false);
-  const [postalCode, setPostalCode] = useState('');
-  const [pNo, setPNo] = useState('');
-  const [eMail, setEMail] = useState('');
-  const [compURL, setCompURL] = useState('');
-  const [aboutComp, setAboutComp] = useState('');
+  const [postalCode, setPostalCode] = useState("");
+  const [pNo, setPNo] = useState("");
+  const [eMail, setEMail] = useState("");
+  const [compURL, setCompURL] = useState("");
+  const [aboutComp, setAboutComp] = useState("");
   const [errorCopmURL, setErrorCopmURL] = useState(false);
   const [errorAboutComp, setErrorAboutComp] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -86,7 +86,7 @@ const AddEvent = ({navigation, route}) => {
   const [bannerImage, setBannerImage] = useState(null);
   const [base64Logo, setBase64Logo] = useState(null);
   const [base64Banner, setBase64Banner] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [filteredCountries, setFilteredCountries] = useState([]);
   const [imagesNamebase64, setImagesNameBase64] = useState([]);
   const [date, setDate] = useState(null);
@@ -99,11 +99,11 @@ const AddEvent = ({navigation, route}) => {
   const [openDate1, setOpenDate1] = useState(false);
   const [openTime1, setOpenTime1] = useState(false);
   useEffect(() => {
-    if (searchQuery === '') {
+    if (searchQuery === "") {
       setFilteredCountries(countryList);
     } else {
-      const filtered = countryList.filter(item =>
-        item.label.toLowerCase().includes(searchQuery.toLowerCase()),
+      const filtered = countryList.filter((item) =>
+        item.label.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setFilteredCountries(filtered);
     }
@@ -127,24 +127,24 @@ const AddEvent = ({navigation, route}) => {
   }, []);
   const UserValue = async () => {
     try {
-      const userDta = await AsyncStorage.getItem('userData');
+      const userDta = await AsyncStorage.getItem("userData");
       const parsedData = JSON.parse(userDta);
       setUserData(parsedData);
     } catch (error) {
-      console.log('Error', error);
+      console.log("Error", error);
     }
   };
   useEffect(() => {
     // if (selectedValue5 !== 'Select' && selectedValue5) {
     //   setErrorCategory(false);
     // }
-    if (selectedValue2 !== 'Select' && selectedValue2) {
+    if (selectedValue2 !== "Select" && selectedValue2) {
       setErrorCareerLevel(false);
     }
-    if (selectedValue3 !== 'Select' && selectedValue3) {
+    if (selectedValue3 !== "Select" && selectedValue3) {
       setErrorCareerLevel1(false);
     }
-    if (selectedValueComp !== 'Select' && selectedValue5) {
+    if (selectedValueComp !== "Select" && selectedValue5) {
       setErrorCompany(false);
     }
 
@@ -183,7 +183,7 @@ const AddEvent = ({navigation, route}) => {
     time1,
   ]);
 
-  const selectOption2 = option => {
+  const selectOption2 = (option) => {
     setSelectedValue2(option);
     setIsOpen2(false);
   };
@@ -191,16 +191,16 @@ const AddEvent = ({navigation, route}) => {
     setIsOpen2(!isOpen2);
   };
   const optionsApply1 = [
-    {id: 1, label: 'Ticketed'},
-    {id: 2, label: 'Open'},
-    {id: 3, label: 'By Invite'},
+    { id: 1, label: "Ticketed" },
+    { id: 2, label: "Open" },
+    { id: 3, label: "By Invite" },
   ];
   const optionsApply3 = [
-    {id: 1, label: 'Full Day Event'},
-    {id: 2, label: 'Half Day Event'},
-    {id: 3, label: 'Other'},
+    { id: 1, label: "Full Day Event" },
+    { id: 2, label: "Half Day Event" },
+    { id: 3, label: "Other" },
   ];
-  const selectOption3 = option => {
+  const selectOption3 = (option) => {
     setSelectedValue3(option);
     setIsOpen3(false);
   };
@@ -208,26 +208,26 @@ const AddEvent = ({navigation, route}) => {
     setIsOpen3(!isOpen3);
   };
 
-  const formatDate = date => {
-    if (!date) return '';
+  const formatDate = (date) => {
+    if (!date) return "";
     const d = new Date(date);
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
       2,
-      '0',
-    )}-${String(d.getDate()).padStart(2, '0')}`;
+      "0"
+    )}-${String(d.getDate()).padStart(2, "0")}`;
   };
 
   // Convert Time to "hh:mm A"
-  const formatTime = time => {
-    if (!time) return '';
+  const formatTime = (time) => {
+    if (!time) return "";
     const d = new Date(time);
     let hours = d.getHours();
     let minutes = d.getMinutes();
-    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const ampm = hours >= 12 ? "PM" : "AM";
     hours = hours % 12 || 12; // Convert 24-hour to 12-hour format
-    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(
+    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(
       2,
-      '0',
+      "0"
     )} ${ampm}`;
   };
   const [errorDate, setErrorDate] = useState(false);
@@ -283,7 +283,7 @@ const AddEvent = ({navigation, route}) => {
     if (isValid) {
       setChecked(!checked);
     } else {
-      console.log('Validation failed. Checkbox not toggled.');
+      console.log("Validation failed. Checkbox not toggled.");
     }
   };
 
@@ -366,90 +366,90 @@ const AddEvent = ({navigation, route}) => {
     // console.log('formattedStartTime:', formattedStartTime);
 
     // Logging values for debugging
-    console.log('API Payload:', {
+    console.log("API Payload:", {
       id: Item?.id || null,
-      userId: userData?.User?.userId || '',
+      userId: userData?.User?.userId || "",
       eventType: selectedValue2?.label
         ? selectedValue2?.label
-        : selectedValue2 || '',
-      eventName: number || '',
+        : selectedValue2 || "",
+      eventName: number || "",
       eventDate: formattedEventDate, // ✅ Formatted
       eventTillDate: formattedEventTillDate, // ✅ Formatted
       starttime: formattedStartTime, // ✅ Formatted
       endtime: formattedEndTime, // ✅ Formatted
-      eventVenue: description || '',
+      eventVenue: description || "",
       eventCountry: selectedCountry?.label
         ? selectedCountry?.label
-        : selectedCountry || '',
-      eventBrief: city || '',
+        : selectedCountry || "",
+      eventBrief: city || "",
       eventDuration: selectedValue3?.label
         ? selectedValue3?.label
-        : selectedValue3 || '',
-      eventDetails: postalCode || '',
-      eventAgenda: pNo || '',
-      websiteurl: eMail || '',
-      otherDetails: 'Limited seats available, register now!',
-      eventThumb: '',
-      eventBanner: '',
+        : selectedValue3 || "",
+      eventDetails: postalCode || "",
+      eventAgenda: pNo || "",
+      websiteurl: eMail || "",
+      otherDetails: "Limited seats available, register now!",
+      eventThumb: "",
+      eventBanner: "",
       eventImages: imagesArray || [],
     });
 
     const apiUrl = `${baseUrl}${Item?.id ? UpdateEvents : AddEvents}`;
-    console.log('API URL:', apiUrl);
+    console.log("API URL:", apiUrl);
 
     try {
       const response = await fetch(apiUrl, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           id: Item?.id || null,
-          userId: userData?.User?.userId || '',
+          userId: userData?.User?.userId || "",
           eventType: selectedValue2?.label
             ? selectedValue2?.label
-            : selectedValue2 || '',
-          eventName: number || '',
+            : selectedValue2 || "",
+          eventName: number || "",
           eventDate: formattedEventDate, // ✅ Formatted
           eventTillDate: formattedEventTillDate, // ✅ Formatted
           starttime: formattedStartTime, // ✅ Formatted
           endtime: formattedEndTime, // ✅ Formatted
-          eventVenue: description || '',
+          eventVenue: description || "",
           eventCountry: selectedCountry?.label
             ? selectedCountry?.label
-            : selectedCountry || '',
-          eventBrief: city || '',
+            : selectedCountry || "",
+          eventBrief: city || "",
           eventDuration: selectedValue3?.label
             ? selectedValue3?.label
-            : selectedValue3 || '',
-          eventDetails: postalCode || '',
-          eventAgenda: pNo || '',
-          websiteurl: eMail || '',
-          otherDetails: 'Limited seats available, register now!',
-          eventThumb: '',
-          eventBanner: '',
+            : selectedValue3 || "",
+          eventDetails: postalCode || "",
+          eventAgenda: pNo || "",
+          websiteurl: eMail || "",
+          otherDetails: "Limited seats available, register now!",
+          eventThumb: "",
+          eventBanner: "",
           eventImages: imagesArray ? imagesArray : [],
         }),
       });
 
-      const contentType = response.headers.get('content-type');
+      const contentType = response.headers.get("content-type");
       const responseText = await response.text();
 
-      console.log('Raw response:', responseText);
+      console.log("Raw response:", responseText);
 
-      if (contentType && contentType.includes('application/json')) {
+      if (contentType && contentType.includes("application/json")) {
         const data = JSON.parse(responseText);
         // const data = await response.json();
         if (response.ok) {
-          console.log('Add data:', data);
+          console.log("Add data:", data);
           navigation.goBack();
           showSuccess(data?.Message);
         } else {
-          showError(data?.message || 'Failed to add event');
+          showError(data?.message || "Failed to add event");
         }
       }
     } catch (error) {
-      console.error('Fetch Error:', error.message);
+      console.error("Fetch Error:", error.message);
     } finally {
       setLoading(false);
     }
@@ -458,24 +458,24 @@ const AddEvent = ({navigation, route}) => {
     setLoading(true);
     try {
       const response = await fetch(`${baseUrl}${CountryList}`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({search: ''}),
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ search: "" }),
       });
 
       const data = await response.json();
       if (data?.Data) {
         setCountryList(
-          data.Data.map(item => ({
+          data.Data.map((item) => ({
             id: item.id,
             label: item.country_name,
             phonecode: item.phonecode,
             country_code: item.country_code,
-          })),
+          }))
         );
       }
     } catch (error) {
-      console.error('Error fetching countries:', error);
+      console.error("Error fetching countries:", error);
       setError(true);
     } finally {
       setLoading(false);
@@ -506,20 +506,20 @@ const AddEvent = ({navigation, route}) => {
   const selectImage = () => {
     ImagePicker.openPicker({
       multiple: true, // Allow multiple image selection
-      mediaType: 'photo',
+      mediaType: "photo",
       compressImageQuality: 0.8,
       includeBase64: true, // Include Base64 if needed
     })
-      .then(selectedImages => {
+      .then((selectedImages) => {
         // Initialize arrays to store image details
         const imagePaths = [];
         const imageNames = [];
         const base64Images = [];
 
         // Iterate over the selected images
-        selectedImages.forEach(image => {
+        selectedImages.forEach((image) => {
           const imagePath = image.path;
-          const imageName = imagePath.substring(imagePath.lastIndexOf('/') + 1);
+          const imageName = imagePath.substring(imagePath.lastIndexOf("/") + 1);
           const base64Image = image.data;
 
           // Push details into respective arrays
@@ -532,8 +532,8 @@ const AddEvent = ({navigation, route}) => {
         setImagesName(imageNames); // Store all image names
         setBase64Logo(base64Images); // Store all Base64 strings
       })
-      .catch(error => {
-        console.error('Image selection cancelled:', error);
+      .catch((error) => {
+        console.error("Image selection cancelled:", error);
       });
   };
 
@@ -542,10 +542,11 @@ const AddEvent = ({navigation, route}) => {
       style={{
         ...globalStyles.SafeAreaView,
         backgroundColor: colors.background,
-      }}>
+      }}
+    >
       <Header title="Add Event" navigation={navigation} />
       <KeyboardAvoidingWrapper offset={40}>
-        <View style={{flex: 1}}>
+        <View style={{ flex: 1 }}>
           <View style={{}}>
             <ScrollView showsVerticalScrollIndicator={false}>
               <View style={globalStyles.ViewINter1}>
@@ -553,7 +554,8 @@ const AddEvent = ({navigation, route}) => {
                   style={{
                     ...globalStyles.headlineText,
                     color: colors.textColor,
-                  }}>
+                  }}
+                >
                   Post New Event
                 </Text>
               </View>
@@ -562,14 +564,16 @@ const AddEvent = ({navigation, route}) => {
                 style={{
                   ...globalStyles.JobfiledSection,
                   paddingHorizontal: 10,
-                }}>
+                }}
+              >
                 <Text
                   style={{
                     ...globalStyles.JobfiledSectionText,
                     color: colors.textColor,
                     // color: errorTitle ? Colors.error : Colors.gray,
-                  }}>
-                  Event Name <Text style={{color: 'red'}}>*</Text>
+                  }}
+                >
+                  Event Name <Text style={{ color: "red" }}>*</Text>
                 </Text>
 
                 <TextInput
@@ -581,7 +585,7 @@ const AddEvent = ({navigation, route}) => {
                     color: colors.textColor,
                     backgroundColor: colors.textinputBackgroundcolor,
                   }}
-                  onChangeText={value => {
+                  onChangeText={(value) => {
                     onChangeNumber(value);
                     setErrorTitle(value.trim().length === 0);
                   }}
@@ -597,26 +601,29 @@ const AddEvent = ({navigation, route}) => {
                 style={{
                   ...globalStyles.JobfiledSection,
                   paddingHorizontal: 10,
-                }}>
+                }}
+              >
                 <Text
                   style={{
                     ...globalStyles.JobfiledSectionText,
                     color: colors.textColor,
                     // color: errorDate ? Colors.error : Colors.gray,
-                  }}>
-                  Event start date/time <Text style={{color: 'red'}}>*</Text>
+                  }}
+                >
+                  Event start date/time <Text style={{ color: "red" }}>*</Text>
                 </Text>
               </View>
 
               <View
                 style={{
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  alignItems: "center",
+                  justifyContent: "center",
                   padding: 0,
-                  alignItems: 'center',
-                  flexDirection: 'row',
-                  justifyContent: 'center',
-                }}>
+                  alignItems: "center",
+                  flexDirection: "row",
+                  justifyContent: "center",
+                }}
+              >
                 {/* Date Picker */}
                 <TouchableOpacity
                   onPress={() => setOpenDate(true)}
@@ -624,20 +631,22 @@ const AddEvent = ({navigation, route}) => {
                     padding: 10,
                     backgroundColor: colors.textinputBackgroundcolor,
                     borderRadius: 5,
-                  }}>
+                  }}
+                >
                   <Text
                     style={{
                       fontSize: 16,
                       color: errorDate ? Colors.error : colors.textColor,
-                    }}>
-                    📅{' '}
+                    }}
+                  >
+                    📅{" "}
                     {date
-                      ? date.toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
+                      ? date.toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
                         })
-                      : 'Select Date'}
+                      : "Select Date"}
                   </Text>
                 </TouchableOpacity>
 
@@ -646,7 +655,7 @@ const AddEvent = ({navigation, route}) => {
                   open={openDate}
                   date={date || new Date()}
                   mode="date"
-                  onConfirm={selectedDate => {
+                  onConfirm={(selectedDate) => {
                     setOpenDate(false);
                     setDate(selectedDate);
                   }}
@@ -662,19 +671,21 @@ const AddEvent = ({navigation, route}) => {
                     borderRadius: 5,
                     //   marginTop: 10,
                     marginLeft: 10,
-                  }}>
+                  }}
+                >
                   <Text
                     style={{
                       fontSize: 16,
                       color: errorTime ? Colors.error : colors.textColor,
-                    }}>
-                    ⏰{' '}
+                    }}
+                  >
+                    ⏰{" "}
                     {time
-                      ? time?.toLocaleTimeString('en-US', {
-                          hour: '2-digit',
-                          minute: '2-digit',
+                      ? time?.toLocaleTimeString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
                         })
-                      : 'Select Time'}
+                      : "Select Time"}
                   </Text>
                 </TouchableOpacity>
 
@@ -695,7 +706,7 @@ const AddEvent = ({navigation, route}) => {
                   //     ),
                   //   );
                   // }}
-                  onConfirm={selectedTime => {
+                  onConfirm={(selectedTime) => {
                     setOpenTime(false);
                     setTime(selectedTime);
                   }}
@@ -707,13 +718,15 @@ const AddEvent = ({navigation, route}) => {
                 style={{
                   ...globalStyles.JobfiledSection,
                   paddingHorizontal: 10,
-                }}>
+                }}
+              >
                 <Text
                   style={{
                     ...globalStyles.JobfiledSectionText,
                     color: errorTag ? Colors.error : colors.textColor,
-                  }}>
-                  Event End date/time <Text style={{color: 'red'}}>*</Text>
+                  }}
+                >
+                  Event End date/time <Text style={{ color: "red" }}>*</Text>
                 </Text>
                 {/* {errorDate ? <Text style={{color:'red'}}>{errorDate1}</Text> : null}
               {errorDate ? <Text style={{color:'red',paddingVertical:5}}>{errorTime1}</Text> : null} */}
@@ -721,13 +734,14 @@ const AddEvent = ({navigation, route}) => {
 
               <View
                 style={{
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  alignItems: "center",
+                  justifyContent: "center",
                   padding: 0,
-                  alignItems: 'center',
-                  flexDirection: 'row',
-                  justifyContent: 'center',
-                }}>
+                  alignItems: "center",
+                  flexDirection: "row",
+                  justifyContent: "center",
+                }}
+              >
                 {/* Date Picker */}
                 <TouchableOpacity
                   onPress={() => setOpenDate1(true)}
@@ -735,20 +749,22 @@ const AddEvent = ({navigation, route}) => {
                     padding: 10,
                     backgroundColor: colors.textinputBackgroundcolor,
                     borderRadius: 5,
-                  }}>
+                  }}
+                >
                   <Text
                     style={{
                       fontSize: 16,
                       color: errorDate1 ? Colors.error : colors.textColor,
-                    }}>
-                    📅{' '}
+                    }}
+                  >
+                    📅{" "}
                     {date1
-                      ? date1.toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
+                      ? date1.toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
                         })
-                      : 'Select Date'}
+                      : "Select Date"}
                   </Text>
                 </TouchableOpacity>
 
@@ -757,7 +773,7 @@ const AddEvent = ({navigation, route}) => {
                   open={openDate1}
                   date={date1 || new Date()} // Use new Date() if null
                   mode="date"
-                  onConfirm={selectedDate => {
+                  onConfirm={(selectedDate) => {
                     setOpenDate1(false);
                     setDate1(selectedDate);
                   }}
@@ -773,19 +789,21 @@ const AddEvent = ({navigation, route}) => {
                     borderRadius: 5,
                     //   marginTop: 10,
                     marginLeft: 10,
-                  }}>
+                  }}
+                >
                   <Text
                     style={{
                       fontSize: 16,
                       color: errorTime1 ? Colors.error : colors.textColor,
-                    }}>
-                    ⏰{' '}
+                    }}
+                  >
+                    ⏰{" "}
                     {time1
-                      ? time1.toLocaleTimeString('en-US', {
-                          hour: '2-digit',
-                          minute: '2-digit',
+                      ? time1.toLocaleTimeString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
                         })
-                      : 'Select Time'}
+                      : "Select Time"}
                   </Text>
                 </TouchableOpacity>
 
@@ -794,7 +812,7 @@ const AddEvent = ({navigation, route}) => {
                   open={openTime1}
                   date={time1 || new Date()} // Use new Date() if null
                   mode="time"
-                  onConfirm={selectedTime => {
+                  onConfirm={(selectedTime) => {
                     setOpenTime1(false);
                     setTime1(selectedTime);
                   }}
@@ -802,14 +820,15 @@ const AddEvent = ({navigation, route}) => {
                 />
               </View>
 
-              <View style={{marginHorizontal: 10}}>
+              <View style={{ marginHorizontal: 10 }}>
                 <Text
                   style={{
                     marginTop: 20,
                     color: colors.textColor,
                     // color: errorCareerLevel ? Colors.error : Colors.gray,
-                  }}>
-                  Event Type <Text style={{color: 'red'}}>*</Text>
+                  }}
+                >
+                  Event Type <Text style={{ color: "red" }}>*</Text>
                 </Text>
                 <TouchableOpacity
                   onPress={toggleDropdown2}
@@ -819,16 +838,18 @@ const AddEvent = ({navigation, route}) => {
                       ? Colors.error
                       : colors.textinputbordercolor,
                     backgroundColor: colors.textinputBackgroundcolor,
-                  }}>
+                  }}
+                >
                   <Text
                     style={{
                       ...globalStyles.JobfiledSectionText,
                       paddingBottom: 0,
                       color: colors.textColor,
-                    }}>
+                    }}
+                  >
                     {selectedValue2?.label
                       ? selectedValue2?.label
-                      : selectedValue2 || 'Select Event Type'}
+                      : selectedValue2 || "Select Event Type"}
                   </Text>
                 </TouchableOpacity>
                 {isOpen2 && (
@@ -837,16 +858,18 @@ const AddEvent = ({navigation, route}) => {
                       ...globalStyles.dropdownList,
                       backgroundColor: colors.textinputBackgroundcolor,
                       borderColor: colors.textinputbordercolor,
-                    }}>
-                    {optionsApply1.map(item => (
+                    }}
+                  >
+                    {optionsApply1.map((item) => (
                       <TouchableOpacity
                         key={item.id}
                         style={{
                           ...globalStyles.dropdownItem,
                           borderColor: colors.textinputbordercolor,
                         }}
-                        onPress={() => selectOption2(item)}>
-                        <Text style={{fontSize: 14, color: colors.textColor}}>
+                        onPress={() => selectOption2(item)}
+                      >
+                        <Text style={{ fontSize: 14, color: colors.textColor }}>
                           {item.label}
                         </Text>
                       </TouchableOpacity>
@@ -862,7 +885,8 @@ const AddEvent = ({navigation, route}) => {
                     paddingHorizontal: 10,
                     color: colors.textColor,
                     // color: errorDescription ? Colors.error : Colors.gray,
-                  }}>
+                  }}
+                >
                   Event venue
                 </Text>
                 <TextInput
@@ -875,7 +899,7 @@ const AddEvent = ({navigation, route}) => {
                     backgroundColor: colors.textinputBackgroundcolor,
                     // borderColor: errorDescription ? Colors.error : Colors.gray,
                   }}
-                  onChangeText={value => {
+                  onChangeText={(value) => {
                     setDescription(value);
                     // setErrorDescription(value.trim().length === 0);
                   }}
@@ -887,9 +911,9 @@ const AddEvent = ({navigation, route}) => {
                 />
               </View>
 
-              <View style={{marginHorizontal: 10, marginTop: 20}}>
-                <Text style={{color: colors.textColor}}>
-                  Country <Text style={{color: 'red'}}>*</Text>
+              <View style={{ marginHorizontal: 10, marginTop: 20 }}>
+                <Text style={{ color: colors.textColor }}>
+                  Country <Text style={{ color: "red" }}>*</Text>
                 </Text>
                 <TouchableOpacity
                   onPress={() => {
@@ -901,27 +925,29 @@ const AddEvent = ({navigation, route}) => {
                     borderColor: errorCountry
                       ? Colors.error
                       : colors.textinputbordercolor,
-                    flexDirection: 'row',
-                    alignItems: 'center',
+                    flexDirection: "row",
+                    alignItems: "center",
                     backgroundColor: colors.textinputBackgroundcolor,
-                  }}>
+                  }}
+                >
                   <Text
                     style={{
                       ...globalStyles.JobfiledSectionText,
                       color: colors.textColor,
                       // color: errorCountry ? Colors.error : 'black',
-                    }}>
+                    }}
+                  >
                     {/* {selectedCountry || 'Select Country'} */}
                     {selectedCountry
                       ? selectedCountry.label || selectedCountry
-                      : 'Select Country'}
+                      : "Select Country"}
                   </Text>
                   <Icon
                     name="down"
                     type="AntDesign"
                     size={15}
                     color={colors.backIconColor}
-                    style={{paddingLeft: 10}}
+                    style={{ paddingLeft: 10 }}
                   />
                 </TouchableOpacity>
                 <Modal visible={modalVisible} transparent animationType="slide">
@@ -929,23 +955,26 @@ const AddEvent = ({navigation, route}) => {
                     style={{
                       flex: 1,
                       paddingVertical: 30,
-                      justifyContent: 'center',
-                      backgroundColor: 'rgba(0,0,0,0.5)',
-                    }}>
+                      justifyContent: "center",
+                      backgroundColor: "rgba(0,0,0,0.5)",
+                    }}
+                  >
                     <View
                       style={{
                         backgroundColor: colors.modelBackground,
                         padding: 20,
                         marginHorizontal: 30,
                         borderRadius: 10,
-                        height: '80%',
-                      }}>
+                        height: "80%",
+                      }}
+                    >
                       <Text
                         style={{
                           fontSize: 18,
-                          fontWeight: 'bold',
+                          fontWeight: "bold",
                           color: colors.textColor,
-                        }}>
+                        }}
+                      >
                         Select a Country
                       </Text>
                       <TextInput
@@ -968,15 +997,15 @@ const AddEvent = ({navigation, route}) => {
                         <ActivityIndicator
                           size="large"
                           color={colors.AppmainColor}
-                          style={{marginTop: 20}}
+                          style={{ marginTop: 20 }}
                         />
                       ) : (
-                        <View style={{flex: 1}}>
+                        <View style={{ flex: 1 }}>
                           <FlatList
                             data={filteredCountries}
                             //data={countryList}
-                            keyExtractor={item => item.id.toString()}
-                            renderItem={({item}) => (
+                            keyExtractor={(item) => item.id.toString()}
+                            renderItem={({ item }) => (
                               <TouchableOpacity
                                 onPress={() => {
                                   setSelectedCountry(item);
@@ -988,12 +1017,14 @@ const AddEvent = ({navigation, route}) => {
                                   borderBottomWidth: 1,
                                   borderBottomColor:
                                     colors.textinputbordercolor,
-                                }}>
+                                }}
+                              >
                                 <Text
                                   style={{
                                     fontSize: 16,
                                     color: colors.textColor,
-                                  }}>
+                                  }}
+                                >
                                   {item.label}
                                 </Text>
                               </TouchableOpacity>
@@ -1003,8 +1034,9 @@ const AddEvent = ({navigation, route}) => {
                       )}
                       <TouchableOpacity
                         onPress={() => setModalVisible(false)}
-                        style={{marginTop: 20, alignItems: 'center'}}>
-                        <Text style={{color: 'red', fontWeight: 'bold'}}>
+                        style={{ marginTop: 20, alignItems: "center" }}
+                      >
+                        <Text style={{ color: "red", fontWeight: "bold" }}>
                           Cancel
                         </Text>
                       </TouchableOpacity>
@@ -1013,14 +1045,15 @@ const AddEvent = ({navigation, route}) => {
                 </Modal>
               </View>
 
-              <View style={{marginHorizontal: 10}}>
+              <View style={{ marginHorizontal: 10 }}>
                 <Text
                   style={{
                     marginTop: 20,
                     color: colors.textColor,
                     // color: errorCareerLevel1 ? Colors.error : Colors.gray,
-                  }}>
-                  Duration of the event <Text style={{color: 'red'}}>*</Text>
+                  }}
+                >
+                  Duration of the event <Text style={{ color: "red" }}>*</Text>
                 </Text>
                 <TouchableOpacity
                   onPress={toggleDropdown3}
@@ -1030,16 +1063,18 @@ const AddEvent = ({navigation, route}) => {
                       ? Colors.error
                       : colors.textinputbordercolor,
                     backgroundColor: colors.textinputBackgroundcolor,
-                  }}>
+                  }}
+                >
                   <Text
                     style={{
                       ...globalStyles.JobfiledSectionText,
                       paddingBottom: 0,
                       color: colors.textColor,
-                    }}>
+                    }}
+                  >
                     {selectedValue3?.label
                       ? selectedValue3?.label
-                      : selectedValue3 || 'Select Event Duration'}
+                      : selectedValue3 || "Select Event Duration"}
                   </Text>
                 </TouchableOpacity>
                 {isOpen3 && (
@@ -1048,16 +1083,18 @@ const AddEvent = ({navigation, route}) => {
                       ...globalStyles.dropdownList,
                       backgroundColor: colors.textinputBackgroundcolor,
                       borderColor: colors.textinputbordercolor,
-                    }}>
-                    {optionsApply3.map(item => (
+                    }}
+                  >
+                    {optionsApply3.map((item) => (
                       <TouchableOpacity
                         key={item.id}
                         style={{
                           ...globalStyles.dropdownItem,
                           borderColor: colors.textinputbordercolor,
                         }}
-                        onPress={() => selectOption3(item)}>
-                        <Text style={{fontSize: 14, color: colors.textColor}}>
+                        onPress={() => selectOption3(item)}
+                      >
+                        <Text style={{ fontSize: 14, color: colors.textColor }}>
                           {item.label}
                         </Text>
                       </TouchableOpacity>
@@ -1070,13 +1107,15 @@ const AddEvent = ({navigation, route}) => {
                 style={{
                   ...globalStyles.JobfiledSection,
                   paddingHorizontal: 10,
-                }}>
+                }}
+              >
                 <Text
                   style={{
                     ...globalStyles.JobfiledSectionText,
                     color: colors.textColor,
                     // color: errorCity ? Colors.error : Colors.gray,
-                  }}>
+                  }}
+                >
                   Brief profile of the event
                 </Text>
 
@@ -1089,7 +1128,7 @@ const AddEvent = ({navigation, route}) => {
                     color: colors.textColor,
                     //borderColor: errorCity ? Colors.error : Colors.gray,
                   }}
-                  onChangeText={value => {
+                  onChangeText={(value) => {
                     setCity(value);
                     // setErrorCity(value.trim().length === 0);
                   }}
@@ -1105,14 +1144,17 @@ const AddEvent = ({navigation, route}) => {
                 style={{
                   ...globalStyles.JobfiledSection,
                   paddingHorizontal: 10,
-                }}>
+                }}
+              >
                 <Text
                   style={{
                     ...globalStyles.JobfiledSectionText,
                     color: colors.textColor,
                     // color: errorPostalCode ? Colors.error : Colors.gray,
-                  }}>
-                  Details about the event <Text style={{color: 'red'}}>*</Text>
+                  }}
+                >
+                  Details about the event{" "}
+                  <Text style={{ color: "red" }}>*</Text>
                 </Text>
 
                 <TextInput
@@ -1125,7 +1167,7 @@ const AddEvent = ({navigation, route}) => {
                     backgroundColor: colors.textinputBackgroundcolor,
                     color: colors.textColor,
                   }}
-                  onChangeText={value => {
+                  onChangeText={(value) => {
                     setPostalCode(value);
                     setErrorPostalCode(value.trim().length === 0);
                   }}
@@ -1141,13 +1183,15 @@ const AddEvent = ({navigation, route}) => {
                 style={{
                   ...globalStyles.JobfiledSection,
                   paddingHorizontal: 10,
-                }}>
+                }}
+              >
                 <Text
                   style={{
                     ...globalStyles.JobfiledSectionText,
                     color: colors.textColor,
                     // color: errorPNo ? Colors.error : Colors.gray,
-                  }}>
+                  }}
+                >
                   Agenda of the event
                 </Text>
 
@@ -1160,7 +1204,7 @@ const AddEvent = ({navigation, route}) => {
                     color: colors.textColor,
                     // borderColor: errorPNo ? Colors.error : Colors.gray,
                   }}
-                  onChangeText={value => {
+                  onChangeText={(value) => {
                     setPNo(value);
                     // setErrorPNo(value.trim().length === 0);
                   }}
@@ -1176,13 +1220,15 @@ const AddEvent = ({navigation, route}) => {
                 style={{
                   ...globalStyles.JobfiledSection,
                   paddingHorizontal: 10,
-                }}>
+                }}
+              >
                 <Text
                   style={{
                     ...globalStyles.JobfiledSectionText,
                     color: colors.textColor,
                     // color: errorEmail ? Colors.error : Colors.gray,
-                  }}>
+                  }}
+                >
                   Event website url
                 </Text>
 
@@ -1194,7 +1240,7 @@ const AddEvent = ({navigation, route}) => {
                     color: colors.textColor,
                     // borderColor: errorEmail ? Colors.error : Colors.gray,
                   }}
-                  onChangeText={value => {
+                  onChangeText={(value) => {
                     setEMail(value);
                     //setErrorEmail(value.trim().length === 0);
                   }}
@@ -1212,19 +1258,21 @@ const AddEvent = ({navigation, route}) => {
                     padding: 10,
                     ...globalStyles.JobfiledSectionText,
                     color: colors.textColor,
-                  }}>
+                  }}
+                >
                   Photographs from the past events
                 </Text>
                 <View
                   style={{
-                    alignItems: 'center',
+                    alignItems: "center",
                     backgroundColor: colors.textinputBackgroundcolor,
                     margin: 10,
                     padding: 20,
                     borderRadius: 10,
                     borderWidth: errorImg ? 1 : 0,
-                    borderColor: errorImg ? 'red' : '',
-                  }}>
+                    borderColor: errorImg ? "red" : "",
+                  }}
+                >
                   {/* {!logoImage && (
                   <TouchableOpacity onPress={() => selectImage('logo')}>
                     <Icon
@@ -1242,7 +1290,7 @@ const AddEvent = ({navigation, route}) => {
                 )} */}
                   {logoImage?.length === 0 && (
                     <>
-                      <TouchableOpacity onPress={() => selectImage('logo')}>
+                      <TouchableOpacity onPress={() => selectImage("logo")}>
                         <Icon
                           name="cloud-upload"
                           size={60}
@@ -1250,7 +1298,9 @@ const AddEvent = ({navigation, route}) => {
                           type="FontAwesome"
                         />
                       </TouchableOpacity>
-                      <Text style={{fontSize: 16, color: colors.AppmainColor}}>
+                      <Text
+                        style={{ fontSize: 16, color: colors.AppmainColor }}
+                      >
                         Upload Images
                       </Text>
                     </>
@@ -1258,27 +1308,30 @@ const AddEvent = ({navigation, route}) => {
                   {/* Show Selected Images */}
                   <View
                     style={{
-                      flexDirection: 'row',
-                      flexWrap: 'wrap',
+                      flexDirection: "row",
+                      flexWrap: "wrap",
                       marginTop: 10,
-                    }}>
+                    }}
+                  >
                     {logoImage?.map((image, index) => (
                       <View
                         key={index}
-                        style={{position: 'relative', margin: 5}}>
+                        style={{ position: "relative", margin: 5 }}
+                      >
                         <TouchableOpacity
                           onPress={() => {
                             const updatedImages = logoImage?.filter(
-                              (_, i) => i !== index,
+                              (_, i) => i !== index
                             );
                             setLogoImage(updatedImages);
                           }}
                           style={{
-                            position: 'absolute',
+                            position: "absolute",
                             top: 5,
                             right: 5,
                             zIndex: 1,
-                          }}>
+                          }}
+                        >
                           <Icon
                             name="close"
                             size={20}
@@ -1287,7 +1340,7 @@ const AddEvent = ({navigation, route}) => {
                           />
                         </TouchableOpacity>
                         <Image
-                          source={{uri: image}}
+                          source={{ uri: image }}
                           style={{
                             width: 100,
                             height: 100,
@@ -1307,16 +1360,17 @@ const AddEvent = ({navigation, route}) => {
                   borderLeftWidth: 4,
                   paddingLeft: 10,
                   borderColor: colors.AppmainColor,
-                }}>
-                <View style={{flexDirection: 'row'}}>
+                }}
+              >
+                <View style={{ flexDirection: "row" }}>
                   <TouchableOpacity onPress={handleCheckboxToggle}>
                     <MaterialCommunityIcons
                       name={
-                        checked ? 'checkbox-marked' : 'checkbox-blank-outline'
+                        checked ? "checkbox-marked" : "checkbox-blank-outline"
                       }
                       size={24}
                       color={colors.AppmainColor}
-                      style={{marginRight: 10}}
+                      style={{ marginRight: 10 }}
                     />
                   </TouchableOpacity>
                   <Text
@@ -1324,7 +1378,8 @@ const AddEvent = ({navigation, route}) => {
                       fontSize: 14,
                       flexShrink: 1,
                       color: colors.textColor,
-                    }}>
+                    }}
+                  >
                     I confirm that I am authorized to Post this event on Jamia
                     Millia Islamia VECOSPACE and if any image is used, I have
                     the rights to use the image.
@@ -1340,7 +1395,8 @@ const AddEvent = ({navigation, route}) => {
                   backgroundColor: colors.AppmainColor,
                 }}
                 disabled={!checked || loading}
-                onPress={() => AddCompanyPost()}>
+                onPress={() => AddCompanyPost()}
+              >
                 {loading ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
@@ -1348,7 +1404,8 @@ const AddEvent = ({navigation, route}) => {
                     style={{
                       ...globalStyles.saveButtonText,
                       color: colors.ButtonTextColor,
-                    }}>
+                    }}
+                  >
                     Save
                   </Text>
                 )}
