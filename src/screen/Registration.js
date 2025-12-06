@@ -53,7 +53,7 @@ const Registration = () => {
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [selectedRole, setSelectedRole] = useState("DMC");
   const [selectedSegments, setSelectedSegments] = useState("");
-
+  const [course, setCourse] = useState("");
   const [courseList, setCourseList] = useState(null);
   // const [departmentList, setDepartmentList] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState(null);
@@ -69,6 +69,7 @@ const Registration = () => {
   const [companyName, setCompanyName] = useState("");
   const [industryList, setIndustryList] = useState([]);
   const [selectedIndustry, setSelectedIndustry] = useState(null);
+  const [errors, setErrors] = useState({});
   const roleTypeMap = {
     DMC: 1,
     "Travel Agent": 2,
@@ -428,15 +429,246 @@ const Registration = () => {
       console.error("Error fetching Industries:", error);
     }
   };
-  const handleRegister = async () => {
-    if (!email) {
+  const roleValidationFields = {
+    DMC: [
+      "selectedDestination",
+      "designation",
+      "department",
+      "companyName",
+      "websiteUrl",
+    ],
+    "Travel Agent": [
+      "selectedSegments",
+      "selectedDestination",
+      "websiteUrl",
+      "designation",
+      "department",
+      "companyName",
+    ],
+    "Hotel/Resort": [
+      "selectedSegments",
+      "selectedDestination",
+      "websiteUrl",
+      "designation",
+      "department",
+      "companyName",
+    ],
+    Airline: ["websiteUrl", "designation", "department", "companyName"],
+    "Tourism Board": [
+      "selectedDestination",
+      "websiteUrl",
+      "designation",
+      "department",
+      "companyName",
+    ],
+    Media: [
+      "selectedSegments",
+      "selectedDestination",
+      "websiteUrl",
+      "designation",
+      "department",
+      "companyName",
+    ],
+    Cruze: [
+      "selectedDestination",
+      "websiteUrl",
+      "designation",
+      "department",
+      "companyName",
+    ],
+    "Transport Company": [
+      "selectedSegments",
+      "selectedDestination",
+      "websiteUrl",
+      "designation",
+      "department",
+      "companyName",
+    ],
+    "Travel Association": [
+      "selectedSegments",
+      "selectedDestination",
+      "websiteUrl",
+      "designation",
+      "department",
+      "companyName",
+    ],
+    "Travel Consultant": ["selectedSegments", "selectedDestination"],
+    "Tour Escort": ["selectedSegments", "selectedDestination"],
+    "Tour Guide": ["selectedSegments", "selectedDestination"],
+    "Institute/College": [
+      "selectedDestination",
+      "designation",
+      "department",
+      "companyName",
+    ],
+    Student: ["selectedDestination", "course", "department", "companyName"],
+    "IT Company": [
+      "selectedDestination",
+      "designation",
+      "department",
+      "companyName",
+    ],
+    "Digital Marketing Company": [
+      "selectedDestination",
+      "designation",
+      "department",
+      "companyName",
+    ],
+    "Government Department": [
+      "selectedDestination",
+      "designation",
+      "department",
+      "companyName",
+    ],
+    "International organisation": [
+      "selectedDestination",
+      "designation",
+      "department",
+      "companyName",
+    ],
+    Restaurant: [
+      "selectedDestination",
+      "designation",
+      "department",
+      "companyName",
+    ],
+    "Activity Company": [
+      "selectedDestination",
+      "designation",
+      "department",
+      "companyName",
+    ],
+  };
+
+  const validateForm = () => {
+    let tempErrors = {};
+
+    // ---------- BASIC DETAILS ----------
+    if (!firstName.trim()) {
+      tempErrors.firstName = true;
+      showError("First name is required");
+      setErrors(tempErrors);
+      return false;
+    }
+
+    if (!lastName.trim()) {
+      tempErrors.lastName = true;
+      showError("Last name is required");
+      setErrors(tempErrors);
+      return false;
+    }
+
+    if (!email.trim()) {
+      tempErrors.email = true;
       showError("Email is required");
-      return;
+      setErrors(tempErrors);
+      return false;
     }
     if (!isValidEmail(email)) {
-      showError("Please enter a valid email address");
-      return;
+      tempErrors.email = true;
+      showError("Invalid email format");
+      setErrors(tempErrors);
+      return false;
     }
+    if (!phone.trim() || phone.length !== 10) {
+      tempErrors.phone = true;
+      showError("Valid 10-digit phone number required");
+      setErrors(tempErrors);
+      return false;
+    }
+
+    // ---------- BIRTHDAY ----------
+    if (!selectedDay) {
+      tempErrors.day = true;
+      showError("Please select birth day");
+      setErrors(tempErrors);
+      return false;
+    }
+
+    if (!selectedMonth) {
+      tempErrors.month = true;
+      showError("Please select birth month");
+      setErrors(tempErrors);
+      return false;
+    }
+
+    if (!selectedYear) {
+      tempErrors.year = true;
+      showError("Please select birth year");
+      setErrors(tempErrors);
+      return false;
+    }
+
+    // ---------- GENDER ----------
+    if (!selectedGender) {
+      tempErrors.gender = true;
+      showError("Please select gender");
+      setErrors(tempErrors);
+      return false;
+    }
+
+    // ---------- ROLE ----------
+    if (!selectedRole) {
+      tempErrors.role = true;
+      showError("Please select role");
+      setErrors(tempErrors);
+      return false;
+    }
+
+    // ---------- ROLE-BASED VALIDATION ----------
+    const requiredFields = roleValidationFields[selectedRole];
+
+    const allValues = {
+      selectedDestination,
+      designation,
+      department,
+      companyName,
+      websiteUrl,
+      course,
+      // passingYear,
+    };
+
+    if (requiredFields) {
+      for (let field of requiredFields) {
+        const value = allValues[field];
+
+        // For destination (object), check if null
+        if (field === "selectedDestination" && !value) {
+          tempErrors[field] = true;
+          showError("Please select a Destination");
+          setErrors(tempErrors);
+          return false;
+        }
+
+        // For normal text fields
+        if (!value || (typeof value === "string" && value.trim() === "")) {
+          tempErrors[field] = true;
+          const label = field
+            .replace("selected", "")
+            .replace(/([A-Z])/g, " $1")
+            .trim();
+          showError(`Please enter ${label}`);
+          setErrors(tempErrors);
+          return false;
+        }
+      }
+    }
+
+    setErrors({});
+    return true;
+  };
+
+  const handleRegister = async () => {
+    // if (!email) {
+    //   showError("Email is required");
+    //   return;
+    // }
+    // if (!isValidEmail(email)) {
+    //   showError("Please enter a valid email address");
+    //   return;
+    // }
+    if (!validateForm()) return;
+
     const payload = {
       firstName,
       lastName,
@@ -484,7 +716,7 @@ const Registration = () => {
       regDate: 1710763200,
       timeZone: "Asia/Kolkata",
       backgroundPhoto: "background-image.png",
-      coursename: selectedCourse?.Name || "Null",
+      coursename: course || "Null",
       numberofMentees: 10,
       profilePhoto: null,
       destination: selectedDestination?.name || "Null",
@@ -545,7 +777,9 @@ const Registration = () => {
                 onPress={() => setCurrentPicker("Destination")}
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.selectedDestination
+                    ? "red"
+                    : colors.textinputbordercolor,
                 }}
               >
                 <Text
@@ -570,7 +804,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.designation
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -591,7 +827,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.department
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -614,7 +852,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.companyName
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -635,7 +875,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.websiteUrl
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -685,7 +927,9 @@ const Registration = () => {
                 onPress={() => setCurrentPicker("Segments")}
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.selectedSegments
+                    ? "red"
+                    : colors.textinputbordercolor,
                 }}
               >
                 <Text
@@ -708,7 +952,9 @@ const Registration = () => {
                 onPress={() => setCurrentPicker("Destination")}
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.selectedDestination
+                    ? "red"
+                    : colors.textinputbordercolor,
                 }}
               >
                 <Text
@@ -716,8 +962,8 @@ const Registration = () => {
                   ellipsizeMode="tail"
                   style={{ ...styles.StudentText, color: colors.textColor }}
                 >
-                  {selectedDepartment
-                    ? selectedDepartment.DepartmentName
+                  {selectedDestination
+                    ? selectedDestination.name
                     : "Destination"}
                 </Text>
                 <Icon
@@ -754,7 +1000,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.designation
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -775,7 +1023,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.department
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -798,7 +1048,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.companyName
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -848,7 +1100,9 @@ const Registration = () => {
                 onPress={() => setCurrentPicker("Segments")}
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.selectedSegments
+                    ? "red"
+                    : colors.textinputbordercolor,
                 }}
               >
                 <Text
@@ -871,7 +1125,9 @@ const Registration = () => {
                 onPress={() => setCurrentPicker("Destination")}
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.selectedDestination
+                    ? "red"
+                    : colors.textinputbordercolor,
                 }}
               >
                 <Text
@@ -879,9 +1135,7 @@ const Registration = () => {
                   ellipsizeMode="tail"
                   style={{ ...styles.StudentText, color: colors.textColor }}
                 >
-                  {selectedDepartment
-                    ? selectedDepartment.DepartmentName
-                    : "Location"}
+                  {selectedDestination ? selectedDestination.name : "Location"}
                 </Text>
                 <Icon
                   name="down"
@@ -917,7 +1171,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.designation
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -938,7 +1194,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.department
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -961,7 +1219,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.companyName
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -1035,7 +1295,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.designation
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -1056,7 +1318,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.department
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -1079,7 +1343,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.companyName
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -1130,7 +1396,9 @@ const Registration = () => {
                 onPress={() => setCurrentPicker("Destination")}
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.selectedDestination
+                    ? "red"
+                    : colors.textinputbordercolor,
                 }}
               >
                 <Text
@@ -1138,9 +1406,7 @@ const Registration = () => {
                   ellipsizeMode="tail"
                   style={{ ...styles.StudentText, color: colors.textColor }}
                 >
-                  {selectedDepartment
-                    ? selectedDepartment.DepartmentName
-                    : "Location"}
+                  {selectedDestination ? selectedDestination.name : "Location"}
                 </Text>
                 <Icon
                   name="down"
@@ -1176,7 +1442,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.designation
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -1199,7 +1467,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.department
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -1220,7 +1490,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.companyName
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -1271,7 +1543,9 @@ const Registration = () => {
                 onPress={() => setCurrentPicker("Segments")}
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.selectedSegments
+                    ? "red"
+                    : colors.textinputbordercolor,
                 }}
               >
                 <Text
@@ -1294,7 +1568,9 @@ const Registration = () => {
                 onPress={() => setCurrentPicker("Destination")}
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.selectedDestination
+                    ? "red"
+                    : colors.textinputbordercolor,
                 }}
               >
                 <Text
@@ -1302,9 +1578,7 @@ const Registration = () => {
                   ellipsizeMode="tail"
                   style={{ ...styles.StudentText, color: colors.textColor }}
                 >
-                  {selectedDepartment
-                    ? selectedDepartment.DepartmentName
-                    : "Location"}
+                  {selectedDestination ? selectedDestination.name : "Location"}
                 </Text>
                 <Icon
                   name="down"
@@ -1340,7 +1614,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.designation
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -1361,7 +1637,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.department
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -1384,7 +1662,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.companyName
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -1435,7 +1715,9 @@ const Registration = () => {
                 onPress={() => setCurrentPicker("Destination")}
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.selectedDestination
+                    ? "red"
+                    : colors.textinputbordercolor,
                 }}
               >
                 <Text
@@ -1443,8 +1725,8 @@ const Registration = () => {
                   ellipsizeMode="tail"
                   style={{ ...styles.StudentText, color: colors.textColor }}
                 >
-                  {selectedDepartment
-                    ? selectedDepartment.DepartmentName
+                  {selectedDestination
+                    ? selectedDestination.name
                     : "Destination"}
                 </Text>
                 <Icon
@@ -1481,7 +1763,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.designation
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -1504,7 +1788,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.department
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -1525,7 +1811,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.companyName
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -1576,7 +1864,9 @@ const Registration = () => {
                 onPress={() => setCurrentPicker("Segments")}
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.selectedSegments
+                    ? "red"
+                    : colors.textinputbordercolor,
                 }}
               >
                 <Text
@@ -1599,7 +1889,9 @@ const Registration = () => {
                 onPress={() => setCurrentPicker("Destination")}
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.selectedDestination
+                    ? "red"
+                    : colors.textinputbordercolor,
                 }}
               >
                 <Text
@@ -1607,8 +1899,8 @@ const Registration = () => {
                   ellipsizeMode="tail"
                   style={{ ...styles.StudentText, color: colors.textColor }}
                 >
-                  {selectedDepartment
-                    ? selectedDepartment.DepartmentName
+                  {selectedDestination
+                    ? selectedDestination.name
                     : "Destination"}
                 </Text>
                 <Icon
@@ -1645,7 +1937,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.designation
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -1666,7 +1960,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.department
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -1689,7 +1985,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.companyName
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -1740,7 +2038,9 @@ const Registration = () => {
                 onPress={() => setCurrentPicker("Segments")}
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.selectedSegments
+                    ? "red"
+                    : colors.textinputbordercolor,
                 }}
               >
                 <Text
@@ -1763,7 +2063,9 @@ const Registration = () => {
                 onPress={() => setCurrentPicker("Destination")}
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.selectedDestination
+                    ? "red"
+                    : colors.textinputbordercolor,
                 }}
               >
                 <Text
@@ -1771,9 +2073,7 @@ const Registration = () => {
                   ellipsizeMode="tail"
                   style={{ ...styles.StudentText, color: colors.textColor }}
                 >
-                  {selectedDepartment
-                    ? selectedDepartment.DepartmentName
-                    : "Location"}
+                  {selectedDestination ? selectedDestination.name : "Location"}
                 </Text>
                 <Icon
                   name="down"
@@ -1809,7 +2109,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.designation
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -1830,7 +2132,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.department
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -1904,7 +2208,9 @@ const Registration = () => {
                 onPress={() => setCurrentPicker("Segments")}
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.selectedSegments
+                    ? "red"
+                    : colors.textinputbordercolor,
                 }}
               >
                 <Text
@@ -1927,7 +2233,9 @@ const Registration = () => {
                 onPress={() => setCurrentPicker("Destination")}
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.selectedDestination
+                    ? "red"
+                    : colors.textinputbordercolor,
                 }}
               >
                 <Text
@@ -1935,8 +2243,8 @@ const Registration = () => {
                   ellipsizeMode="tail"
                   style={{ ...styles.StudentText, color: colors.textColor }}
                 >
-                  {selectedDepartment
-                    ? selectedDepartment.DepartmentName
+                  {selectedDestination
+                    ? selectedDestination.name
                     : "Destination"}
                 </Text>
                 <Icon
@@ -1979,7 +2287,9 @@ const Registration = () => {
                 onPress={() => setCurrentPicker("Segments")}
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.selectedSegments
+                    ? "red"
+                    : colors.textinputbordercolor,
                 }}
               >
                 <Text
@@ -2002,7 +2312,9 @@ const Registration = () => {
                 onPress={() => setCurrentPicker("Destination")}
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.selectedDestination
+                    ? "red"
+                    : colors.textinputbordercolor,
                 }}
               >
                 <Text
@@ -2010,8 +2322,8 @@ const Registration = () => {
                   ellipsizeMode="tail"
                   style={{ ...styles.StudentText, color: colors.textColor }}
                 >
-                  {selectedDepartment
-                    ? selectedDepartment.DepartmentName
+                  {selectedDestination
+                    ? selectedDestination.name
                     : "Destination"}
                 </Text>
                 <Icon
@@ -2054,7 +2366,9 @@ const Registration = () => {
                 onPress={() => setCurrentPicker("Segments")}
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.selectedSegments
+                    ? "red"
+                    : colors.textinputbordercolor,
                 }}
               >
                 <Text
@@ -2077,7 +2391,9 @@ const Registration = () => {
                 onPress={() => setCurrentPicker("Destination")}
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.selectedDestination
+                    ? "red"
+                    : colors.textinputbordercolor,
                 }}
               >
                 <Text
@@ -2085,8 +2401,8 @@ const Registration = () => {
                   ellipsizeMode="tail"
                   style={{ ...styles.StudentText, color: colors.textColor }}
                 >
-                  {selectedDepartment
-                    ? selectedDepartment.DepartmentName
+                  {selectedDestination
+                    ? selectedDestination.name
                     : "Destination"}
                 </Text>
                 <Icon
@@ -2129,7 +2445,9 @@ const Registration = () => {
                 onPress={() => setCurrentPicker("Destination")}
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.selectedDestination
+                    ? "red"
+                    : colors.textinputbordercolor,
                 }}
               >
                 <Text
@@ -2137,9 +2455,7 @@ const Registration = () => {
                   ellipsizeMode="tail"
                   style={{ ...styles.StudentText, color: colors.textColor }}
                 >
-                  {selectedDepartment
-                    ? selectedDepartment.DepartmentName
-                    : "Location"}
+                  {selectedDestination ? selectedDestination.name : "Location"}
                 </Text>
                 <Icon
                   name="down"
@@ -2155,7 +2471,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.designation
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -2176,7 +2494,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.department
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -2199,7 +2519,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.companyName
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -2250,7 +2572,9 @@ const Registration = () => {
                 onPress={() => setCurrentPicker("Destination")}
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.selectedDestination
+                    ? "red"
+                    : colors.textinputbordercolor,
                 }}
               >
                 <Text
@@ -2258,9 +2582,7 @@ const Registration = () => {
                   ellipsizeMode="tail"
                   style={{ ...styles.StudentText, color: colors.textColor }}
                 >
-                  {selectedDepartment
-                    ? selectedDepartment.DepartmentName
-                    : "Location"}
+                  {selectedDestination ? selectedDestination.name : "Location"}
                 </Text>
                 <Icon
                   name="down"
@@ -2276,7 +2598,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.course
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -2285,8 +2609,8 @@ const Registration = () => {
                     ...styles.inputTextinsideBox,
                     color: colors.textColor,
                   }}
-                  value={companyName}
-                  onChangeText={setCompanyName}
+                  value={course}
+                  onChangeText={setCourse}
                   placeholder={`Course`}
                   placeholderTextColor={colors.placeholderTextColor}
                   multiline={false}
@@ -2297,7 +2621,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.department
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -2321,7 +2647,9 @@ const Registration = () => {
                 onPress={() => setCurrentPicker("passingYear")}
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.passingYear
+                    ? "red"
+                    : colors.textinputbordercolor,
                 }}
               >
                 <Text
@@ -2341,7 +2669,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.companyName
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -2392,7 +2722,9 @@ const Registration = () => {
                 onPress={() => setCurrentPicker("Destination")}
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.selectedDestination
+                    ? "red"
+                    : colors.textinputbordercolor,
                 }}
               >
                 <Text
@@ -2400,9 +2732,7 @@ const Registration = () => {
                   ellipsizeMode="tail"
                   style={{ ...styles.StudentText, color: colors.textColor }}
                 >
-                  {selectedDepartment
-                    ? selectedDepartment.DepartmentName
-                    : "Location"}
+                  {selectedDestination ? selectedDestination.name : "Location"}
                 </Text>
                 <Icon
                   name="down"
@@ -2418,7 +2748,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.designation
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -2439,7 +2771,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.department
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -2462,7 +2796,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.companyName
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -2513,7 +2849,9 @@ const Registration = () => {
                 onPress={() => setCurrentPicker("Destination")}
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.selectedDestination
+                    ? "red"
+                    : colors.textinputbordercolor,
                 }}
               >
                 <Text
@@ -2521,9 +2859,7 @@ const Registration = () => {
                   ellipsizeMode="tail"
                   style={{ ...styles.StudentText, color: colors.textColor }}
                 >
-                  {selectedDepartment
-                    ? selectedDepartment.DepartmentName
-                    : "Location"}
+                  {selectedDestination ? selectedDestination.name : "Location"}
                 </Text>
                 <Icon
                   name="down"
@@ -2539,7 +2875,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.designation
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -2560,7 +2898,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.department
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -2633,7 +2973,9 @@ const Registration = () => {
                 onPress={() => setCurrentPicker("Destination")}
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.selectedDestination
+                    ? "red"
+                    : colors.textinputbordercolor,
                 }}
               >
                 <Text
@@ -2641,9 +2983,7 @@ const Registration = () => {
                   ellipsizeMode="tail"
                   style={{ ...styles.StudentText, color: colors.textColor }}
                 >
-                  {selectedDepartment
-                    ? selectedDepartment.DepartmentName
-                    : "Location"}
+                  {selectedDestination ? selectedDestination.name : "Location"}
                 </Text>
                 <Icon
                   name="down"
@@ -2659,7 +2999,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.designation
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -2680,7 +3022,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.department
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -2753,7 +3097,9 @@ const Registration = () => {
                 onPress={() => setCurrentPicker("Destination")}
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.selectedDestination
+                    ? "red"
+                    : colors.textinputbordercolor,
                 }}
               >
                 <Text
@@ -2761,9 +3107,7 @@ const Registration = () => {
                   ellipsizeMode="tail"
                   style={{ ...styles.StudentText, color: colors.textColor }}
                 >
-                  {selectedDepartment
-                    ? selectedDepartment.DepartmentName
-                    : "Location"}
+                  {selectedDestination ? selectedDestination.name : "Location"}
                 </Text>
                 <Icon
                   name="down"
@@ -2779,7 +3123,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.designation
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -2800,7 +3146,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.department
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -2873,7 +3221,9 @@ const Registration = () => {
                 onPress={() => setCurrentPicker("Destination")}
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.selectedDestination
+                    ? "red"
+                    : colors.textinputbordercolor,
                 }}
               >
                 <Text
@@ -2881,9 +3231,7 @@ const Registration = () => {
                   ellipsizeMode="tail"
                   style={{ ...styles.StudentText, color: colors.textColor }}
                 >
-                  {selectedDepartment
-                    ? selectedDepartment.DepartmentName
-                    : "Location"}
+                  {selectedDestination ? selectedDestination.name : "Location"}
                 </Text>
                 <Icon
                   name="down"
@@ -2899,7 +3247,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.designation
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -2920,7 +3270,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.department
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -2993,7 +3345,9 @@ const Registration = () => {
                 onPress={() => setCurrentPicker("Destination")}
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.selectedDestination
+                    ? "red"
+                    : colors.textinputbordercolor,
                 }}
               >
                 <Text
@@ -3001,9 +3355,7 @@ const Registration = () => {
                   ellipsizeMode="tail"
                   style={{ ...styles.StudentText, color: colors.textColor }}
                 >
-                  {selectedDepartment
-                    ? selectedDepartment.DepartmentName
-                    : "Location"}
+                  {selectedDestination ? selectedDestination.name : "Location"}
                 </Text>
                 <Icon
                   name="down"
@@ -3019,7 +3371,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.designation
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -3040,7 +3394,9 @@ const Registration = () => {
               <View
                 style={{
                   ...styles.StudentBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.department
+                    ? "red"
+                    : colors.textinputbordercolor,
                   includeFontPadding: false,
                 }}
               >
@@ -3145,22 +3501,32 @@ const Registration = () => {
               <TextInput
                 style={{
                   ...styles.inputText,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.firstName
+                    ? "red"
+                    : colors.textinputbordercolor,
                   color: colors.textColor,
                 }}
                 value={firstName}
-                onChangeText={setFirstName}
+                onChangeText={(text) => {
+                  setFirstName(text);
+                  setErrors({ ...errors, firstName: null });
+                }}
                 placeholder="First name"
                 placeholderTextColor={colors.placeholderTextColor}
               />
               <TextInput
                 style={{
                   ...styles.inputText,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.lastName
+                    ? "red"
+                    : colors.textinputbordercolor,
                   color: colors.textColor,
                 }}
                 value={lastName}
-                onChangeText={setLastName}
+                onChangeText={(text) => {
+                  setLastName(text);
+                  setErrors({ ...errors, lastName: null });
+                }}
                 placeholder="Last name"
                 placeholderTextColor={colors.placeholderTextColor}
               />
@@ -3168,11 +3534,14 @@ const Registration = () => {
             <TextInput
               style={{
                 ...styles.emailTextInput,
-                borderColor: colors.textinputbordercolor,
+                borderColor: errors.email ? "red" : colors.textinputbordercolor,
                 color: colors.textColor,
               }}
               value={email}
-              onChangeText={setEmail}
+              onChangeText={(text) => {
+                setEmail(text);
+                setErrors({ ...errors, email: null });
+              }}
               placeholder="Email"
               placeholderTextColor={colors.placeholderTextColor}
             />
@@ -3181,11 +3550,14 @@ const Registration = () => {
               keyboardType="numeric"
               style={{
                 ...styles.emailTextInput,
-                borderColor: colors.textinputbordercolor,
+                borderColor: errors.phone ? "red" : colors.textinputbordercolor,
                 color: colors.textColor,
               }}
               value={phone}
-              onChangeText={setPhone}
+              onChangeText={(text) => {
+                setPhone(text);
+                setErrors({ ...errors, phone: null });
+              }}
               placeholder="Phone "
               placeholderTextColor={colors.placeholderTextColor}
             />
@@ -3196,7 +3568,7 @@ const Registration = () => {
               <TouchableOpacity
                 style={{
                   ...styles.dayBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.day ? "red" : colors.textinputbordercolor,
                 }}
                 onPress={() => setCurrentPicker("day")}
               >
@@ -3214,7 +3586,9 @@ const Registration = () => {
               <TouchableOpacity
                 style={{
                   ...styles.dayBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.month
+                    ? "red"
+                    : colors.textinputbordercolor,
                 }}
                 onPress={() => setCurrentPicker("month")}
               >
@@ -3233,7 +3607,9 @@ const Registration = () => {
                 onPress={() => setCurrentPicker("year")}
                 style={{
                   ...styles.dayBox,
-                  borderColor: colors.textinputbordercolor,
+                  borderColor: errors.year
+                    ? "red"
+                    : colors.textinputbordercolor,
                 }}
               >
                 <Text style={{ ...styles.dayText, color: colors.textColor }}>

@@ -620,7 +620,7 @@ const FindMentor = ({ navigation }) => {
                     color: colors.textColor,
                   }}
                 >
-                  Students
+                  Agents
                 </Text>
 
                 <View>
@@ -726,7 +726,7 @@ const FindMentor = ({ navigation }) => {
                       fontSize: 16,
                     }}
                   >
-                    Accepted {mentorList?.AcceptedStudent} Students
+                    Accepted {mentorList?.AcceptedStudent} Agents
                   </Text>
                 </View>
                 <View
@@ -744,7 +744,7 @@ const FindMentor = ({ navigation }) => {
                       fontSize: 16,
                     }}
                   >
-                    Remaining {mentorList?.RemainingStudent} Students
+                    Remaining {mentorList?.RemainingStudent} Agents
                   </Text>
                 </View>
               </View>

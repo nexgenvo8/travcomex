@@ -398,7 +398,7 @@ export default function ({ route, tabBarVisible }) {
           setHasMoreData(false);
         }
       } else {
-        showError("Error", data.message || "Failed to fetch posts");
+        showError(data.Message || "Failed to fetch posts");
       }
     } catch (error) {
       showError("Failed to fetch posts. Please try again later.");
@@ -1724,6 +1724,7 @@ export default function ({ route, tabBarVisible }) {
         onEndReachedThreshold={0.5}
         contentContainerStyle={{
           paddingBottom: 40,
+          flexGrow: 1,
         }}
         // onScroll={scrollHandler}
         // scrollEventThrottle={16}
@@ -2176,6 +2177,28 @@ export default function ({ route, tabBarVisible }) {
             >
               No more posts to show
             </Text>
+          ) : null
+        }
+        ListEmptyComponent={
+          !loading ? (
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={{
+                  textAlign: "center",
+                  marginTop: 20,
+                  fontSize: 16,
+                  color: colors.textColor,
+                }}
+              >
+                No posts available
+              </Text>
+            </View>
           ) : null
         }
         refreshControl={
