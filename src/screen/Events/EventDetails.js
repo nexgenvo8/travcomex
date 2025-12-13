@@ -666,11 +666,11 @@ const EventDetails = ({ navigation, route }) => {
                 >
                   <View>
                     <Image
-                      source={{
-                        uri: guest?.ProfilePhoto
-                          ? guest?.ProfilePhoto
-                          : require("../../assets/placeholderprofileimage.png"),
-                      }}
+                      source={
+                        guest?.ProfilePhoto
+                          ? { uri: guest?.ProfilePhoto }
+                          : require("../../assets/placeholderprofileimage.png")
+                      }
                       style={{
                         width: 50,
                         height: 50,
