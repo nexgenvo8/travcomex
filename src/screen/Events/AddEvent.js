@@ -36,6 +36,7 @@ import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityI
 import { showError, showSuccess } from "../components/Toast";
 import { useTheme } from "../../theme/ThemeContext";
 import KeyboardAvoidingWrapper from "../components/KeyboardAvoidingWrapper";
+import { universityFullName } from "../constants";
 
 const AddEvent = ({ navigation, route }) => {
   const { Item = {} } = route.params || {};
@@ -1380,9 +1381,9 @@ const AddEvent = ({ navigation, route }) => {
                       color: colors.textColor,
                     }}
                   >
-                    I confirm that I am authorized to Post this event on Jamia
-                    Millia Islamia VECOSPACE and if any image is used, I have
-                    the rights to use the image.
+                    I confirm that I am authorized to Post this event on{" "}
+                    {universityFullName} and if any image is used, I have the
+                    rights to use the image.
                   </Text>
                 </View>
               </View>

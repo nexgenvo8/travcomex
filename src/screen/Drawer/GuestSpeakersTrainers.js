@@ -21,7 +21,7 @@ import { useIsFocused } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { showError } from "../components/Toast";
 import { useTheme } from "../../theme/ThemeContext";
-import { SpeakerGuests, universityFullName } from "../constants";
+import { emailId, SpeakerGuests, universityFullName } from "../constants";
 
 const GuestSpeakersTrainers = ({ navigation, route }) => {
   const { Item = {}, Type = "", GlobalSearch = {} } = route.params || {};
@@ -427,10 +427,15 @@ const GuestSpeakersTrainers = ({ navigation, route }) => {
               >
                 <Text style={{ ...styles.bulletText, color: colors.textColor }}>
                   If you are a Speaker, Trainer, Master of Ceremonies,
-                  Entertainment artist/group etc, register yourself on Jamia
-                  Millia Islamia VECOSPACE. The benefits to you will be: Please
-                  read these{" "}
-                  <Text style={{ color: colors.AppmainColor }}>Terms </Text>
+                  Entertainment artist/group etc, register yourself on{" "}
+                  {universityFullName}. The benefits to you will be: Please read
+                  these{" "}
+                  <Text
+                    onPress={() => navigation.navigate("TermsScreen")}
+                    style={{ color: colors.AppmainColor }}
+                  >
+                    Terms{" "}
+                  </Text>
                   for details.
                 </Text>
               </View>
@@ -441,9 +446,9 @@ const GuestSpeakersTrainers = ({ navigation, route }) => {
                 }}
               >
                 <Text style={{ ...styles.bulletText, color: colors.textColor }}>
-                  Contact Us info@deboxglobal.in to learn how you can bring a
-                  top business speaker or entertainment artist to your next
-                  company event or offsite.
+                  Contact Us {emailId} to learn how you can bring a top business
+                  speaker or entertainment artist to your next company event or
+                  offsite.
                 </Text>
               </View>
 

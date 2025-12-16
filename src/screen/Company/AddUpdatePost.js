@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef, useCallback} from 'react';
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
   View,
   SafeAreaView,
@@ -7,31 +7,32 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
-} from 'react-native';
-import globalStyles from '../GlobalCSS';
-import Header from '../Header/Header';
-import Colors from '../color';
-import ImagePicker from 'react-native-image-crop-picker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import Icon from '../Icons/Icons';
-import {useIsFocused} from '@react-navigation/native';
-import {AddCompanyPost, baseUrl} from '../baseURL/api';
-import {showError} from '../components/Toast';
-import {useTheme} from '../../theme/ThemeContext';
+} from "react-native";
+import globalStyles from "../GlobalCSS";
+import Header from "../Header/Header";
+import Colors from "../color";
+import ImagePicker from "react-native-image-crop-picker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Icon from "../Icons/Icons";
+import { useIsFocused } from "@react-navigation/native";
+import { AddCompanyPost, baseUrl } from "../baseURL/api";
+import { showError } from "../components/Toast";
+import { useTheme } from "../../theme/ThemeContext";
+import { universityFullName } from "../constants";
 
-const AddUpdatePost = ({navigation, route}) => {
-  const {Item = {}, ItemCompanyData = {}} = route.params || {};
-  const {isDark, colors, toggleTheme} = useTheme();
+const AddUpdatePost = ({ navigation, route }) => {
+  const { Item = {}, ItemCompanyData = {} } = route.params || {};
+  const { isDark, colors, toggleTheme } = useTheme();
   const isFocused = useIsFocused();
-  const [headline, setHeadline] = useState('');
-  const [description, setDescription] = useState('');
+  const [headline, setHeadline] = useState("");
+  const [description, setDescription] = useState("");
   const [images, setImages] = useState([]);
   const [imagesName, setImagesName] = useState([]);
   const [base64, setBase64] = useState([]);
   const [userData, setUserData] = useState([]);
 
   const UserValue = async () => {
-    const userDta = await AsyncStorage.getItem('userData');
+    const userDta = await AsyncStorage.getItem("userData");
     const parsedData = JSON.parse(userDta);
     setUserData(parsedData);
   };
@@ -39,8 +40,8 @@ const AddUpdatePost = ({navigation, route}) => {
   useEffect(() => {
     UserValue();
     if (Item?.ArticleId) {
-      setHeadline(Item?.PostTitle || ''); // Ensure headline is updated correctly when Item is passed
-      setDescription(Item?.PostText || '');
+      setHeadline(Item?.PostTitle || ""); // Ensure headline is updated correctly when Item is passed
+      setDescription(Item?.PostText || "");
       setImages(Item?.Images[0]?.PostImage);
     }
   }, [Item, isFocused]); // Add Item as a dependency here to trigger the effect when it changes
@@ -48,22 +49,22 @@ const AddUpdatePost = ({navigation, route}) => {
   const selectImage = () => {
     ImagePicker.openPicker({
       multiple: false, // Allow only one image selection
-      mediaType: 'photo',
+      mediaType: "photo",
       compressImageQuality: 0.8,
       includeBase64: true, // Include Base64 if needed
     })
-      .then(image => {
+      .then((image) => {
         // Extract details of the selected image
         const imagePath = image.path;
-        const imageName = imagePath.substring(imagePath.lastIndexOf('/') + 1);
+        const imageName = imagePath.substring(imagePath.lastIndexOf("/") + 1);
         const base64Image = image.data;
 
         setImages([imagePath]);
         setImagesName([imageName]);
         setBase64([base64Image]);
       })
-      .catch(error => {
-        console.error('Image selection cancelled:', error);
+      .catch((error) => {
+        console.error("Image selection cancelled:", error);
       });
   };
   const postAdd = async () => {
@@ -81,9 +82,9 @@ const AddUpdatePost = ({navigation, route}) => {
 
       try {
         const response = await fetch(`${baseUrl}${AddCompanyPost}`, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             userId: userData?.User?.userId,
@@ -99,17 +100,17 @@ const AddUpdatePost = ({navigation, route}) => {
         const data = await response.json();
 
         if (response.ok) {
-          console.log('Add Articles successfully:', data);
-          navigation.replace('CompanyProfiles');
+          console.log("Add Articles successfully:", data);
+          navigation.replace("CompanyProfiles");
         } else {
           console.log(data);
-          showError(data || 'Failed to add Articles');
+          showError(data || "Failed to add Articles");
         }
       } catch (error) {
-        console.error('Fetch Error add Articles:', error);
+        console.error("Fetch Error add Articles:", error);
       }
     } else {
-      console.log('Missing required fields');
+      console.log("Missing required fields");
     }
   };
 
@@ -118,16 +119,18 @@ const AddUpdatePost = ({navigation, route}) => {
       style={{
         ...globalStyles.SafeAreaView,
         backgroundColor: colors.background,
-      }}>
+      }}
+    >
       <Header
-        title={Item.ArticleId ? 'Edit Article' : 'Add Company Post'}
+        title={Item.ArticleId ? "Edit Article" : "Add Company Post"}
         navigation={navigation}
       />
       <View style={globalStyles.MainView}>
         <ScrollView>
           <View style={globalStyles.MT_20}>
             <Text
-              style={{...globalStyles.FS_18_FW_600, color: colors.textColor}}>
+              style={{ ...globalStyles.FS_18_FW_600, color: colors.textColor }}
+            >
               Add Company Post
             </Text>
           </View>
@@ -140,9 +143,14 @@ const AddUpdatePost = ({navigation, route}) => {
                 borderColor: colors.textinputbordercolor,
                 backgroundColor: colors.textinputBackgroundcolor,
               }}
-              onPress={selectImage}>
+              onPress={selectImage}
+            >
               <Text
-                style={{...globalStyles.FS_18_FW_600, color: colors.textColor}}>
+                style={{
+                  ...globalStyles.FS_18_FW_600,
+                  color: colors.textColor,
+                }}
+              >
                 Select Company Image
               </Text>
             </TouchableOpacity>
@@ -152,7 +160,8 @@ const AddUpdatePost = ({navigation, route}) => {
             <>
               <TouchableOpacity
                 onPress={() => setImages(null)}
-                style={globalStyles.AS_End_PV_5}>
+                style={globalStyles.AS_End_PV_5}
+              >
                 <Icon
                   name="cross"
                   size={20}
@@ -167,9 +176,9 @@ const AddUpdatePost = ({navigation, route}) => {
                     style={globalStyles.firstImage}
                     source={
                       images && images.length > 0
-                        ? images[0]?.startsWith('http') // Check if the path is a URL
-                          ? {uri: images.toString()} // Use the URL if it's a remote image
-                          : {uri: images.toString()} // Use the local path directly for local images
+                        ? images[0]?.startsWith("http") // Check if the path is a URL
+                          ? { uri: images.toString() } // Use the URL if it's a remote image
+                          : { uri: images.toString() } // Use the local path directly for local images
                         : null // Fallback to a placeholder if no image is selected
                     }
                   />
@@ -186,14 +195,14 @@ const AddUpdatePost = ({navigation, route}) => {
                 color: colors.textColor,
                 backgroundColor: colors.textinputBackgroundcolor,
               }}
-              onChangeText={val => setHeadline(val)}
+              onChangeText={(val) => setHeadline(val)}
               value={headline}
               placeholder="Write your Headline"
               keyboardType="default"
               placeholderTextColor={colors.placeholderTextColor}
             />
           </View>
-          <View style={{marginTop: 10}}>
+          <View style={{ marginTop: 10 }}>
             <TextInput
               style={{
                 ...globalStyles.InputTitle,
@@ -204,7 +213,7 @@ const AddUpdatePost = ({navigation, route}) => {
                 paddingVertical: 10,
                 // justifyContent:"center"
               }}
-              onChangeText={val => setDescription(val)}
+              onChangeText={(val) => setDescription(val)}
               value={description}
               placeholder="Write your Company Description"
               keyboardType="default"
@@ -218,14 +227,15 @@ const AddUpdatePost = ({navigation, route}) => {
               name="checksquare"
               size={20}
               color={colors.AppmainColor}
-              style={{marginRight: 10}}
+              style={{ marginRight: 10 }}
               type="AntDesign"
             />
             <Text
-              style={{...globalStyles.TextArticles, color: colors.textColor}}>
-              I confirm that I am authorized to Post this article on Jamia
-              Millia Islamia VECOSPACE and if any image is used, I have the
-              rights to use the image.
+              style={{ ...globalStyles.TextArticles, color: colors.textColor }}
+            >
+              I confirm that I am authorized to Post this article on{" "}
+              {universityFullName} and if any image is used, I have the rights
+              to use the image.
             </Text>
           </View>
 
@@ -234,12 +244,14 @@ const AddUpdatePost = ({navigation, route}) => {
               ...globalStyles.saveButton,
               backgroundColor: colors.AppmainColor,
             }}
-            onPress={() => postAdd()}>
+            onPress={() => postAdd()}
+          >
             <Text
               style={{
                 ...globalStyles.saveButtonText,
                 color: colors.ButtonTextColor,
-              }}>
+              }}
+            >
               Save
             </Text>
           </TouchableOpacity>

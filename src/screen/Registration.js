@@ -10,6 +10,7 @@ import {
   Modal,
   ActivityIndicator,
   FlatList,
+  Dimensions,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import Colors from "./color";
@@ -70,6 +71,15 @@ const Registration = () => {
   const [industryList, setIndustryList] = useState([]);
   const [selectedIndustry, setSelectedIndustry] = useState(null);
   const [errors, setErrors] = useState({});
+  const { width, height } = Dimensions.get("window");
+  const [isModalVisible, setModalVisible] = useState(false);
+  const handleRegistrationSuccess = () => {
+    setModalVisible(true); // Show the modal after successful registration
+  };
+  const navigateToLogin = () => {
+    setModalVisible(false); // Close the modal
+    navigation.navigate("Login"); // Navigate to the Login screen
+  };
   const roleTypeMap = {
     DMC: 1,
     "Travel Agent": 2,
@@ -600,12 +610,12 @@ const Registration = () => {
     }
 
     // ---------- GENDER ----------
-    if (!selectedGender) {
-      tempErrors.gender = true;
-      showError("Please select gender");
-      setErrors(tempErrors);
-      return false;
-    }
+    // if (!selectedGender) {
+    //   tempErrors.gender = true;
+    //   showError("Please select gender");
+    //   setErrors(tempErrors);
+    //   return false;
+    // }
 
     // ---------- ROLE ----------
     if (!selectedRole) {
@@ -683,13 +693,14 @@ const Registration = () => {
           ? "Male"
           : selectedGender === "female"
           ? "Female"
-          : "Other",
-
+          : selectedGender === "Others"
+          ? "Others"
+          : null,
       userstype: roleTypeMap[selectedRole],
       segments: segmentsMap[selectedSegments] || "Null",
       employmentId: 101,
       membershipId: 2001,
-      templateId: 45,
+      templateId: 123,
       jobTitle: jobTitle || "Null",
       passingyear: parseInt(passingYear) || 0,
       departmentname: department || "Null",
@@ -737,7 +748,8 @@ const Registration = () => {
       console.log("Server response:", result);
       if (response.ok) {
         showSuccess("Registration successful!");
-        navigation.navigate("Login");
+        // navigation.navigate("Login");
+        handleRegistrationSuccess();
       } else {
         showError(result.message || result.error.email);
       }
@@ -3627,7 +3639,9 @@ const Registration = () => {
             <View style={styles.maleMainBox}>
               <TouchableOpacity
                 style={styles.maleBox}
-                onPress={() => setSelectedGender("male")}
+                onPress={() =>
+                  setSelectedGender(selectedGender === "male" ? null : "male")
+                }
               >
                 <View
                   style={{
@@ -3651,7 +3665,11 @@ const Registration = () => {
 
               <TouchableOpacity
                 style={styles.maleBox}
-                onPress={() => setSelectedGender("female")}
+                onPress={() =>
+                  setSelectedGender(
+                    selectedGender === "female" ? null : "female"
+                  )
+                }
               >
                 <View
                   style={{
@@ -3675,7 +3693,11 @@ const Registration = () => {
               {/* <View></View> */}
               <TouchableOpacity
                 style={styles.maleBox}
-                onPress={() => setSelectedGender("Others")}
+                onPress={() =>
+                  setSelectedGender(
+                    selectedGender === "Others" ? null : "Others"
+                  )
+                }
               >
                 <View
                   style={{
@@ -4138,6 +4160,97 @@ const Registration = () => {
             >
               <Text style={{ color: "white" }}>Cancel</Text>
             </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+      <Modal
+        transparent
+        animationType="slide"
+        visible={isModalVisible}
+        backdropOpacity={0.5}
+        style={{ justifyContent: "center", alignItems: "center", margin: 0 }}
+      >
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0,0,0,0.5)",
+          }}
+        >
+          <View
+            style={{
+              width: width * 0.9, // 90% of screen width
+              maxHeight: height * 0.6, // max 60% of screen height
+              backgroundColor: colors.modelBackground,
+              borderRadius: 15,
+              padding: 20,
+              alignSelf: "center",
+              justifyContent: "center",
+            }}
+          >
+            {/* Title */}
+            <Text
+              style={{
+                fontSize: 20,
+                fontWeight: "600",
+                marginBottom: 15,
+                color: colors.textColor,
+                textAlign: "center",
+              }}
+            >
+              Registration Successful!
+            </Text>
+
+            {/* Description */}
+            <Text
+              style={{
+                fontSize: 16,
+                color: colors.textColor,
+                textAlign: "center",
+                marginBottom: 20,
+                lineHeight: 20,
+              }}
+            >
+              We’ve sent you an email to confirm your registration on{" "}
+              {universityFullName}. Please open the email and follow the steps
+              to complete your registration.
+              {"\n\n"}
+              If you can’t find email, check your Spam,Promotions, or Other
+              folders.
+            </Text>
+
+            {/* Buttons */}
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                marginTop: 20,
+              }}
+            >
+              {/* Back to Login Button */}
+              <TouchableOpacity
+                style={{
+                  flex: 1,
+                  marginRight: 10,
+                  backgroundColor: colors.AppmainColor,
+                  paddingVertical: 12,
+                  borderRadius: 8,
+                  alignItems: "center",
+                }}
+                onPress={navigateToLogin} // Call the function to navigate to login screen
+              >
+                <Text
+                  style={{
+                    color: "#fff", // Button text color
+                    fontSize: 16,
+                    fontWeight: "600",
+                  }}
+                >
+                  Back to Login
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>

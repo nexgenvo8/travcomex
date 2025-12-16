@@ -673,7 +673,7 @@ export default function App() {
   }
   const linking = {
     prefixes: [
-      "https://travcomexapi.vecospace.com",
+      "http://travcomexapi.vecospace.com",
       "https://travcomexapi.vecospace.com",
     ],
     config: {

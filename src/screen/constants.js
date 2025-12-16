@@ -1,6 +1,7 @@
 //Text
 export const universityName = "TRAVCOMEX";
 export const universityFullName = "TRAVCOMEX";
+export const emailId = "info@corrintech.com";
 // Image
 
 export const appIcon = require("../assets/appicon.png");

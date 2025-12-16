@@ -39,6 +39,7 @@ export const acceptrequest = "acceptrequest";
 export const removecontact = "removecontact";
 export const blockcontact = "blockcontact";
 export const unblockcontact = "unblockcontact";
+export const reportcontact = "reportcontact";
 export const listcomment = "listcomment";
 export const AddComment = "addcomment";
 export const DeleteComment = "deletecomment";

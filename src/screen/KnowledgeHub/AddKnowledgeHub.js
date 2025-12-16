@@ -41,6 +41,7 @@ import RNFS from "react-native-fs";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { showError } from "../components/Toast";
 import { useTheme } from "../../theme/ThemeContext";
+import { universityFullName } from "../constants";
 
 const AddKnowledgeHub = ({ navigation, route }) => {
   const isFocused = useIsFocused();
@@ -676,9 +677,9 @@ const AddKnowledgeHub = ({ navigation, route }) => {
             <Text
               style={{ fontSize: 14, flexShrink: 1, color: colors.textColor }}
             >
-              I confirm that I am authorized to Post this document on Jamia
-              Millia Islamia VECOSPACE and if any image is used, I have the
-              rights to use the image.
+              I confirm that I am authorized to Post this document on{" "}
+              {universityFullName} and if any image is used, I have the rights
+              to use the image.
             </Text>
           </View>
 

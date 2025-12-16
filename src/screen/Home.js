@@ -988,12 +988,19 @@ export default function ({ route, tabBarVisible }) {
                 {getTimeAgo(item.DateAdded)}
               </Text>
             </View>
-            <View style={{ flexShrink: 1, flexWrap: "wrap" }}>
-              <Text
-                style={{ fontSize: 12, width: "90%", color: colors.textColor }}
-              >
-                {item.JobTitle} at {item.CompanyName}
-              </Text>
+            <View style={{ flexDirection: "row" }}>
+              <View style={{ flex: 1 }}>
+                <Text
+                  style={{
+                    fontSize: 12,
+                    width: "100%",
+                    color: colors.textColor,
+                    lineHeight: 16,
+                  }}
+                >
+                  {item.JobTitle} at {item.CompanyName}
+                </Text>
+              </View>
             </View>
           </View>
           {isUserPost && (
@@ -1329,7 +1336,7 @@ export default function ({ route, tabBarVisible }) {
               }}
             >
               <Text style={{ paddingLeft: 20, color: colors.AppmainColor }}>
-                *Reply
+                Reply
               </Text>
             </TouchableOpacity>
 

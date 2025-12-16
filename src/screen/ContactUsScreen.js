@@ -8,38 +8,39 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-} from 'react-native';
-import React, {useState} from 'react';
-import Header from './Header/Header';
-import Colors from './color';
-import {showError, showSuccess} from './components/Toast';
-import {AddContactUs, baseUrl} from './baseURL/api';
-import {useTheme} from '../theme/ThemeContext';
+} from "react-native";
+import React, { useState } from "react";
+import Header from "./Header/Header";
+import Colors from "./color";
+import { showError, showSuccess } from "./components/Toast";
+import { AddContactUs, baseUrl } from "./baseURL/api";
+import { useTheme } from "../theme/ThemeContext";
+import { emailId } from "./constants";
 
-const ContactUsScreen = ({navigation}) => {
-  const {isDark, colors, toggleTheme} = useTheme();
+const ContactUsScreen = ({ navigation }) => {
+  const { isDark, colors, toggleTheme } = useTheme();
   const styles = createStyles(colors);
-  const [contactName, setContactName] = useState('');
-  const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
+  const [contactName, setContactName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const handleSubmit = async () => {
     if (!contactName || !email || !message) {
-      showError('Please fill all fields.');
+      showError("Please fill all fields.");
       return;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      showError('Please enter a valid email address.');
+      showError("Please enter a valid email address.");
       return;
     }
     setLoading(true);
     try {
       const response = await fetch(`${baseUrl}${AddContactUs}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
+          Accept: "application/json",
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           contactName,
@@ -52,14 +53,14 @@ const ContactUsScreen = ({navigation}) => {
       if (response.ok) {
         navigation.goBack();
         showSuccess(data?.message);
-        setContactName('');
-        setEmail('');
-        setMessage('');
+        setContactName("");
+        setEmail("");
+        setMessage("");
       } else {
-        showError(data?.message || 'Something went wrong!');
+        showError(data?.message || "Something went wrong!");
       }
     } catch (error) {
-      console.log('Error handleSubmit', error);
+      console.log("Error handleSubmit", error);
     } finally {
       setLoading(false);
     }
@@ -69,17 +70,19 @@ const ContactUsScreen = ({navigation}) => {
       <Header title="Contact Us" navigation={navigation} />
       <KeyboardAvoidingView
         style={styles.flexGrow}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
         <ScrollView
           style={styles.content}
-          contentContainerStyle={{paddingBottom: 100}}
-          showsVerticalScrollIndicator={false}>
+          contentContainerStyle={{ paddingBottom: 100 }}
+          showsVerticalScrollIndicator={false}
+        >
           <Text style={styles.text}>
             Thank you for reaching out. If you have any queries, please fill the
             details in the fields below and we shall get back with an answer
-            soon. You can also write to us on{' '}
-            <Text style={[styles.text, {color: Colors.main_primary}]}>
-              info@vecospace.com
+            soon. You can also write to us on{" "}
+            <Text style={[styles.text, { color: Colors.main_primary }]}>
+              {emailId}
             </Text>
           </Text>
 
@@ -102,7 +105,7 @@ const ContactUsScreen = ({navigation}) => {
           <TextInput
             style={[
               styles.inputText,
-              {height: 120, marginBottom: 10, textAlignVertical: 'top'},
+              { height: 120, marginBottom: 10, textAlignVertical: "top" },
             ]}
             value={message}
             onChangeText={setMessage}
@@ -116,9 +119,10 @@ const ContactUsScreen = ({navigation}) => {
           <TouchableOpacity
             onPress={handleSubmit}
             style={styles.button}
-            disabled={loading}>
+            disabled={loading}
+          >
             <Text style={styles.buttonText}>
-              {loading ? 'Submitting...' : 'Submit'}
+              {loading ? "Submitting..." : "Submit"}
             </Text>
           </TouchableOpacity>
         </View>
@@ -129,7 +133,7 @@ const ContactUsScreen = ({navigation}) => {
 
 export default ContactUsScreen;
 
-const createStyles = colors =>
+const createStyles = (colors) =>
   StyleSheet.create({
     container: {
       flex: 1,
@@ -167,7 +171,7 @@ const createStyles = colors =>
       backgroundColor: colors.AppmainColor,
       padding: 12,
       borderRadius: 8,
-      alignItems: 'center',
+      alignItems: "center",
       marginHorizontal: 12,
     },
     buttonText: {

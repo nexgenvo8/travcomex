@@ -1,11 +1,11 @@
-import {StyleSheet, Text, View, SafeAreaView, ScrollView} from 'react-native';
-import React from 'react';
-import Header from './Header/Header';
-import {useTheme} from '../theme/ThemeContext';
-import {universityName} from './constants';
+import { StyleSheet, Text, View, SafeAreaView, ScrollView } from "react-native";
+import React from "react";
+import Header from "./Header/Header";
+import { useTheme } from "../theme/ThemeContext";
+import { universityName } from "./constants";
 
-const TermsScreen = ({navigation}) => {
-  const {isDark, colors, toggleTheme} = useTheme();
+const TermsScreen = ({ navigation }) => {
+  const { isDark, colors, toggleTheme } = useTheme();
   const styles = createStyles(colors);
   return (
     <SafeAreaView style={styles.container}>
@@ -41,11 +41,11 @@ const TermsScreen = ({navigation}) => {
           {universityName} Groups, Organizers and Members
         </Text>
         <Text style={styles.text}>
-          1. Organizers may establishmembership criteriafor their own JMI
-          VECOSPACE groups. Whilethere is probably a {universityName} group out
-          there for everyone, not every {universityName} group is for you. If
-          you can’t find the right group, you can easily start your own JMI
-          VECOSPACE group.
+          1. Organizers may establishmembership criteriafor their own{" "}
+          {universityName} groups. Whilethere is probably a {universityName}{" "}
+          group out there for everyone, not every {universityName} group is for
+          you. If you can’t find the right group, you can easily start your own
+          {universityName} group.
         </Text>
         <Text style={styles.text}>
           2. Organizers may charge fees for memberships or events.
@@ -106,17 +106,17 @@ const TermsScreen = ({navigation}) => {
         <Text style={styles.text}>
           {universityName} enables you and other members to arrange off-line,
           real-world {universityName} groups and {universityName} events. The
-          terms “{universityName},” “we,” “us,” and “our” include{' '}
+          terms “{universityName},” “we,” “us,” and “our” include{" "}
           {universityName}, Inc. and our affiliates. We use the terms “you” and
           “your” to mean any person using our Platform, and any organization or
           person using the Platform on an organization’s behalf. We use the word
-          “Platform” to mean any website, application, or service offered by{' '}
+          “Platform” to mean any website, application, or service offered by{" "}
           {universityName}, including content we offer and electronic
           communications we send. We provide our Platform to you subject to
-          these Terms of Service.{'\n'} We use the terms “Terms of Service” and
+          these Terms of Service.{"\n"} We use the terms “Terms of Service” and
           “Agreement” interchangeably to mean this document together with our
           Usage and Content Policies, Group Policies etc. Your use of the
-          Platform signifies that you agree to this Agreement. {'\n'}If you are
+          Platform signifies that you agree to this Agreement. {"\n"}If you are
           using the Platform for an organization, you agree to this Agreement on
           behalf of that organization, and represent you have authority to bind
           that organization to the terms contained in this Agreement. If you do
@@ -149,7 +149,7 @@ const TermsScreen = ({navigation}) => {
           policies or guidelines that are part of this Agreement, that it is in
           the best interest of the {universityName} community, or to protect our
           brand or Platform. We also may remove accounts of members who are
-          inactive for an extended period.{'\n'} A member who can moderate or
+          inactive for an extended period.{"\n"} A member who can moderate or
           manage a portion of our Platform also has the ability, in his or her
           sole discretion, to modify, suspend, or terminate your access to that
           portion of the Platform.
@@ -160,7 +160,7 @@ const TermsScreen = ({navigation}) => {
           password. Keep your email address and other account information
           current and accurate. Also, you agree to maintain the security and
           confidentiality of your password (or else we may need to disable your
-          account).{'\n'} You alone are responsible for anything that happens
+          account).{"\n"} You alone are responsible for anything that happens
           from your failure to maintain that security and confidentiality, such
           as by sharing your account credentials with others. If someone is
           using your password, notify us immediately.
@@ -172,7 +172,7 @@ const TermsScreen = ({navigation}) => {
           the future implement a new fee, or modify an existing fee, for certain
           current or future features of our Platform. If we implement a new or
           modified fee, we will give you advanced notice such as by posting
-          changes on our Platform or sending you an email.{'\n'}
+          changes on our Platform or sending you an email.{"\n"}
           You agree to pay those fees and any associated taxes for your
           continued use of the applicable service. Unless otherwise stated, all
           fees and all transactions are in U.S. dollars. All fees are exclusive
@@ -187,7 +187,7 @@ const TermsScreen = ({navigation}) => {
           feedback, comments, or suggestions shared with us). You agree that you
           and your Content shall not violate the rights of any third party (such
           as copyrights, trademarks, contract rights, privacy rights, or
-          publicity rights),{'\n'}
+          publicity rights),{"\n"}
           this Agreement (including ourUsage and Content Policies, Group
           Policies, , Member Restrictions, and Intellectual Property Policies)
         </Text>
@@ -195,8 +195,8 @@ const TermsScreen = ({navigation}) => {
           4.2 Content License from You -: We do not claim ownership of your
           Content. However, to enable us to operate, improve, promote, and
           protect {universityName} and our Platform, and to ensure we do not
-          violate any rights you may have in your Content, you hereby grant JMI
-          VECOSPACE a non-exclusive, worldwide, perpetual, irrevocable,
+          violate any rights you may have in your Content, you hereby grant{" "}
+          {universityName} a non-exclusive, worldwide, perpetual, irrevocable,
           royalty-free, sublicensable, transferable right and license (including
           a waiver of any moral rights) to use, host, store, reproduce, modify,
           publish, publicly display, publicly perform, distribute, and create
@@ -262,17 +262,17 @@ const TermsScreen = ({navigation}) => {
         <Text style={styles.text}>
           You agree to release us and our officers, directors, shareholders,
           agents, employees, consultants, affiliates, subsidiaries, sponsors,
-          and other third-party partners (referred to in this Agreement as “JMI
-          VECOSPACE Parties”) from claims, demands, and damages (direct and
-          consequential) of every kind and nature, known and unknown, now and in
-          the future (referred to in this Agreement as “Claims”), arising out of
-          or in any way connected with any transaction with a third party, your
-          interactions with other members, or in connection with a{' '}
+          and other third-party partners (referred to in this Agreement as “
+          {universityName} Parties”) from claims, demands, and damages (direct
+          and consequential) of every kind and nature, known and unknown, now
+          and in the future (referred to in this Agreement as “Claims”), arising
+          out of or in any way connected with any transaction with a third
+          party, your interactions with other members, or in connection with a{" "}
           {universityName}
-          group or a {universityName} event.{'\n'}You also agree to release
+          group or a {universityName} event.{"\n"}You also agree to release
           organizers from Claims based on an organizer’s negligence arising out
-          of or in any way connected with their Content, a {universityName}{' '}
-          group, or a {universityName} event.{'\n'}You further waive all rights
+          of or in any way connected with their Content, a {universityName}{" "}
+          group, or a {universityName} event.{"\n"}You further waive all rights
           and benefits otherwise conferred by any statutory or non-statutory law
           of any jurisdiction that would purport to limit the scope of a release
           or waiver. You waive and relinquish all rights and benefits that you
@@ -318,11 +318,11 @@ const TermsScreen = ({navigation}) => {
         </Text>
         <Text style={styles.subtitle}>8. Dispute Resolution</Text>
         <Text style={styles.text}>
-          8.1 Informal Resolution -: Before making any claim, you and JMI
-          VECOSPACE agree to try to resolve any disputes through good faith
-          discussions. We use the term “claim” to mean any dispute, claim or
-          controversy arising out of or relating to your use of our Platform or
-          this Agreement, including your participation in {universityName}{' '}
+          8.1 Informal Resolution -: Before making any claim, you and{" "}
+          {universityName} agree to try to resolve any disputes through good
+          faith discussions. We use the term “claim” to mean any dispute, claim
+          or controversy arising out of or relating to your use of our Platform
+          or this Agreement, including your participation in {universityName}{" "}
           events. You or {universityName} may initiate this process by sending
           written notice describing the dispute and your proposed resolution. If
           we cannot resolve the issue within 30 business days of receipt of the
@@ -336,7 +336,7 @@ const TermsScreen = ({navigation}) => {
           You and {universityName} are each expressly waiving any right to trial
           by judge or jury in a court of law. This agreement to arbitrate shall
           apply regardless of whether the claim arises during or after any
-          termination of this Agreement or your relationship with{' '}
+          termination of this Agreement or your relationship with{" "}
           {universityName}.
         </Text>
         <Text style={styles.text}>
@@ -349,15 +349,15 @@ const TermsScreen = ({navigation}) => {
           8.4 Arbitration Procedures-:Either party may commence arbitration by
           filing a written demand for arbitration with {universityName}, with a
           copy to the other party according to the notice procedures in Section
-          10.1 The arbitration will be conducted in accordance with JMI
-          VECOSPACE Streamlined Arbitration Rules and Procedures and any other
-          applicable rules that {universityName} requires (“{universityName}{' '}
-          Rules”) in effect as of the demand for arbitration. You agree that
-          arbitration law govern the interpretation and enforcement of these
-          arbitration provisions. Any arbitration hearings can take place
-          anywhere in the world.{'\n'}It isyour responsibility to pay any
-          filing, administrative and arbitrator fees will be solely as set forth
-          in the {universityName}
+          10.1 The arbitration will be conducted in accordance with{" "}
+          {universityName} Streamlined Arbitration Rules and Procedures and any
+          other applicable rules that {universityName} requires (“
+          {universityName} Rules”) in effect as of the demand for arbitration.
+          You agree that arbitration law govern the interpretation and
+          enforcement of these arbitration provisions. Any arbitration hearings
+          can take place anywhere in the world.{"\n"}It isyour responsibility to
+          pay any filing, administrative and arbitrator fees will be solely as
+          set forth in the {universityName}
           Rules. The parties will cooperate with {universityName} and each other
           in scheduling the arbitration proceedings, and in selecting one
           arbitrator from the appropriate {universityName} list with substantial
@@ -375,25 +375,25 @@ const TermsScreen = ({navigation}) => {
           qualify, in small claims court, You or {universityName} may seek
           injunctive relief from a court of competent jurisdiction as necessary
           to protect the intellectual property rights of you or {universityName}
-          pending the completion of arbitration.{'\n'}
+          pending the completion of arbitration.{"\n"}
           {universityName} may act in court or arbitration to collect any fees
           or recover damages for, or to seek injunctive relief relating to,
           Platform operations, or unauthorized use of our Platform or
-          intellectual property. Nothing in this Section 9 shall diminish{' '}
+          intellectual property. Nothing in this Section 9 shall diminish{" "}
           {universityName}’s right to modify, suspend or terminate your account
           or access to our Platform under Section 2.2.
         </Text>
         <Text style={styles.text}>
-          8.6 Class Action Waiver -: You agree to resolve disputes with JMI
-          VECOSPACE on an individual basis. You agree not to bring a claim as a
-          plaintiff or a class member in a class, consolidated or representative
-          action. You are expressly waiving any right to participate in class
-          actions, class arbitrations, private attorney general actions and
-          consolidation with other arbitrations.
+          8.6 Class Action Waiver -: You agree to resolve disputes with{" "}
+          {universityName} on an individual basis. You agree not to bring a
+          claim as a plaintiff or a class member in a class, consolidated or
+          representative action. You are expressly waiving any right to
+          participate in class actions, class arbitrations, private attorney
+          general actions and consolidation with other arbitrations.
         </Text>
         <Text style={styles.subtitle}>9. Intellectual Property</Text>
         <Text style={styles.text}>
-          9.1 Intellectual Propertyof {universityName} -: {universityName}{' '}
+          9.1 Intellectual Propertyof {universityName} -: {universityName}{" "}
           trademarks, logos, service marks, and service names are the
           intellectual property of {universityName}. Our Trademark Usage
           Guidelines explain how you may and may not use them. Our Platform,
@@ -416,8 +416,8 @@ const TermsScreen = ({navigation}) => {
         <Text style={styles.text}>
           10.1 Notices -: Except as otherwise stated in this Agreement or as
           expressly required by law, any notice to us shall be given by
-          certified postal mail to a given address, or by email to
-          legal@JMIVECOSPACE.com. Any notice to you shall be given to the most
+          certified postal mail to a given address, or by email to legal@
+          {universityName}.com. Any notice to you shall be given to the most
           current email address in your account.
         </Text>
         <Text style={styles.text}>
@@ -428,20 +428,21 @@ const TermsScreen = ({navigation}) => {
         </Text>
         <Text style={styles.text}>
           10.3 Violations -: Please report any violations of this Agreement by a
-          member or third party by sending an email to abuse@JMIVECOSPACE.com
+          member or third party by sending an email to abuse@{universityName}
+          .com
         </Text>
         <Text style={styles.text}>
           10.4 Thank you -: Please accept our wholehearted thanks for reading
           our Terms of Service.
         </Text>
-        <View style={{marginTop: 20}} />
+        <View style={{ marginTop: 20 }} />
       </ScrollView>
     </SafeAreaView>
   );
 };
 
 export default TermsScreen;
-const createStyles = colors =>
+const createStyles = (colors) =>
   StyleSheet.create({
     container: {
       flex: 1,
@@ -454,20 +455,20 @@ const createStyles = colors =>
     },
     title: {
       fontSize: 20,
-      fontWeight: 'bold',
+      fontWeight: "bold",
       marginBottom: 12,
       color: colors.textColor,
     },
     subtitle: {
       fontSize: 18,
-      fontWeight: '600',
+      fontWeight: "600",
       marginTop: 16,
       marginBottom: 8,
       color: colors.textColor,
     },
     subsection: {
       fontSize: 16,
-      fontWeight: '500',
+      fontWeight: "500",
       marginTop: 10,
       marginBottom: 6,
       color: colors.textColor,

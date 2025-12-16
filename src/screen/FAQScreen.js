@@ -5,49 +5,51 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
-} from 'react-native';
-import React, {useState} from 'react';
-import Header from './Header/Header';
-import Colors from './color';
-import {useTheme} from '../theme/ThemeContext';
+} from "react-native";
+import React, { useState } from "react";
+import Header from "./Header/Header";
+import Colors from "./color";
+import { useTheme } from "../theme/ThemeContext";
+import { emailId } from "./constants";
 
 const faqData = [
   {
-    question: 'Are all the students default opted into the Vecospace Network?',
+    question: "Who can join TRAVCOMEX?",
     answer:
-      'No, students are not opted into the Vecospace Network by default. They need to go through a short registration first.',
+      "Travel Management Companies, DMCs, Tourism Boards, Hoteliers, Airlines, Travel Tech providers, MICE professionals, media, consultants, and other travel industry stakeholders can join.",
   },
   {
-    question: "Can companies ever see my students' posts?",
+    question: "Are events and knowledge sessions part of TRAVCOMEX?",
     answer:
-      'No, companies can never see or interact with the Q&A content in your classes.',
+      "Yes. TRAVCOMEX facilitates curated networking sessions, workshops, discussions, and knowledge-sharing initiatives.",
   },
   {
-    question:
-      'Does Vecospace sell student data? Is student data harvested for ads?',
+    question: "Is TRAVCOMEX only for large organizations?",
     answer:
-      'Vecospace does not sell data to third parties and does not have an ad-supported model. Vecospace Network is like LinkedIn — enabling students and employers to connect with each other, if a student has opted into the Vecospace Network, employers can discover students using searches and contact them regarding job and internship opportunities. and other projects too',
+      "No. TRAVCOMEX welcomes professionals and organizations of all sizes, from startups to established industry leaders.",
   },
   {
-    question: 'How can a student leave the Vecospace Network?',
+    question: "How does networking work on TRAVCOMEX?",
     answer:
-      'Students can visit their Account Settings page from the top-right menu to leave the VecospaceNetwork.\nThey can email us at any time at info@vecospace.com should they have any questions about what employers see, or about the Vecospace Network.',
+      "Members can connect through curated networking sessions, discussions, events, and direct engagement opportunities.",
   },
   {
-    question: 'I still have questions!',
+    question: "I still have questions!",
     answer:
-      'We don’t claim to have gotten it all right! If you have any questions or suggestions on how we can improve this additional offering, please don’t hesitate to drop us a note at info@vecospace.com, We would love to hear from you.',
+      "We don’t claim to have gotten it all right! If you have any questions or suggestions on how we can improve this additional offering, please don’t hesitate to drop us a note at " +
+      emailId +
+      ", We would love to hear from you.",
   },
 ];
 
-const FAQScreen = ({navigation}) => {
-  const {isDark, colors, toggleTheme} = useTheme();
+const FAQScreen = ({ navigation }) => {
+  const { isDark, colors, toggleTheme } = useTheme();
   const styles = createStyles(colors);
   const [visibleIndexes, setVisibleIndexes] = useState([]);
 
-  const toggleAnswer = index => {
-    setVisibleIndexes(prev =>
-      prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index],
+  const toggleAnswer = (index) => {
+    setVisibleIndexes((prev) =>
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
     );
   };
 
@@ -61,15 +63,16 @@ const FAQScreen = ({navigation}) => {
             <View key={index}>
               <TouchableOpacity
                 onPress={() => toggleAnswer(index)}
-                style={styles.questionRow}>
+                style={styles.questionRow}
+              >
                 <Text style={styles.title}>{item.question}</Text>
-                <Text style={styles.toggleSign}>{isVisible ? '−' : '+'}</Text>
+                <Text style={styles.toggleSign}>{isVisible ? "−" : "+"}</Text>
               </TouchableOpacity>
               {isVisible && <Text style={styles.text}>{item.answer}</Text>}
             </View>
           );
         })}
-        <View style={{marginTop: 20}} />
+        <View style={{ marginTop: 20 }} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -77,7 +80,7 @@ const FAQScreen = ({navigation}) => {
 
 export default FAQScreen;
 
-const createStyles = colors =>
+const createStyles = (colors) =>
   StyleSheet.create({
     container: {
       flex: 1,
@@ -88,22 +91,22 @@ const createStyles = colors =>
       paddingVertical: 20,
     },
     questionRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
       marginBottom: 12,
     },
     title: {
       fontSize: 16,
-      fontWeight: '500',
+      fontWeight: "500",
       flex: 1,
       marginRight: 10,
       color: colors.textColor,
     },
     toggleSign: {
       fontSize: 22,
-      fontWeight: '600',
-      color: colors.AppmainColor || '#333',
+      fontWeight: "600",
+      color: colors.AppmainColor || "#333",
     },
     text: {
       fontSize: 14,

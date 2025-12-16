@@ -1,15 +1,16 @@
-import {StyleSheet, Text, View, SafeAreaView, ScrollView} from 'react-native';
-import React from 'react';
-import Header from './Header/Header';
-import {useTheme} from '../theme/ThemeContext';
-import {universityName} from './constants';
+import { StyleSheet, Text, View, SafeAreaView, ScrollView } from "react-native";
+import React from "react";
+import Header from "./Header/Header";
+import { useTheme } from "../theme/ThemeContext";
+import { universityName } from "./constants";
 
-const PrivacyScreen = ({navigation}) => {
-  const {isDark, colors, toggleTheme} = useTheme();
+const PrivacyScreen = ({ navigation }) => {
+  const { isDark, colors, toggleTheme } = useTheme();
   const styles = createStyles(colors);
   return (
     <SafeAreaView
-      style={{...styles.container, backgroundColor: colors.background}}>
+      style={{ ...styles.container, backgroundColor: colors.background }}
+    >
       <Header title="Privacy" navigation={navigation} />
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Privacy Policy Notice</Text>
@@ -109,7 +110,7 @@ const PrivacyScreen = ({navigation}) => {
         </Text>
 
         <Text style={styles.subsection}>
-          Other Information:{' '}
+          Other Information:{" "}
           <Text style={styles.text}>
             With your permission, we may collect other information from your
             device, such as photos from your camera roll, contacts of
@@ -130,7 +131,7 @@ const PrivacyScreen = ({navigation}) => {
           Examples include -:
         </Text>
         <Text style={styles.subsection}>
-          Invitations-:{' '}
+          Invitations-:{" "}
           <Text style={styles.text}>
             If another member sends you an invitation through our Platform, we
             may receive certain personal information, such as your name, email
@@ -145,7 +146,7 @@ const PrivacyScreen = ({navigation}) => {
           </Text>
         </Text>
         <Text style={styles.subsection}>
-          MemberContent-:{' '}
+          MemberContent-:{" "}
           <Text style={styles.text}>
             We may receive information about you when you or another member
             uploadphoto or posts other content to the Platform. For further
@@ -154,7 +155,7 @@ const PrivacyScreen = ({navigation}) => {
           </Text>
         </Text>
         <Text style={styles.subsection}>
-          Information from Other Third-Party Sources-:{' '}
+          Information from Other Third-Party Sources-:{" "}
           <Text style={styles.text}>
             In order to provide you with more tailored recommendations, we may
             obtain information about you from publicly and commercially
@@ -295,7 +296,7 @@ const PrivacyScreen = ({navigation}) => {
           Some information, such as user name, is always public. Some
           information, such as interests, is public by default, but can be
           hidden on our Platform. Some information, such as group memberships,
-          will always be visible to other members of that {universityName}{' '}
+          will always be visible to other members of that {universityName}{" "}
           group, and may be public, depending on the settings of that group. We
           recommend that you check the group settings and what information will
           be available before joining the group to ensure that you are happy
@@ -335,8 +336,8 @@ const PrivacyScreen = ({navigation}) => {
           legal process, or audits. We may also disclose information about you
           if we believe that your actions are inconsistent with our Terms of
           Service or related guidelines and policies, or if necessary to protect
-          the rights, property, or safety of, or prevent fraud or abuse of, JMI
-          VECOSPACE or others.
+          the rights, property, or safety of, or prevent fraud or abuse of,{" "}
+          {universityName} or others.
         </Text>
         <Text style={styles.subsection}>3.6 Sharing and Other Tools</Text>
         <Text style={styles.text}>
@@ -462,10 +463,10 @@ const PrivacyScreen = ({navigation}) => {
           You may update or correct your account information by editing your
           account settings or by sending a request to privacy@{universityName}
           .com as described inYou may deactivate your account by editing your
-          account settings or by sending an email to privacy@JMIVECOSPACE.com.
-          You will also be able to choose what information others see about you
-          and who may contact you by using the Privacy Settings section in your
-          Account.
+          account settings or by sending an email to privacy@{universityName}
+          .com. You will also be able to choose what information others see
+          about you and who may contact you by using the Privacy Settings
+          section in your Account.
         </Text>
         <Text style={styles.subsection}>
           5.2 Your Choices: Location Information
@@ -567,7 +568,7 @@ const PrivacyScreen = ({navigation}) => {
           complaints about this Privacy Policy or how we use your information,
           please contact privacy@{universityName}.com.
         </Text>
-        <View style={{marginTop: 20}} />
+        <View style={{ marginTop: 20 }} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -576,7 +577,7 @@ const PrivacyScreen = ({navigation}) => {
 export default PrivacyScreen;
 
 // const styles = StyleSheet.create({
-const createStyles = colors =>
+const createStyles = (colors) =>
   StyleSheet.create({
     container: {
       flex: 1,
@@ -588,20 +589,20 @@ const createStyles = colors =>
     },
     title: {
       fontSize: 20,
-      fontWeight: 'bold',
+      fontWeight: "bold",
       marginBottom: 12,
       color: colors.textColor,
     },
     subtitle: {
       fontSize: 18,
-      fontWeight: '600',
+      fontWeight: "600",
       marginTop: 16,
       marginBottom: 8,
       color: colors.textColor,
     },
     subsection: {
       fontSize: 16,
-      fontWeight: '500',
+      fontWeight: "500",
       marginTop: 10,
       marginBottom: 6,
       color: colors.textColor,
