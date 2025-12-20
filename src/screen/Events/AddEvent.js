@@ -40,7 +40,7 @@ import { universityFullName } from "../constants";
 
 const AddEvent = ({ navigation, route }) => {
   const { Item = {} } = route.params || {};
-  console.log("Item ----->>>>", Item);
+  console.log("ItemItemItemItemItemItemItem", Item);
   const { isDark, colors, toggleTheme } = useTheme();
   const [number, onChangeNumber] = useState("");
   const [selectedValue5, setSelectedValue5] = useState("Select");
@@ -109,6 +109,51 @@ const AddEvent = ({ navigation, route }) => {
       setFilteredCountries(filtered);
     }
   }, [searchQuery, countryList]);
+  const parseDate = (dateStr) => {
+    if (!dateStr) return null;
+
+    // "15-Jun-2025"
+    const [day, monthStr, year] = dateStr.split("-");
+
+    const monthMap = {
+      Jan: 0,
+      Feb: 1,
+      Mar: 2,
+      Apr: 3,
+      May: 4,
+      Jun: 5,
+      Jul: 6,
+      Aug: 7,
+      Sep: 8,
+      Oct: 9,
+      Nov: 10,
+      Dec: 11,
+    };
+
+    const month = monthMap[monthStr];
+
+    if (month === undefined) return null;
+
+    return new Date(Number(year), month, Number(day), 0, 0, 0);
+  };
+
+  const parseTime = (timeStr, baseDate = new Date()) => {
+    if (!timeStr || !baseDate) return null;
+
+    const [time, modifier] = timeStr.split(" ");
+    if (!time || !modifier) return null;
+
+    let [hours, minutes] = time.split(":").map(Number);
+
+    if (modifier === "PM" && hours < 12) hours += 12;
+    if (modifier === "AM" && hours === 12) hours = 0;
+
+    const date = new Date(baseDate);
+    date.setHours(hours, minutes, 0, 0);
+
+    return date;
+  };
+
   useEffect(() => {
     if (Item) {
       onChangeNumber(Item?.eventName);
@@ -120,8 +165,19 @@ const AddEvent = ({ navigation, route }) => {
       setPostalCode(Item?.eventDetails);
       setPNo(Item?.eventAgenda);
       setEMail(Item?.websiteurl);
+      const startDate = parseDate(Item?.eventDate);
+      const endDate = parseDate(Item?.eventTillDate);
+
+      if (startDate) setDate(startDate);
+      if (endDate) setDate1(endDate);
+
+      const startTime = parseTime(Item?.starttime, startDate);
+      const endTime = parseTime(Item?.endtime, endDate);
+
+      if (startTime) setTime(startTime);
+      if (endTime) setTime1(endTime);
     }
-  }, []);
+  }, [Item]);
 
   useEffect(() => {
     UserValue();

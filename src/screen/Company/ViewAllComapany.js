@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,20 +7,21 @@ import {
   ActivityIndicator,
   FlatList,
   TouchableOpacity,
-} from 'react-native';
-import globalStyles from '../GlobalCSS';
-import Header from '../Header/Header';
-import {baseUrl, ListCompany} from '../baseURL/api';
-import {showError} from '../components/Toast';
+} from "react-native";
+import globalStyles from "../GlobalCSS";
+import Header from "../Header/Header";
+import { baseUrl, ListCompany } from "../baseURL/api";
+import { showError } from "../components/Toast";
+import { useTheme } from "../../theme/ThemeContext";
 
-const ViewAllCompany = ({navigation, route}) => {
-  const {userData} = route.params;
+const ViewAllCompany = ({ navigation, route }) => {
+  const { userData } = route.params;
   const [companyList, setCompanyList] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-
+  const { isDark, colors, toggleTheme } = useTheme();
   useEffect(() => {
     fetchCompanyList();
   }, [page]);
@@ -37,8 +38,8 @@ const ViewAllCompany = ({navigation, route}) => {
 
     try {
       const response = await fetch(`${baseUrl}${ListCompany}`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: userData?.User?.userId,
           per_page: 10,
@@ -53,16 +54,16 @@ const ViewAllCompany = ({navigation, route}) => {
           setHasMore(data?.Data?.length === 10);
         } else {
           if (data?.Data?.length > 0) {
-            setCompanyList(prev => [...prev, ...data.Data]);
+            setCompanyList((prev) => [...prev, ...data.Data]);
           } else {
             setHasMore(false);
           }
         }
       } else {
-        showError(data.message || 'Failed to fetch Company List');
+        showError(data.message || "Failed to fetch Company List");
       }
     } catch (error) {
-      console.error('Fetch Company List Error:', error);
+      console.error("Fetch Company List Error:", error);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -76,36 +77,46 @@ const ViewAllCompany = ({navigation, route}) => {
 
   const handleLoadMore = () => {
     if (!loading && hasMore && !refreshing) {
-      setPage(prev => prev + 1);
+      setPage((prev) => prev + 1);
     }
   };
 
-  const renderItem = ({item}) => (
+  const renderItem = ({ item }) => (
     <TouchableOpacity
       style={{
-        flexDirection: 'row',
-        backgroundColor: '#fff',
+        flexDirection: "row",
+        backgroundColor: colors.textinputBackgroundcolor,
         padding: 10,
         marginVertical: 5,
         borderRadius: 8,
       }}
-      onPress={() => navigation.navigate('CompanyDetails', {Item: item})}>
+      onPress={() => navigation.navigate("CompanyDetails", { Item: item })}
+    >
       <Image
         source={
           item?.companyLogo
             ? {
                 uri: item?.companyLogo,
               }
-            : require('../../assets/noimageplaceholder.png')
+            : require("../../assets/noimageplaceholder.png")
         }
-        style={{width: 80, height: 80, borderRadius: 5}}
+        style={{ width: 80, height: 80, borderRadius: 5 }}
         resizeMode="contain"
       />
-      <View style={{flex: 1, marginLeft: 10}}>
-        <Text style={{fontSize: 16, fontWeight: 'bold'}}>
+      <View style={{ flex: 1, marginLeft: 10 }}>
+        <Text
+          style={{
+            fontSize: 16,
+            fontWeight: "bold",
+            color: colors.AppmainColor,
+          }}
+        >
           {item.companyName}
         </Text>
-        <Text numberOfLines={2} style={{fontSize: 13, marginTop: 5}}>
+        <Text
+          numberOfLines={2}
+          style={{ fontSize: 13, marginTop: 5, color: colors.textColor }}
+        >
           {item.aboutCompany}
         </Text>
       </View>
@@ -113,7 +124,12 @@ const ViewAllCompany = ({navigation, route}) => {
   );
 
   return (
-    <SafeAreaView style={globalStyles.SafeAreaView}>
+    <SafeAreaView
+      style={{
+        ...globalStyles.SafeAreaView,
+        backgroundColor: colors.background,
+      }}
+    >
       <Header title="All Companies" navigation={navigation} />
 
       <FlatList
@@ -122,21 +138,27 @@ const ViewAllCompany = ({navigation, route}) => {
           item.companyId?.toString() || index.toString()
         }
         renderItem={renderItem}
-        contentContainerStyle={{padding: 10}}
+        contentContainerStyle={{ padding: 10 }}
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.5}
         ListFooterComponent={
           loading && !refreshing ? (
             <ActivityIndicator
               size="small"
-              color="blue"
-              style={{marginVertical: 10}}
+              color={colors.AppmainColor}
+              style={{ marginVertical: 10 }}
             />
           ) : null
         }
         ListEmptyComponent={
           !loading && !refreshing ? (
-            <Text style={{textAlign: 'center', marginTop: 20}}>
+            <Text
+              style={{
+                textAlign: "center",
+                marginTop: 20,
+                color: colors.textColor,
+              }}
+            >
               No Companies Found
             </Text>
           ) : null

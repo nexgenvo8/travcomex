@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -10,15 +10,15 @@ import {
   FlatList,
   ScrollView,
   Modal,
-} from 'react-native';
-import Colors from './color';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import PencilIcon from 'react-native-vector-icons/Octicons';
-import DownIcon from 'react-native-vector-icons/AntDesign';
-import ImagePicker from 'react-native-image-crop-picker';
-import Icon from '../screen/Icons/Icons';
-import {useFocusEffect, useIsFocused} from '@react-navigation/native';
-import globalStyles from './GlobalCSS';
+} from "react-native";
+import Colors from "./color";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import PencilIcon from "react-native-vector-icons/Octicons";
+import DownIcon from "react-native-vector-icons/AntDesign";
+import ImagePicker from "react-native-image-crop-picker";
+import Icon from "../screen/Icons/Icons";
+import { useFocusEffect, useIsFocused } from "@react-navigation/native";
+import globalStyles from "./GlobalCSS";
 import {
   baseUrl,
   DeleteEducation,
@@ -36,24 +36,24 @@ import {
   UpdateExplorinn,
   UpdateInterest,
   UpdateSkills,
-} from './baseURL/api';
-import {showError, showSuccess} from './components/Toast';
-import CommonLoader from './components/CommonLoader';
-import {useTheme} from '../theme/ThemeContext';
+} from "./baseURL/api";
+import { showError, showSuccess } from "./components/Toast";
+import CommonLoader from "./components/CommonLoader";
+import { useTheme } from "../theme/ThemeContext";
 import {
   useSharedValue,
   useAnimatedScrollHandler,
-} from 'react-native-reanimated';
-import Animated, {useAnimatedStyle} from 'react-native-reanimated';
-import {universityFullName, universityName} from './constants';
+} from "react-native-reanimated";
+import Animated, { useAnimatedStyle } from "react-native-reanimated";
+import { universityFullName, universityName } from "./constants";
 
-const Profile = ({navigation, tabBarVisible}) => {
-  const {isDark, colors, toggleTheme} = useTheme();
+const Profile = ({ navigation, tabBarVisible }) => {
+  const { isDark, colors, toggleTheme } = useTheme();
   const isFocused = useIsFocused();
-  const [number, onChangeNumber] = useState('');
-  const [languages, setLanguages] = useState('');
-  const [interests, setInterests] = useState('');
-  const [jmi, setJmi] = useState('');
+  const [number, onChangeNumber] = useState("");
+  const [languages, setLanguages] = useState("");
+  const [interests, setInterests] = useState("");
+  const [jmi, setJmi] = useState("");
   const [modalVisible1, setModalVisible1] = useState(false);
   const [modalVisible2, setModalVisible2] = useState(false);
   const [modalVisible3, setModalVisible3] = useState(false);
@@ -61,12 +61,12 @@ const Profile = ({navigation, tabBarVisible}) => {
   const [modalVisible5, setModalVisible5] = useState(false);
   const [keyValue, setKeyValue] = useState([]);
   const [languagesValue, setLanguagesValue] = useState([]);
-  const levels = ['Beginner', 'Intermediate', 'Advanced']; // Example levels
+  const levels = ["Beginner", "Intermediate", "Advanced"]; // Example levels
   const [interestsValue, setInterestsValue] = useState([]);
   const [jmiValue, setJmiValue] = useState([]);
-  const [languageLastValue, setLanguageLastValue] = useState('');
-  const [languagesLevel, setLanguagesLevel] = useState('');
-  const options = ['Basic', 'Good', 'Fluent', 'First Language'];
+  const [languageLastValue, setLanguageLastValue] = useState("");
+  const [languagesLevel, setLanguagesLevel] = useState("");
+  const options = ["Basic", "Good", "Fluent", "First Language"];
   const [selectedValue, setSelectedValue] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const [userData, setUserData] = useState([]);
@@ -79,7 +79,7 @@ const Profile = ({navigation, tabBarVisible}) => {
   const [initialLoading, setInitialLoading] = useState(true);
   const scrollY = useSharedValue(0);
   const scrollHandler = useAnimatedScrollHandler({
-    onScroll: event => {
+    onScroll: (event) => {
       const currentOffset = event.contentOffset.y;
       if (currentOffset > scrollY.value && currentOffset > 50) {
         tabBarVisible.value = false;
@@ -91,7 +91,7 @@ const Profile = ({navigation, tabBarVisible}) => {
   });
 
   const UserValue = async () => {
-    const userDta = await AsyncStorage.getItem('userData');
+    const userDta = await AsyncStorage.getItem("userData");
     const parsedData = JSON.parse(userDta);
     setUserData(parsedData);
   };
@@ -101,31 +101,31 @@ const Profile = ({navigation, tabBarVisible}) => {
   }, []);
 
   const toggleDropdown = () => setIsOpen(!isOpen);
-  const selectOption = option => {
+  const selectOption = (option) => {
     setSelectedValue(option);
     setIsOpen(false);
   };
 
   const [editableText, setEditableText] = useState();
-  console.log('editableText', editableText);
+  console.log("editableText", editableText);
 
-  const handleSave = text => {
+  const handleSave = (text) => {
     setModalVisible1(false);
   };
 
-  const handleEdit = text => {
+  const handleEdit = (text) => {
     setEditableText(text);
   };
-  const handleKeySkill = text => {
+  const handleKeySkill = (text) => {
     onChangeNumber(text);
   };
-  const handleLangauge = text => {
+  const handleLangauge = (text) => {
     setLanguages(text);
   };
-  const handInterests = text => {
+  const handInterests = (text) => {
     setInterests(text);
   };
-  const handJmi = text => {
+  const handJmi = (text) => {
     setJmi(text);
   };
 
@@ -134,20 +134,20 @@ const Profile = ({navigation, tabBarVisible}) => {
     if (!trimmed) return;
 
     const exists = keyValue.some(
-      skill => skill.skillText?.toLowerCase() === trimmed.toLowerCase(),
+      (skill) => skill.skillText?.toLowerCase() === trimmed.toLowerCase()
     );
 
     if (exists) return;
 
-    const newSkill = {skillText: trimmed};
-    setKeyValue(prev => [...prev, newSkill]);
-    setakillsValueApi(prev => [...prev, newSkill]);
-    onChangeNumber('');
+    const newSkill = { skillText: trimmed };
+    setKeyValue((prev) => [...prev, newSkill]);
+    setakillsValueApi((prev) => [...prev, newSkill]);
+    onChangeNumber("");
   };
 
   const handleSaveLangauge = () => {
     if (languages.trim()) {
-      setLanguagesValue(prevState => [...prevState, languages]);
+      setLanguagesValue((prevState) => [...prevState, languages]);
       setLanguages([]);
     } else {
     }
@@ -164,11 +164,11 @@ const Profile = ({navigation, tabBarVisible}) => {
         interestText: trimmed,
       };
 
-      setInterestsValue(prev => [...prev, newItem]);
-      setInterestsValueApi(prev => [...prev, newItem]);
-      setInterests('');
+      setInterestsValue((prev) => [...prev, newItem]);
+      setInterestsValueApi((prev) => [...prev, newItem]);
+      setInterests("");
     } else {
-      showError('Please enter a value before adding.');
+      showError("Please enter a value before adding.");
     }
   };
   const handleSaveJmi = () => {
@@ -178,12 +178,12 @@ const Profile = ({navigation, tabBarVisible}) => {
         exploringText: jmi.trim(),
       };
 
-      setJmiValue(prevState => [...prevState, newItem]);
-      setApiValue(prevState => [...prevState, newItem]);
-      setJmi('');
+      setJmiValue((prevState) => [...prevState, newItem]);
+      setApiValue((prevState) => [...prevState, newItem]);
+      setJmi("");
       setModalVisible3(false);
     } else {
-      showError('Please enter a value before adding.');
+      showError("Please enter a value before adding.");
     }
   };
 
@@ -200,9 +200,9 @@ const Profile = ({navigation, tabBarVisible}) => {
   const fetchExploringListUpdate = async () => {
     try {
       const response = await fetch(`${baseUrl}${ListExploring}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           userId: userData?.User?.userId,
@@ -210,21 +210,21 @@ const Profile = ({navigation, tabBarVisible}) => {
       });
 
       const data = await response.json();
-      console.log('Listing exploring data ----', data);
+      console.log("Listing exploring data ----", data);
 
       if (response.ok) {
         const exploringData = data.Data;
         setJmiValue(exploringData);
       }
     } catch (error) {
-      console.error('Fetch Error:', error);
+      console.error("Fetch Error:", error);
     } finally {
       setLoading(false);
     }
   };
   const fetchExploringAdd_Update = async () => {
-    const formattedApiValue = apiValue.map(item =>
-      typeof item === 'object' ? item.exploringText : item,
+    const formattedApiValue = apiValue.map((item) =>
+      typeof item === "object" ? item.exploringText : item
     );
 
     const payload = {
@@ -234,8 +234,8 @@ const Profile = ({navigation, tabBarVisible}) => {
 
     try {
       const response = await fetch(`${baseUrl}${UpdateExplorinn}`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       const text = await response.text();
@@ -243,64 +243,66 @@ const Profile = ({navigation, tabBarVisible}) => {
       try {
         data = JSON.parse(text);
       } catch (parseError) {
-        console.error('Failed to parse JSON:', text);
+        console.error("Failed to parse JSON:", text);
         return;
       }
       if (response.ok) {
-        console.log('Add exploring success:', data);
+        console.log("Add exploring success:", data);
         setModalVisible4(false);
         fetchExploringListUpdate();
       } else {
-        console.error('Server responded with error:', data);
+        console.error("Server responded with error:", data);
       }
     } catch (error) {
-      console.error('Network error:', error);
+      console.error("Network error:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchExploringDelete = async item => {
+  const fetchExploringDelete = async (item) => {
     if (!item) return;
     if (!item.id || item.id.toString().length > 12) {
-      setJmiValue(prev => prev.filter(i => i !== item));
-      setApiValue(prev => prev.filter(i => i !== item));
+      setJmiValue((prev) => prev.filter((i) => i !== item));
+      setApiValue((prev) => prev.filter((i) => i !== item));
       return;
     }
 
     try {
       const response = await fetch(`${baseUrl}${DeleteExploring}`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({id: item.id}),
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: item.id }),
       });
 
       const data = await response.json();
 
       if (response.ok && data.Status === 1) {
-        setJmiValue(prev => prev.filter(i => i.id !== item.id));
-        setApiValue(prev => prev.filter(i => i.id !== item.id));
-        showSuccess('Item removed successfully.');
+        setJmiValue((prev) => prev.filter((i) => i.id !== item.id));
+        setApiValue((prev) => prev.filter((i) => i.id !== item.id));
+        showSuccess("Item removed successfully.");
       } else {
-        console.error('Delete failed:', data);
+        console.error("Delete failed:", data);
       }
     } catch (error) {
-      console.error('Delete Error:', error);
+      console.error("Delete Error:", error);
     }
   };
 
   const handleDeleteJmi = () => {
-    const filteredJmiValue = jmiValue.filter(item => typeof item === 'object');
+    const filteredJmiValue = jmiValue.filter(
+      (item) => typeof item === "object"
+    );
     setJmiValue(filteredJmiValue);
   };
   const InterestsList = async () => {
     try {
       const response = await fetch(`${baseUrl}${Listinterest}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({userId: userData?.User?.userId}),
+        body: JSON.stringify({ userId: userData?.User?.userId }),
       });
 
       const data = await response.json();
@@ -308,7 +310,7 @@ const Profile = ({navigation, tabBarVisible}) => {
         setInterestsValue(data.Data || []);
       }
     } catch (error) {
-      console.error('Fetch Error:', error);
+      console.error("Fetch Error:", error);
     } finally {
       setLoading(false);
     }
@@ -317,13 +319,13 @@ const Profile = ({navigation, tabBarVisible}) => {
     try {
       const payload = {
         userId: userData?.User?.userId,
-        interest: interestsValueApi.map(i => i.interestText),
+        interest: interestsValueApi.map((i) => i.interestText),
       };
 
       const response = await fetch(`${baseUrl}${UpdateInterest}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
       });
@@ -332,74 +334,74 @@ const Profile = ({navigation, tabBarVisible}) => {
 
       try {
         const data = JSON.parse(text);
-        console.log('Add Interest data ----', data);
+        console.log("Add Interest data ----", data);
 
         if (response.ok) {
           showSuccess(data.Message);
           setModalVisible5(false);
-          setInterests('');
+          setInterests("");
           setInterestsValueApi([]);
           InterestsList();
         } else {
-          console.error('Server responded with error:', data);
+          console.error("Server responded with error:", data);
         }
       } catch (parseError) {
-        console.error('Non-JSON response:', text);
+        console.error("Non-JSON response:", text);
       }
     } catch (error) {
-      console.error('Fetch Error Add Interest:', error);
+      console.error("Fetch Error Add Interest:", error);
     } finally {
       setLoading(false);
     }
   };
-  const deleteInterest = async item => {
+  const deleteInterest = async (item) => {
     if (!item) return;
 
     // 🔒 If ID is fake (from Date.now), skip backend call
-    const isFakeId = item.id && item.id.toString().startsWith('175'); // or just use: item.id > 1000000000000
+    const isFakeId = item.id && item.id.toString().startsWith("175"); // or just use: item.id > 1000000000000
     if (isFakeId) {
-      console.warn('Skipping delete for unsaved item:', item);
+      console.warn("Skipping delete for unsaved item:", item);
 
       // Just remove from local state
-      setInterestsValue(prev => prev.filter(i => i.id !== item.id));
-      setInterestsValueApi(prev =>
-        prev.filter(i => i.interestText !== item.interestText),
+      setInterestsValue((prev) => prev.filter((i) => i.id !== item.id));
+      setInterestsValueApi((prev) =>
+        prev.filter((i) => i.interestText !== item.interestText)
       );
       return;
     }
 
     try {
       const response = await fetch(`${baseUrl}${DeleteInterest}`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({id: item.id}), // ✅ real ID only
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: item.id }), // ✅ real ID only
       });
 
       const data = await response.json();
-      console.log('Delete response:', data);
+      console.log("Delete response:", data);
 
       if (response.ok && data.Status === 1) {
-        setInterestsValue(prev => prev.filter(i => i.id !== item.id));
-        setInterestsValueApi(prev => prev.filter(i => i.id !== item.id));
+        setInterestsValue((prev) => prev.filter((i) => i.id !== item.id));
+        setInterestsValueApi((prev) => prev.filter((i) => i.id !== item.id));
       } else {
-        console.error('Delete failed:', data);
+        console.error("Delete failed:", data);
       }
     } catch (error) {
-      console.error('Delete Error:', error);
+      console.error("Delete Error:", error);
     }
   };
   const deleteInterests = () => {
     const filteredJmiValue = interestsValue.filter(
-      item => typeof item === 'object',
+      (item) => typeof item === "object"
     );
     setInterestsValue(filteredJmiValue);
   };
   const SkillsList = async () => {
     try {
       const response = await fetch(`${baseUrl}${ListSkills}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           userId: userData?.User?.userId,
@@ -407,14 +409,14 @@ const Profile = ({navigation, tabBarVisible}) => {
       });
 
       const data = await response.json();
-      console.log('Listing Skills data ----', data);
+      console.log("Listing Skills data ----", data);
 
       if (response.ok) {
         const InterestsData = data.Data;
         setKeyValue(InterestsData);
       }
     } catch (error) {
-      console.error('Fetch Error:', error);
+      console.error("Fetch Error:", error);
     } finally {
       setLoading(false);
     }
@@ -422,73 +424,75 @@ const Profile = ({navigation, tabBarVisible}) => {
   const addSkills = async () => {
     try {
       const response = await fetch(`${baseUrl}${UpdateSkills}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           userId: userData?.User?.userId,
-          skills: skillsValueApi.map(item =>
-            typeof item === 'object' ? item.skillText : item,
+          skills: skillsValueApi.map((item) =>
+            typeof item === "object" ? item.skillText : item
           ),
           //skills: skillsValueApi,
         }),
       });
 
       const responseText = await response.text();
-      console.log('Raw Response:', responseText);
+      console.log("Raw Response:", responseText);
 
       let data;
       try {
         data = JSON.parse(responseText);
       } catch (parseError) {
-        console.error('JSON parse error:', parseError);
+        console.error("JSON parse error:", parseError);
         return;
       }
 
       if (response.ok) {
-        showSuccess('Skills updated successfully');
+        showSuccess("Skills updated successfully");
         setModalVisible2(false);
         setakillsValueApi([]);
         await SkillsList();
       } else {
-        console.error('Server error:', data);
+        console.error("Server error:", data);
       }
     } catch (error) {
-      console.error('Fetch Error Failed to add Skills:', error);
+      console.error("Fetch Error Failed to add Skills:", error);
     } finally {
       setLoading(false);
     }
   };
-  const deleteSkills = async item => {
+  const deleteSkills = async (item) => {
     if (!item || !item.id) {
-      console.warn('Deleting local-only skill:', item);
-      setKeyValue(prev => prev.filter(i => i.skillText !== item.skillText));
+      console.warn("Deleting local-only skill:", item);
+      setKeyValue((prev) => prev.filter((i) => i.skillText !== item.skillText));
       return;
     }
 
     try {
       const response = await fetch(`${baseUrl}${DeleteSkills}`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({id: item.id}),
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: item.id }),
       });
 
       const responseText = await response.text();
       const data = JSON.parse(responseText);
 
       if (response.ok) {
-        setKeyValue(prev => prev.filter(i => i.id !== item.id));
-        showSuccess('Item deleted successfully.');
+        setKeyValue((prev) => prev.filter((i) => i.id !== item.id));
+        showSuccess("Item deleted successfully.");
       } else {
-        console.error('Server error:', data);
+        console.error("Server error:", data);
       }
     } catch (error) {
-      console.error('Delete Error:', error);
+      console.error("Delete Error:", error);
     }
   };
   const closeSkillsModal = () => {
-    const filteredJmiValue = keyValue.filter(item => typeof item === 'object');
+    const filteredJmiValue = keyValue.filter(
+      (item) => typeof item === "object"
+    );
     setKeyValue(filteredJmiValue);
   };
 
@@ -503,18 +507,18 @@ const Profile = ({navigation, tabBarVisible}) => {
       });
       // setImage(pickedImage.path); // Set the selected image path
 
-      await UpdateProfilePhotoApi({base64Image: pickedImage.data});
+      await UpdateProfilePhotoApi({ base64Image: pickedImage.data });
     } catch (error) {
-      console.error('Error picking image:', error);
+      console.error("Error picking image:", error);
     }
   };
   const GetProfileData = async () => {
     setInitialLoading(true);
     try {
       const response = await fetch(`${baseUrl}${Profile_Detail}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           userId: userData?.User?.userId,
@@ -528,18 +532,18 @@ const Profile = ({navigation, tabBarVisible}) => {
       } else {
       }
     } catch (error) {
-      showError('Failed to fetch profile data. Please try again later.');
-      console.error('Fetch Error:', error);
+      showError("Failed to fetch profile data. Please try again later.");
+      console.error("Fetch Error:", error);
     } finally {
       setInitialLoading(false);
     }
   };
-  const UpdateProfilePhotoApi = async ({base64Image}) => {
+  const UpdateProfilePhotoApi = async ({ base64Image }) => {
     try {
       const response = await fetch(`${baseUrl}${UpdateBasicDetails}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           userId: userData?.User?.userId,
@@ -550,22 +554,22 @@ const Profile = ({navigation, tabBarVisible}) => {
       const data = await response.json();
 
       if (response.ok) {
-        console.log('Profile photo updated successfully:', data);
+        console.log("Profile photo updated successfully:", data);
         await GetProfileData();
       } else {
-        showError(data.message || 'Failed to update profile photo');
+        showError(data.message || "Failed to update profile photo");
       }
     } catch (error) {
-      showError('Failed to update profile photo. Please try again later.');
-      console.error('Fetch Error:', error);
+      showError("Failed to update profile photo. Please try again later.");
+      console.error("Fetch Error:", error);
     }
   };
-  const UpdateTagLine = async ({base64Image}) => {
+  const UpdateTagLine = async ({ base64Image }) => {
     try {
       const response = await fetch(`${baseUrl}${UpdateBasicDetails}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           userId: userData?.User?.userId,
@@ -576,14 +580,14 @@ const Profile = ({navigation, tabBarVisible}) => {
       const data = await response.json();
 
       if (response.ok) {
-        console.log('Profile Tag updated', data);
+        console.log("Profile Tag updated", data);
         await GetProfileData();
         setModalVisible1(!!modalVisible1);
       } else {
-        showError('Error', data.message || 'Failed to update profile tag');
+        showError("Error", data.message || "Failed to update profile tag");
       }
     } catch (error) {
-      console.error('Fetch Error UpdateTagLine:', error);
+      console.error("Fetch Error UpdateTagLine:", error);
     }
   };
   // useEffect(() => {
@@ -596,7 +600,7 @@ const Profile = ({navigation, tabBarVisible}) => {
       if (userData?.User?.userId) {
         GetProfileData();
       }
-    }, [userData?.User?.userId]),
+    }, [userData?.User?.userId])
   );
   // useFocusEffect(
   //   useCallback(() => {
@@ -613,9 +617,9 @@ const Profile = ({navigation, tabBarVisible}) => {
   const getEducationList = async () => {
     try {
       const response = await fetch(`${baseUrl}${ListEducation}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           userId: userData?.User?.userId,
@@ -625,22 +629,22 @@ const Profile = ({navigation, tabBarVisible}) => {
       const data = await response.json();
 
       if (response.ok) {
-        console.log('Education List ---', data);
+        console.log("Education List ---", data);
         // setListEducation(data);
         setListEducation(data?.Data);
       } else {
-        showError(data.message || 'Failed to Education List');
+        showError(data.message || "Failed to Education List");
       }
     } catch (error) {
-      console.error('Fetch Error Education List:', error);
+      console.error("Fetch Error Education List:", error);
     }
   };
-  const handleDeleteEducation = async ({item}) => {
+  const handleDeleteEducation = async ({ item }) => {
     try {
       const response = await fetch(`${baseUrl}${DeleteEducation}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           id: item?.Id,
@@ -653,29 +657,31 @@ const Profile = ({navigation, tabBarVisible}) => {
         getEducationList();
       }
     } catch (error) {
-      console.error('Delete Error:', error);
+      console.error("Delete Error:", error);
     }
   };
-  const renderEducationList = ({item}) => {
+  const renderEducationList = ({ item }) => {
     return (
       <View
         style={{
           ...globalStyles.listEucation,
           backgroundColor: colors.textinputBackgroundcolor,
-        }}>
+        }}
+      >
         <View>
           <Text
-            style={{fontSize: 16, fontWeight: '600', color: colors.textColor}}>
+            style={{ fontSize: 16, fontWeight: "600", color: colors.textColor }}
+          >
             {item?.UniversitySchool}
           </Text>
-          <Text style={{color: colors.textColor}}>
+          <Text style={{ color: colors.textColor }}>
             {item.Degree} {item.FieldOfStudy}
           </Text>
           <View style={globalStyles.flexRow}>
-            <Text style={{color: colors.textColor}}>
+            <Text style={{ color: colors.textColor }}>
               {item.FromMonth} {item.FromYear} -
             </Text>
-            <Text style={{color: colors.textColor}}>
+            <Text style={{ color: colors.textColor }}>
               {item.ToMonth} {item.ToYear}
             </Text>
           </View>
@@ -684,20 +690,23 @@ const Profile = ({navigation, tabBarVisible}) => {
         <View style={globalStyles.flexRow}>
           <TouchableOpacity
             onPress={() =>
-              navigation.navigate('AddEducation', {
+              navigation.navigate("AddEducation", {
                 Item: item,
               })
-            }>
+            }
+          >
             <Icon
               name="pencil"
               size={15}
-              style={{paddingHorizontal: 5}}
+              style={{ paddingHorizontal: 5 }}
               color={colors.placeholderTextColor}
               type="Octicons"
             />
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => handleDeleteEducation({item: item})}>
+          <TouchableOpacity
+            onPress={() => handleDeleteEducation({ item: item })}
+          >
             <Icon
               name="delete"
               size={15}
@@ -713,9 +722,9 @@ const Profile = ({navigation, tabBarVisible}) => {
   const getExperienceList = async () => {
     try {
       const response = await fetch(`${baseUrl}${ListProfessionalExp}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           userId: userData?.User?.userId,
@@ -725,22 +734,22 @@ const Profile = ({navigation, tabBarVisible}) => {
       const data = await response.json();
 
       if (response.ok) {
-        console.log('Experience List ---', data);
+        console.log("Experience List ---", data);
 
         setListExperience(data.Data);
       } else {
-        showError(data.message || 'Failed to Education List');
+        showError(data.message || "Failed to Education List");
       }
     } catch (error) {
-      console.error('Fetch Error Education List:', error);
+      console.error("Fetch Error Education List:", error);
     }
   };
-  const handleDeleteExperience = async ({item}) => {
+  const handleDeleteExperience = async ({ item }) => {
     try {
       const response = await fetch(`${baseUrl}${DeleteProfessionalExp}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           id: item?.Id,
@@ -753,50 +762,54 @@ const Profile = ({navigation, tabBarVisible}) => {
         getExperienceList();
       }
     } catch (error) {
-      console.error('Delete Error:', error);
+      console.error("Delete Error:", error);
     }
   };
-  const renderExperienceList = ({item}) => {
+  const renderExperienceList = ({ item }) => {
     return (
       <View
         style={{
           ...globalStyles.listEucation,
           backgroundColor: colors.textinputBackgroundcolor,
-        }}>
+        }}
+      >
         <View>
           <Text
-            style={{fontSize: 16, fontWeight: '600', color: colors.textColor}}>
+            style={{ fontSize: 16, fontWeight: "600", color: colors.textColor }}
+          >
             {item?.JobTitle}
           </Text>
-          <Text style={{color: colors.textColor}}>{item?.CompanyName}</Text>
+          <Text style={{ color: colors.textColor }}>{item?.CompanyName}</Text>
           <View style={globalStyles.flexRow}>
-            <Text style={{color: colors.textColor}}>
+            <Text style={{ color: colors.textColor }}>
               {item.FromMonth} {item.FromYear} -
             </Text>
-            <Text style={{color: colors.textColor}}>
+            <Text style={{ color: colors.textColor }}>
               {item.ToMonth} {item.ToYear} | {item.TotalYear}
             </Text>
           </View>
-          <Text style={{color: colors.textColor}}>{item.JobLocation}</Text>
+          <Text style={{ color: colors.textColor }}>{item.JobLocation}</Text>
         </View>
         <View style={globalStyles.flexRow}>
           <TouchableOpacity
             onPress={() =>
-              navigation.navigate('AddExperience', {
+              navigation.navigate("AddExperience", {
                 Item: item,
               })
-            }>
+            }
+          >
             <Icon
               name="pencil"
               size={15}
-              style={{paddingHorizontal: 5}}
+              style={{ paddingHorizontal: 5 }}
               color={colors.placeholderTextColor}
               type="Octicons"
             />
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => handleDeleteExperience({item: item})}>
+            onPress={() => handleDeleteExperience({ item: item })}
+          >
             <Icon
               name="delete"
               size={15}
@@ -819,7 +832,7 @@ const Profile = ({navigation, tabBarVisible}) => {
     (interestsValue?.length > 0 ? 1 : 0);
 
   const completionPercentage = Math.round(
-    (completedSections / totalSections) * 100,
+    (completedSections / totalSections) * 100
   );
   if (initialLoading) {
     return <CommonLoader visible={true} />;
@@ -829,72 +842,85 @@ const Profile = ({navigation, tabBarVisible}) => {
       style={{
         ...globalStyles?.SafeAreaView,
         backgroundColor: colors.background,
-      }}>
+      }}
+    >
       <View style={globalStyles?.FX_1_BG_White}>
         <ScrollView
           // onScroll={scrollHandler}
           // scrollEventThrottle={16}
           showsVerticalScrollIndicator={false}
-          style={{flex: 0.9}}>
+          style={{ flex: 0.9 }}
+        >
           <View style={styles.profileSection}>
             <View>
               <Image
                 style={styles.profileSectionImg}
                 source={
                   profileData?.profilePhoto
-                    ? {uri: profileData.profilePhoto}
-                    : require('../assets/placeholderprofileimage.png')
+                    ? { uri: profileData.profilePhoto }
+                    : require("../assets/placeholderprofileimage.png")
                 }
               />
               <PencilIcon
                 onPress={selectImage}
                 name="device-camera"
                 size={22}
-                style={{alignSelf: 'flex-end', bottom: 20, right: 10}}
+                style={{ alignSelf: "flex-end", bottom: 20, right: 10 }}
                 color={colors.placeholderTextColor}
               />
             </View>
 
-            <View style={styles.profileFirstView}>
-              <Text style={{fontSize: 20, color: colors.textColor}}>
+            <View
+              style={{
+                ...styles.profileFirstView,
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginHorizontal: 16,
+                flex: 1,
+              }}
+            >
+              <Text style={{ fontSize: 20, color: colors.textColor }}>
                 {profileData?.firstName} {profileData?.lastName}
               </Text>
               <PencilIcon
-                onPress={() => navigation.navigate('EditProfileDetails')}
+                onPress={() => navigation.navigate("EditProfileDetails")}
                 name="pencil"
                 size={20}
-                style={{left: 10}}
+                style={{ left: 10 }}
                 color={colors.placeholderTextColor}
               />
             </View>
-            <Text style={{...styles.titleText, color: colors.textColor}}>
+            <Text style={{ ...styles.titleText, color: colors.textColor }}>
               {profileData?.jobTitle}
             </Text>
-            <Text style={{...styles.titleText, color: colors.textColor}}>
-              DeBox Global
+            <Text style={{ ...styles.titleText, color: colors.textColor }}>
+              {profileData?.CompanyName}
             </Text>
-            <Text style={{...styles.titleText, color: colors.textColor}}>
+            <Text style={{ ...styles.titleText, color: colors.textColor }}>
               {profileData?.locationName},{profileData?.cityName},
               {profileData?.countryName}
             </Text>
           </View>
 
-          <View style={{padding: 15}}>
+          <View style={{ padding: 15 }}>
             <Text
-              style={{fontSize: 16, marginBottom: 5, color: colors.textColor}}>
+              style={{ fontSize: 16, marginBottom: 5, color: colors.textColor }}
+            >
               Profile Completion: {completionPercentage}%
             </Text>
             <View
               style={{
                 height: 10,
-                width: '100%',
-                backgroundColor: '#e0e0e0',
+                width: "100%",
+                backgroundColor: "#e0e0e0",
                 borderRadius: 5,
-                overflow: 'hidden',
-              }}>
+                overflow: "hidden",
+              }}
+            >
               <View
                 style={{
-                  height: '100%',
+                  height: "100%",
                   width: `${completionPercentage}%`,
                   backgroundColor: colors.AppmainColor,
                 }}
@@ -906,8 +932,9 @@ const Profile = ({navigation, tabBarVisible}) => {
             style={{
               ...styles.editView,
               borderColor: colors.textinputbordercolor,
-            }}>
-            <Text style={{...styles.editText, color: colors.textColor}}>
+            }}
+          >
+            <Text style={{ ...styles.editText, color: colors.textColor }}>
               {profileData?.taglineText}
             </Text>
 
@@ -924,13 +951,15 @@ const Profile = ({navigation, tabBarVisible}) => {
               ...globalStyles.sectionView,
               borderBottomWidth: 0,
               backgroundColor: colors.textinputBackgroundcolor,
-            }}>
+            }}
+          >
             <Text
-              style={{...globalStyles.sectionText, color: colors.textColor}}>
+              style={{ ...globalStyles.sectionText, color: colors.textColor }}
+            >
               Professional experience
             </Text>
             <PencilIcon
-              onPress={() => navigation.navigate('AddExperience')}
+              onPress={() => navigation.navigate("AddExperience")}
               name="plus"
               size={22}
               color={colors.placeholderTextColor}
@@ -938,7 +967,7 @@ const Profile = ({navigation, tabBarVisible}) => {
           </View>
           <FlatList
             data={listExperience}
-            keyExtractor={item => item.Id.toString()}
+            keyExtractor={(item) => item.Id.toString()}
             renderItem={renderExperienceList}
           />
 
@@ -946,13 +975,15 @@ const Profile = ({navigation, tabBarVisible}) => {
             style={{
               ...globalStyles.sectionView,
               backgroundColor: colors.textinputBackgroundcolor,
-            }}>
+            }}
+          >
             <Text
-              style={{...globalStyles.sectionText, color: colors.textColor}}>
+              style={{ ...globalStyles.sectionText, color: colors.textColor }}
+            >
               Educational background
             </Text>
             <PencilIcon
-              onPress={() => navigation.navigate('AddEducation')}
+              onPress={() => navigation.navigate("AddEducation")}
               name="plus"
               size={22}
               color={colors.placeholderTextColor}
@@ -960,7 +991,7 @@ const Profile = ({navigation, tabBarVisible}) => {
           </View>
           <FlatList
             data={listEducation}
-            keyExtractor={item => item.Id.toString()}
+            keyExtractor={(item) => item.Id.toString()}
             renderItem={renderEducationList}
           />
 
@@ -968,13 +999,16 @@ const Profile = ({navigation, tabBarVisible}) => {
             style={{
               ...styles.skillMainView,
               borderColor: colors.textinputbordercolor,
-            }}>
+            }}
+          >
             <TouchableOpacity
               hitSlop={20}
               style={styles.secongSkillView}
-              onPress={() => setModalVisible2()}>
+              onPress={() => setModalVisible2()}
+            >
               <Text
-                style={{...globalStyles.sectionText, color: colors.textColor}}>
+                style={{ ...globalStyles.sectionText, color: colors.textColor }}
+              >
                 Key Skills
               </Text>
               <PencilIcon
@@ -992,17 +1026,20 @@ const Profile = ({navigation, tabBarVisible}) => {
                       style={{
                         ...styles.skllSecondView,
                         backgroundColor: colors.textinputBackgroundcolor,
-                      }}>
+                      }}
+                    >
                       <Text
-                        style={{...styles.skillText, color: colors.textColor}}>
-                        {typeof item === 'object' ? item.skillText : item}
+                        style={{ ...styles.skillText, color: colors.textColor }}
+                      >
+                        {typeof item === "object" ? item.skillText : item}
                       </Text>
 
                       <TouchableOpacity
-                        style={{paddingLeft: 2}}
+                        style={{ paddingLeft: 2 }}
                         onPress={() => {
                           deleteSkills(item);
-                        }}>
+                        }}
+                      >
                         <Icon
                           name="cross"
                           size={15}
@@ -1021,12 +1058,15 @@ const Profile = ({navigation, tabBarVisible}) => {
             style={{
               ...styles.skillMainView,
               borderColor: colors.textinputbordercolor,
-            }}>
+            }}
+          >
             <TouchableOpacity
               onPress={() => setModalVisible4()}
-              style={styles.secongSkillView}>
+              style={styles.secongSkillView}
+            >
               <Text
-                style={{...globalStyles.sectionText, color: colors.textColor}}>
+                style={{ ...globalStyles.sectionText, color: colors.textColor }}
+              >
                 What am I exploring on {universityFullName}
               </Text>
               <PencilIcon
@@ -1044,16 +1084,19 @@ const Profile = ({navigation, tabBarVisible}) => {
                       style={{
                         ...styles.skllSecondView,
                         backgroundColor: colors.textinputBackgroundcolor,
-                      }}>
+                      }}
+                    >
                       <Text
-                        style={{...styles.skillText, color: colors.textColor}}>
-                        {typeof item === 'object' ? item.exploringText : item}
+                        style={{ ...styles.skillText, color: colors.textColor }}
+                      >
+                        {typeof item === "object" ? item.exploringText : item}
                       </Text>
                       <TouchableOpacity
-                        style={{paddingLeft: 2}}
+                        style={{ paddingLeft: 2 }}
                         onPress={() => {
                           fetchExploringDelete(item);
-                        }}>
+                        }}
+                      >
                         <Icon
                           name="cross"
                           size={15}
@@ -1073,12 +1116,15 @@ const Profile = ({navigation, tabBarVisible}) => {
               ...styles.skillMainView,
               borderColor: colors.textinputbordercolor,
               marginBottom: 40,
-            }}>
+            }}
+          >
             <TouchableOpacity
               onPress={() => setModalVisible5()}
-              style={styles.secongSkillView}>
+              style={styles.secongSkillView}
+            >
               <Text
-                style={{...globalStyles.sectionText, color: colors.textColor}}>
+                style={{ ...globalStyles.sectionText, color: colors.textColor }}
+              >
                 Interests
               </Text>
               <PencilIcon
@@ -1097,17 +1143,20 @@ const Profile = ({navigation, tabBarVisible}) => {
                       style={{
                         ...styles.skllSecondView,
                         backgroundColor: colors.textinputBackgroundcolor,
-                      }}>
+                      }}
+                    >
                       <Text
-                        style={{...styles.skillText, color: colors.textColor}}>
-                        {typeof item === 'object' ? item.interestText : item}
+                        style={{ ...styles.skillText, color: colors.textColor }}
+                      >
+                        {typeof item === "object" ? item.interestText : item}
                       </Text>
 
                       <TouchableOpacity
-                        style={{paddingLeft: 2}}
+                        style={{ paddingLeft: 2 }}
                         onPress={() => {
                           deleteInterest(item);
-                        }}>
+                        }}
+                      >
                         <Icon
                           name="cross"
                           size={15}
@@ -1119,7 +1168,7 @@ const Profile = ({navigation, tabBarVisible}) => {
                   ))}
                 </View>
               ) : (
-                <Text style={{color: colors.textColor}}>No data found</Text>
+                <Text style={{ color: colors.textColor }}>No data found</Text>
               )}
             </View>
           </View>
@@ -1131,7 +1180,8 @@ const Profile = ({navigation, tabBarVisible}) => {
             visible={modalVisible1}
             onRequestClose={() => {
               setModalVisible1(!modalVisible1);
-            }}>
+            }}
+          >
             <View style={styles.centeredView}>
               <View
                 style={{
@@ -1139,13 +1189,15 @@ const Profile = ({navigation, tabBarVisible}) => {
                   flex: 0.6,
                   padding: 20,
                   backgroundColor: colors.modelBackground,
-                }}>
+                }}
+              >
                 <TouchableOpacity
                   hitSlop={10}
                   onPress={() => {
                     setModalVisible1(!!modalVisible1);
                   }}
-                  style={{alignSelf: 'flex-end'}}>
+                  style={{ alignSelf: "flex-end" }}
+                >
                   <Icon
                     name="cross"
                     size={20}
@@ -1155,17 +1207,19 @@ const Profile = ({navigation, tabBarVisible}) => {
                 </TouchableOpacity>
                 <View
                   style={{
-                    alignItems: 'center',
+                    alignItems: "center",
                     // backgroundColor: '',
                     // borderBottomWidth: 0.5,
-                  }}>
+                  }}
+                >
                   <Text
                     style={{
                       fontSize: 18,
                       padding: 15,
-                      fontWeight: '700',
+                      fontWeight: "700",
                       color: colors.textColor,
-                    }}>
+                    }}
+                  >
                     Abouts
                   </Text>
                 </View>
@@ -1176,17 +1230,18 @@ const Profile = ({navigation, tabBarVisible}) => {
                     marginBottom: 10,
                     borderWidth: 0.3,
                     margin: 20,
-                  }}>
+                  }}
+                >
                   <TextInput
                     style={{
                       ...styles.textInput,
-                      textAlignVertical: 'top',
+                      textAlignVertical: "top",
                       borderColor: colors.textinputbordercolor,
                       color: colors.textColor,
                       backgroundColor: colors.textinputBackgroundcolor,
                     }}
                     value={editableText}
-                    onChangeText={text => handleEdit(text)}
+                    onChangeText={(text) => handleEdit(text)}
                     multiline
                   />
                 </View>
@@ -1196,9 +1251,14 @@ const Profile = ({navigation, tabBarVisible}) => {
                   style={{
                     ...styles.save,
                     backgroundColor: colors.AppmainColor,
-                  }}>
+                  }}
+                >
                   <Text
-                    style={{...styles.saveText, color: colors.ButtonTextColor}}>
+                    style={{
+                      ...styles.saveText,
+                      color: colors.ButtonTextColor,
+                    }}
+                  >
                     Save
                   </Text>
                 </TouchableOpacity>
@@ -1213,7 +1273,8 @@ const Profile = ({navigation, tabBarVisible}) => {
             onRequestClose={() => {
               setModalVisible2(!modalVisible2);
               closeSkillsModal();
-            }}>
+            }}
+          >
             <View style={styles.centeredView}>
               <View
                 style={{
@@ -1221,14 +1282,16 @@ const Profile = ({navigation, tabBarVisible}) => {
                   flex: 0.6,
                   padding: 20,
                   backgroundColor: colors.modelBackground,
-                }}>
+                }}
+              >
                 <TouchableOpacity
                   hitSlop={20}
                   onPress={() => {
                     setModalVisible2(!!modalVisible2);
                     closeSkillsModal();
                   }}
-                  style={{alignSelf: 'flex-end'}}>
+                  style={{ alignSelf: "flex-end" }}
+                >
                   <Icon
                     name="cross"
                     size={20}
@@ -1238,17 +1301,19 @@ const Profile = ({navigation, tabBarVisible}) => {
                 </TouchableOpacity>
                 <View
                   style={{
-                    alignItems: 'center',
+                    alignItems: "center",
                     borderColor: colors.textinputbordercolor,
                     borderBottomWidth: 0.5,
-                  }}>
+                  }}
+                >
                   <Text
                     style={{
                       fontSize: 18,
                       padding: 15,
-                      fontWeight: '700',
+                      fontWeight: "700",
                       color: colors.textColor,
-                    }}>
+                    }}
+                  >
                     Key Skills
                   </Text>
                 </View>
@@ -1259,8 +1324,9 @@ const Profile = ({navigation, tabBarVisible}) => {
                     // marginBottom: 10,
                     //margin: 20,
                     marginVertical: 20,
-                    flexDirection: 'row',
-                  }}>
+                    flexDirection: "row",
+                  }}
+                >
                   <TextInput
                     style={{
                       ...styles.textInput,
@@ -1292,12 +1358,14 @@ const Profile = ({navigation, tabBarVisible}) => {
                       paddingHorizontal: 10,
                       paddingVertical: 10,
                       borderRadius: 4,
-                    }}>
+                    }}
+                  >
                     <Text
                       style={{
-                        fontWeight: '600',
+                        fontWeight: "600",
                         color: colors.ButtonTextColor,
-                      }}>
+                      }}
+                    >
                       Add
                     </Text>
                   </TouchableOpacity>
@@ -1310,19 +1378,22 @@ const Profile = ({navigation, tabBarVisible}) => {
                         style={{
                           ...styles.skllSecondView,
                           backgroundColor: colors.textinputBackgroundcolor,
-                        }}>
+                        }}
+                      >
                         <Text
                           style={{
                             ...styles.skillText,
                             color: colors.textColor,
-                          }}>
-                          {typeof item === 'object' ? item.skillText : item}
+                          }}
+                        >
+                          {typeof item === "object" ? item.skillText : item}
                         </Text>
                         <TouchableOpacity
-                          style={{paddingLeft: 2}}
+                          style={{ paddingLeft: 2 }}
                           onPress={() => {
                             deleteSkills(item);
-                          }}>
+                          }}
+                        >
                           <Icon
                             name="cross"
                             size={15}
@@ -1348,8 +1419,11 @@ const Profile = ({navigation, tabBarVisible}) => {
                       borderWidth: 0.5,
                       marginRight: 10,
                       flex: 1,
-                    }}>
-                    <Text style={{...styles.saveText, color: colors.textColor}}>
+                    }}
+                  >
+                    <Text
+                      style={{ ...styles.saveText, color: colors.textColor }}
+                    >
                       Cancel
                     </Text>
                   </TouchableOpacity>
@@ -1359,12 +1433,14 @@ const Profile = ({navigation, tabBarVisible}) => {
                       ...styles.save,
                       flex: 1,
                       backgroundColor: colors.AppmainColor,
-                    }}>
+                    }}
+                  >
                     <Text
                       style={{
                         ...styles.saveText,
                         color: colors.ButtonTextColor,
-                      }}>
+                      }}
+                    >
                       Save
                     </Text>
                   </TouchableOpacity>
@@ -1378,31 +1454,35 @@ const Profile = ({navigation, tabBarVisible}) => {
             visible={modalVisible3}
             onRequestClose={() => {
               setModalVisible3(!modalVisible3);
-            }}>
+            }}
+          >
             <View style={styles.centeredView}>
-              <View style={{...styles.modalView, flex: 0.7, padding: 20}}>
-                <ScrollView contentContainerStyle={{flexGrow: 1}}>
+              <View style={{ ...styles.modalView, flex: 0.7, padding: 20 }}>
+                <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
                   <TouchableOpacity
                     hitSlop={10}
                     onPress={() => {
                       setModalVisible3(false);
                     }}
-                    style={{alignSelf: 'flex-end'}}>
+                    style={{ alignSelf: "flex-end" }}
+                  >
                     <Icon name="cross" size={20} color="black" type="Entypo" />
                   </TouchableOpacity>
                   <View
                     style={{
-                      alignItems: 'center',
-                      backgroundColor: '',
+                      alignItems: "center",
+                      backgroundColor: "",
                       borderBottomWidth: 0.5,
-                    }}>
+                    }}
+                  >
                     <Text
-                      style={{fontSize: 18, padding: 15, fontWeight: '700'}}>
+                      style={{ fontSize: 18, padding: 15, fontWeight: "700" }}
+                    >
                       Add Languages
                     </Text>
                   </View>
 
-                  <View style={{flex: 0.5, marginBottom: 10, marginTop: 20}}>
+                  <View style={{ flex: 0.5, marginBottom: 10, marginTop: 20 }}>
                     <TextInput
                       style={{
                         ...styles.textInput,
@@ -1411,7 +1491,7 @@ const Profile = ({navigation, tabBarVisible}) => {
                         height: 40,
                       }}
                       value={languages}
-                      onChangeText={value => {
+                      onChangeText={(value) => {
                         handleLangauge(value);
                       }}
                       onSubmitEditing={() => {
@@ -1423,9 +1503,10 @@ const Profile = ({navigation, tabBarVisible}) => {
                     {languagesValue?.length ? (
                       <View
                         style={{
-                          flexDirection: 'row',
-                          flexWrap: 'wrap',
-                        }}>
+                          flexDirection: "row",
+                          flexWrap: "wrap",
+                        }}
+                      >
                         {languagesValue?.map((item, index) => (
                           <View
                             key={index}
@@ -1435,10 +1516,11 @@ const Profile = ({navigation, tabBarVisible}) => {
                               padding: 10,
                               backgroundColor: Colors.background_Profile_Tag,
                               borderRadius: 10,
-                              flexDirection: 'row',
-                              alignItems: 'center',
-                            }}>
-                            <Text style={{fontSize: 14}}>{item}</Text>
+                              flexDirection: "row",
+                              alignItems: "center",
+                            }}
+                          >
+                            <Text style={{ fontSize: 14 }}>{item}</Text>
                             <Icon
                               name="cross"
                               size={15}
@@ -1451,19 +1533,20 @@ const Profile = ({navigation, tabBarVisible}) => {
                     ) : null}
                   </View>
 
-                  <View style={{flex: 1}}>
+                  <View style={{ flex: 1 }}>
                     <TouchableOpacity
                       style={{
-                        flexDirection: 'row',
+                        flexDirection: "row",
                         borderWidth: 0.5,
                         borderRadius: 8,
-                        alignItems: 'center',
+                        alignItems: "center",
                         paddingHorizontal: 12,
                         paddingVertical: 10,
                       }}
-                      onPress={toggleDropdown}>
+                      onPress={toggleDropdown}
+                    >
                       <Text style={styles.text}>
-                        {selectedValue || 'Public'}
+                        {selectedValue || "Public"}
                       </Text>
                       <DownIcon name="down" size={15} color="#000" />
                     </TouchableOpacity>
@@ -1474,7 +1557,8 @@ const Profile = ({navigation, tabBarVisible}) => {
                           <TouchableOpacity
                             key={index}
                             style={styles.dropdownItem}
-                            onPress={() => selectOption(option)}>
+                            onPress={() => selectOption(option)}
+                          >
                             <Text style={styles.text}>{option}</Text>
                           </TouchableOpacity>
                         ))}
@@ -1491,14 +1575,16 @@ const Profile = ({navigation, tabBarVisible}) => {
                         borderWidth: 0.5,
                         marginRight: 10,
                         flex: 1,
-                      }}>
-                      <Text style={{...styles.saveText, color: Colors.black}}>
+                      }}
+                    >
+                      <Text style={{ ...styles.saveText, color: Colors.black }}>
                         Cancel
                       </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() => handleSaveLangauge1()}
-                      style={{...styles.save, flex: 1}}>
+                      style={{ ...styles.save, flex: 1 }}
+                    >
                       <Text style={styles.saveText}>Save</Text>
                     </TouchableOpacity>
                   </View>
@@ -1514,7 +1600,8 @@ const Profile = ({navigation, tabBarVisible}) => {
             onRequestClose={() => {
               setModalVisible4(!modalVisible4);
               handleDeleteJmi(); // Pass the `item` for deletion
-            }}>
+            }}
+          >
             <View style={styles.centeredView}>
               <View
                 style={{
@@ -1522,14 +1609,16 @@ const Profile = ({navigation, tabBarVisible}) => {
                   flex: 0.6,
                   padding: 20,
                   backgroundColor: colors.modelBackground,
-                }}>
+                }}
+              >
                 <TouchableOpacity
                   hitSlop={10}
                   onPress={() => {
                     setModalVisible4(!!modalVisible4);
                     handleDeleteJmi();
                   }}
-                  style={{alignSelf: 'flex-end'}}>
+                  style={{ alignSelf: "flex-end" }}
+                >
                   <Icon
                     name="cross"
                     size={20}
@@ -1539,17 +1628,19 @@ const Profile = ({navigation, tabBarVisible}) => {
                 </TouchableOpacity>
                 <View
                   style={{
-                    alignItems: 'center',
+                    alignItems: "center",
                     borderBottomWidth: 0.5,
                     borderColor: colors.textinputbordercolor,
-                  }}>
+                  }}
+                >
                   <Text
                     style={{
                       fontSize: 18,
                       padding: 15,
-                      fontWeight: '700',
+                      fontWeight: "700",
                       color: colors.textColor,
-                    }}>
+                    }}
+                  >
                     Exploring On {universityName}
                   </Text>
                 </View>
@@ -1559,8 +1650,9 @@ const Profile = ({navigation, tabBarVisible}) => {
                     flex: 1,
                     marginBottom: 10,
                     margin: 20,
-                  }}>
-                  <View style={{flexDirection: 'row'}}>
+                  }}
+                >
+                  <View style={{ flexDirection: "row" }}>
                     <TextInput
                       style={{
                         ...styles.textInput,
@@ -1571,7 +1663,7 @@ const Profile = ({navigation, tabBarVisible}) => {
                         backgroundColor: colors.textinputBackgroundcolor,
                       }}
                       value={jmi}
-                      onChangeText={value => {
+                      onChangeText={(value) => {
                         handJmi(value);
                       }}
                       onSubmitEditing={() => {
@@ -1585,8 +1677,9 @@ const Profile = ({navigation, tabBarVisible}) => {
                       style={{
                         ...styles.addButton,
                         backgroundColor: colors.AppmainColor,
-                      }}>
-                      <Text style={{color: colors.ButtonTextColor}}>Add</Text>
+                      }}
+                    >
+                      <Text style={{ color: colors.ButtonTextColor }}>Add</Text>
                     </TouchableOpacity>
                   </View>
                   {jmiValue.length > 0 ? (
@@ -1597,21 +1690,24 @@ const Profile = ({navigation, tabBarVisible}) => {
                           style={{
                             ...styles.skllSecondView,
                             backgroundColor: colors.textinputBackgroundcolor,
-                          }}>
+                          }}
+                        >
                           <Text
                             style={{
                               ...styles.skillText,
                               color: colors.textColor,
-                            }}>
-                            {typeof item === 'object'
+                            }}
+                          >
+                            {typeof item === "object"
                               ? item.exploringText
                               : item}
                           </Text>
                           <TouchableOpacity
-                            style={{paddingLeft: 2}}
+                            style={{ paddingLeft: 2 }}
                             onPress={() => {
                               fetchExploringDelete(item);
-                            }}>
+                            }}
+                          >
                             <Icon
                               name="cross"
                               size={15}
@@ -1638,8 +1734,11 @@ const Profile = ({navigation, tabBarVisible}) => {
                       flex: 1,
                       backgroundColor: colors.textinputBackgroundcolor,
                       borderColor: colors.textinputbordercolor,
-                    }}>
-                    <Text style={{...styles.saveText, color: colors.textColor}}>
+                    }}
+                  >
+                    <Text
+                      style={{ ...styles.saveText, color: colors.textColor }}
+                    >
                       Cancel
                     </Text>
                   </TouchableOpacity>
@@ -1649,12 +1748,14 @@ const Profile = ({navigation, tabBarVisible}) => {
                       ...styles.save,
                       flex: 1,
                       backgroundColor: colors.AppmainColor,
-                    }}>
+                    }}
+                  >
                     <Text
                       style={{
                         ...styles.saveText,
                         color: colors.ButtonTextColor,
-                      }}>
+                      }}
+                    >
                       Save
                     </Text>
                   </TouchableOpacity>
@@ -1670,7 +1771,8 @@ const Profile = ({navigation, tabBarVisible}) => {
             onRequestClose={() => {
               setModalVisible5(!modalVisible5);
               deleteInterests();
-            }}>
+            }}
+          >
             <View style={styles.centeredView}>
               <View
                 style={{
@@ -1678,14 +1780,16 @@ const Profile = ({navigation, tabBarVisible}) => {
                   flex: 0.6,
                   padding: 20,
                   backgroundColor: colors.modelBackground,
-                }}>
+                }}
+              >
                 <TouchableOpacity
                   hitSlop={10}
                   onPress={() => {
                     setModalVisible5(!!modalVisible5);
                     deleteInterests();
                   }}
-                  style={{alignSelf: 'flex-end'}}>
+                  style={{ alignSelf: "flex-end" }}
+                >
                   <Icon
                     name="cross"
                     size={20}
@@ -1695,17 +1799,19 @@ const Profile = ({navigation, tabBarVisible}) => {
                 </TouchableOpacity>
                 <View
                   style={{
-                    alignItems: 'center',
+                    alignItems: "center",
                     borderBottomWidth: 0.5,
                     borderColor: colors.textinputbordercolor,
-                  }}>
+                  }}
+                >
                   <Text
                     style={{
                       fontSize: 18,
                       padding: 15,
-                      fontWeight: '700',
+                      fontWeight: "700",
                       color: colors.textColor,
-                    }}>
+                    }}
+                  >
                     Add Interests
                   </Text>
                 </View>
@@ -1714,8 +1820,9 @@ const Profile = ({navigation, tabBarVisible}) => {
                   style={{
                     flex: 1,
                     marginVertical: 20,
-                  }}>
-                  <View style={{flexDirection: 'row'}}>
+                  }}
+                >
+                  <View style={{ flexDirection: "row" }}>
                     <TextInput
                       style={{
                         ...styles.textInput,
@@ -1736,8 +1843,9 @@ const Profile = ({navigation, tabBarVisible}) => {
                       style={{
                         ...styles.addButton,
                         backgroundColor: colors.AppmainColor,
-                      }}>
-                      <Text style={{color: colors.ButtonTextColor}}>Add</Text>
+                      }}
+                    >
+                      <Text style={{ color: colors.ButtonTextColor }}>Add</Text>
                     </TouchableOpacity>
                   </View>
                   {interestsValue.length > 0 ? (
@@ -1748,16 +1856,19 @@ const Profile = ({navigation, tabBarVisible}) => {
                           style={{
                             ...styles.skllSecondView,
                             backgroundColor: colors.textinputBackgroundcolor,
-                          }}>
+                          }}
+                        >
                           <Text
                             style={{
                               ...styles.skillText,
                               color: colors.textColor,
-                            }}>
+                            }}
+                          >
                             {item.interestText}
                           </Text>
                           <TouchableOpacity
-                            onPress={() => deleteInterest(item)}>
+                            onPress={() => deleteInterest(item)}
+                          >
                             <Icon
                               name="cross"
                               size={15}
@@ -1769,7 +1880,9 @@ const Profile = ({navigation, tabBarVisible}) => {
                       ))}
                     </View>
                   ) : (
-                    <Text style={{color: colors.textColor}}>No data found</Text>
+                    <Text style={{ color: colors.textColor }}>
+                      No data found
+                    </Text>
                   )}
                 </View>
                 <View style={globalStyles.flexRow}>
@@ -1785,8 +1898,11 @@ const Profile = ({navigation, tabBarVisible}) => {
                       borderWidth: 0.5,
                       marginRight: 10,
                       flex: 1,
-                    }}>
-                    <Text style={{...styles.saveText, color: colors.textColor}}>
+                    }}
+                  >
+                    <Text
+                      style={{ ...styles.saveText, color: colors.textColor }}
+                    >
                       Cancel
                     </Text>
                   </TouchableOpacity>
@@ -1796,12 +1912,14 @@ const Profile = ({navigation, tabBarVisible}) => {
                       ...styles.save,
                       flex: 1,
                       backgroundColor: colors.AppmainColor,
-                    }}>
+                    }}
+                  >
                     <Text
                       style={{
                         ...styles.saveText,
                         color: colors.ButtonTextColor,
-                      }}>
+                      }}
+                    >
                       Save
                     </Text>
                   </TouchableOpacity>
@@ -1819,24 +1937,24 @@ const styles = StyleSheet.create({
   headerView: {
     flex: 0.09,
     backgroundColor: Colors.white,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     borderBottomWidth: 0.5,
   },
-  headerText: {fontSize: 18, fontWeight: '500'},
+  headerText: { fontSize: 18, fontWeight: "500" },
   headerView2: {
     flex: 0.1,
   },
-  titleText: {fontSize: 13},
+  titleText: { fontSize: 13 },
 
   profileFirstView: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
 
   profileSection: {
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 20,
     marginHorizontal: 12,
   },
@@ -1849,7 +1967,7 @@ const styles = StyleSheet.create({
 
   centeredView: {
     flex: 1,
-    justifyContent: 'flex-end',
+    justifyContent: "flex-end",
   },
   modalView: {
     flex: 0.44,
@@ -1857,7 +1975,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     padding: 35,
     paddingVertical: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -1873,12 +1991,12 @@ const styles = StyleSheet.create({
   },
 
   buttonClose: {
-    backgroundColor: '#2196F3',
+    backgroundColor: "#2196F3",
   },
   textStyle: {
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
   },
   modalText: {
     marginBottom: 15,
@@ -1886,13 +2004,13 @@ const styles = StyleSheet.create({
   save: {
     borderRadius: 4,
     paddingVertical: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginVertical: 20,
   },
   saveText: {
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   textInput: {
     flex: 1,
@@ -1909,10 +2027,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.5,
     padding: 10,
     paddingVertical: 15,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
-  editText: {marginRight: 20, flexWrap: 'wrap'},
+  editText: { marginRight: 20, flexWrap: "wrap" },
   skillMainView: {
     marginHorizontal: 12,
     borderBottomWidth: 0.5,
@@ -1922,13 +2040,13 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   secongSkillView: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   skillValueMainView: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
   },
   skllSecondView: {
     marginVertical: 5,
@@ -1936,24 +2054,24 @@ const styles = StyleSheet.create({
     padding: 10,
     // backgroundColor: Colors.background_Profile_Tag,
     borderRadius: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     // flexWrap: 'wrap',
     // flex: 1,
   },
-  skillText: {fontSize: 14, flexShrink: 1, flexGrow: 1},
+  skillText: { fontSize: 14, flexShrink: 1, flexGrow: 1 },
   dropdownList: {
     marginTop: 5,
     borderWidth: 0.5,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 5,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     // alignSelf:"flex-end"
   },
   dropdownItem: {
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: "#eee",
   },
   addButton: {
     marginLeft: 10,

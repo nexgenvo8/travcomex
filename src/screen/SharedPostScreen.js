@@ -57,6 +57,7 @@ import { useTheme } from "../theme/ThemeContext";
 
 const SharedPostScreen = ({ route, navigation }) => {
   const { postId, postType } = route.params || {};
+  const flatListRef = useRef(null);
   const [expandedPosts, setExpandedPosts] = useState({});
   const [likedPosts, setLikedPosts] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
@@ -104,7 +105,15 @@ const SharedPostScreen = ({ route, navigation }) => {
   const smallImageHeight = (imageHeight - 8) / 3;
   const { isDark, colors, toggleTheme } = useTheme();
   const styles = createStyles(colors);
+  const windowWidth = Dimensions.get("window").width;
   const scrollViewRef = useRef(null);
+  useEffect(() => {
+    if (isOpen2 && scrollViewRef.current) {
+      setTimeout(() => {
+        scrollViewRef.current.scrollToEnd({ animated: true });
+      }, 100);
+    }
+  }, [isOpen2]);
   const toggleDropdown = () => setIsOpen(!isOpen);
   const toggleDropdown2 = () => setIsOpen2(!isOpen2);
   const toggleExpand = (index) => {
@@ -112,6 +121,10 @@ const SharedPostScreen = ({ route, navigation }) => {
       ...prevState,
       [index]: !prevState[index],
     }));
+  };
+  const selectOption = (option) => {
+    setSelectedValue(option);
+    setIsOpen(false);
   };
   const selectOption2 = (option) => {
     if (option == "Share with Message") {
@@ -165,7 +178,47 @@ const SharedPostScreen = ({ route, navigation }) => {
     "Share with Message",
     "Share To  Extenal Social Media",
   ];
+  const handleSharePost = async () => {
+    try {
+      if (selectedValue1 === "Share To External Social Media") {
+        onShare();
+      } else {
+        const response = await fetch(
+          `${baseUrl}${
+            selectedValue1 == "Share with My Contacts"
+              ? sharewithcontact
+              : sharewithpublic
+          }`,
 
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              oldPostId: passImageInModal?.id,
+              postType: passImageInModal?.PostType,
+              postShareType: 1,
+              postText: number1 ? number1 : "SHARE",
+              oldPostText: passImageInModal?.PostText,
+              userId: userData?.User?.userId,
+            }),
+          }
+        );
+        const data = await response.json();
+
+        if (response.ok) {
+          //   setModalVisible(!!modalVisible);
+          setModalVisible(false);
+          setPage(1);
+          // setPostData([]);
+          // fetchPosts(1, false, true);
+        }
+      }
+    } catch (error) {
+      console.error("Fetch Error:", error);
+    }
+  };
   const UserValue = async () => {
     const userDta = await AsyncStorage.getItem("userData");
     const parsedData = JSON.parse(userDta);
@@ -646,11 +699,19 @@ const SharedPostScreen = ({ route, navigation }) => {
           }}
         >
           <View style={{ flexShrink: 1, flex: 1 }}>
-            <Text style={{ fontWeight: "700", fontSize: 15 }}>
+            <Text
+              style={{
+                fontWeight: "700",
+                fontSize: 15,
+                color: colors.textColor,
+              }}
+            >
               {item?.UserDetail?.UserName}
             </Text>
             <View style={{ flexDirection: "row", marginTop: 4 }}>
-              <Text style={{ fontSize: 13 }}>{item.Comment}</Text>
+              <Text style={{ fontSize: 13, color: colors.textColor }}>
+                {item.Comment}
+              </Text>
             </View>
             <TouchableOpacity
               onPress={() => {
@@ -659,8 +720,8 @@ const SharedPostScreen = ({ route, navigation }) => {
                 setCommitID(item);
               }}
             >
-              <Text style={{ paddingLeft: 20, color: Colors.main_primary }}>
-                *Reply
+              <Text style={{ paddingLeft: 20, color: colors.AppmainColor }}>
+                Reply
               </Text>
             </TouchableOpacity>
 
@@ -680,24 +741,26 @@ const SharedPostScreen = ({ route, navigation }) => {
                       style={{ width: 50, height: 50, borderRadius: 30 }}
                     />
                     <View style={{ margin: 10 }}>
-                      <Text style={{ fontWeight: "700", fontSize: 15 }}>
+                      <Text
+                        style={{
+                          fontWeight: "700",
+                          fontSize: 15,
+                          color: colors.textColor,
+                        }}
+                      >
                         {item?.UserDetail?.UserName}
                       </Text>
                       <Text
                         numberOfLines={2}
                         ellipsizeMode="tail"
-                        style={{ fontSize: 13, width: 200 }}
+                        style={{
+                          fontSize: 13,
+                          width: 200,
+                          color: colors.textColor,
+                        }}
                       >
                         {reply.Comment}
                       </Text>
-                      {/* <TouchableOpacity
-                        onPress={() => {
-                          setReplyUserName(reply.UserName);
-                          setCommentText(`@${reply.UserName} `);
-                          setCommitID(item);
-                        }}>
-                        <Text style={{ paddingLeft: 20, color: Colors.main_primary }}>*Reply</Text>
-                      </TouchableOpacity> */}
                       <TouchableOpacity
                         onPress={() => {
                           setReplyUserName(reply?.UserDetail?.UserName);
@@ -708,7 +771,7 @@ const SharedPostScreen = ({ route, navigation }) => {
                         <Text
                           style={{
                             paddingLeft: 20,
-                            color: Colors.main_primary,
+                            color: colors.AppmainColor,
                           }}
                         >
                           *Reply
@@ -727,13 +790,10 @@ const SharedPostScreen = ({ route, navigation }) => {
                 handleDeleteComment({ item });
               }}
             >
-              {/* <DeleteIcon name="delete" size={20} color="#888" />
-               */}
-
               <Icon
                 name="delete"
                 size={20}
-                color="#888"
+                color={colors.placeholderTextColor}
                 type="MaterialCommunityIcons"
               />
             </TouchableOpacity>
@@ -788,8 +848,10 @@ const SharedPostScreen = ({ route, navigation }) => {
             }
           />
 
-          <View>
-            <View style={[globalStyles?.flexRow, { alignItems: "center" }]}>
+          <View style={{ flex: 1 }}>
+            <View
+              style={[globalStyles?.flexRow, { alignItems: "center", flex: 1 }]}
+            >
               <Text
                 style={{
                   fontWeight: "700",
@@ -805,12 +867,18 @@ const SharedPostScreen = ({ route, navigation }) => {
               </Text>
             </View>
 
-            <View style={{ flexShrink: 1, flexWrap: "wrap" }}>
-              <Text
-                style={{ fontSize: 12, width: "90%", color: colors.textColor }}
-              >
-                {item.JobTitle} at {item.CompanyName}
-              </Text>
+            <View style={{ flexDirection: "row" }}>
+              <View style={{ flex: 1 }}>
+                <Text
+                  style={{
+                    fontSize: 12,
+                    width: "100%",
+                    color: colors.textColor,
+                  }}
+                >
+                  {item.JobTitle} at {item.CompanyName}
+                </Text>
+              </View>
             </View>
           </View>
         </TouchableOpacity>
@@ -1118,11 +1186,47 @@ const SharedPostScreen = ({ route, navigation }) => {
         <View style={{ flex: 0.1 }}></View>
       </View>
       <FlatList
+        ref={flatListRef}
         data={post}
         renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={{ paddingBottom: 20 }}
+        ListHeaderComponent={
+          <>
+            {isOpen && (
+              <View
+                style={{
+                  ...globalStyles.dropdownListShare,
+                  borderColor: colors.textinputbordercolor,
+                  backgroundColor: colors.background,
+                }}
+              >
+                {options.map((option, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={{
+                      ...globalStyles.dropdownItemShare,
+                      borderBottomColor: colors.textinputbordercolor,
+                    }}
+                    onPress={() => selectOption(option)}
+                  >
+                    <Text
+                      numberOfLines={1}
+                      style={{
+                        ...styles.text,
+                        color: colors.textColor,
+                      }}
+                    >
+                      {option}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}{" "}
+          </>
+        }
       />
+
       <Modal
         animationType="slide"
         transparent={true}
@@ -1137,15 +1241,11 @@ const SharedPostScreen = ({ route, navigation }) => {
               ...globalStyles.modalView,
               backgroundColor: colors.modelBackground,
               flex: 0.6,
-              // paddingBottom: 30,
             }}
           >
             <TouchableOpacity
               style={{ alignItems: "flex-end" }}
-              onPress={() =>
-                //  setModalVisible(!!modalVisible)
-                setModalVisible(false)
-              }
+              onPress={() => setModalVisible(false)}
             >
               <Icon
                 name="cross"
@@ -1161,11 +1261,15 @@ const SharedPostScreen = ({ route, navigation }) => {
                 Share Post
               </Text>
             </View>
-            <ScrollView ref={scrollViewRef}>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              ref={scrollViewRef}
+            >
               <TextInput
                 style={{
                   ...styles.input,
                   borderWidth: 1,
+                  borderRadius: 4,
                   borderColor: colors.textinputbordercolor,
                   color: colors.textColor,
                   backgroundColor: colors.textinputBackgroundcolor,
@@ -1190,7 +1294,7 @@ const SharedPostScreen = ({ route, navigation }) => {
                 />
                 <View style={{ paddingLeft: 10, flex: 1, paddingTop: 20 }}>
                   <RenderHtml
-                    contentWidth={screenWidth}
+                    contentWidth={windowWidth}
                     source={{ html: passImageInModal?.PostText }}
                     tagsStyles={{
                       p: {
@@ -1215,61 +1319,23 @@ const SharedPostScreen = ({ route, navigation }) => {
                       },
                     }}
                   />
-                  {/* <Text style={{maxWidth: '80%'}}>
-                    {passImageInModal?.PostText}
-                  </Text> */}
                 </View>
               </View>
-              {selectedValue1 == "Share To  Extenal Social Media" ? (
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                    marginVertical: 10,
-                  }}
-                >
-                  <TouchableOpacity onPress={() => sharePost(WhatsAppShare)}>
-                    <Icon
-                      type="FontAwesome"
-                      name={"whatsapp"}
-                      size={40}
-                      color={Colors?.main_primary}
-                    />
-                  </TouchableOpacity>
-                  <Icon
-                    type="AntDesign"
-                    name={"facebook-square"}
-                    size={40}
-                    color="blue"
-                  />
-                  <Icon
-                    type="AntDesign"
-                    name={"instagram"}
-                    size={40}
-                    color={"#E1306C"}
-                  />
-                  <Icon
-                    type="AntDesign"
-                    name={"linkedin-square"}
-                    size={40}
-                    color="#2284ec"
-                  />
-                  <TouchableOpacity onPress={() => sharePost(TweetShare)}>
-                    <Icon
-                      type="AntDesign"
-                      name={"twitter"}
-                      size={40}
-                      color="#61adff"
-                    />
+              {/* {selectedValue1 == 'Share To  External Social Media' ? (
+                <View style={{}}>
+                  <TouchableOpacity
+                    style={globalStyles.saveButton}
+                    onPress={() => onShare()}>
+                    <Text style={globalStyles.saveButtonText}>Share</Text>
                   </TouchableOpacity>
                 </View>
-              ) : null}
+              ) : null} */}
               <View>
                 <TouchableOpacity
                   style={{
                     flexDirection: "row",
                     borderWidth: 1,
-                    borderRadius: 5,
+                    borderRadius: 4,
                     marginTop: 10,
                     padding: 10,
                     alignItems: "center",
@@ -1282,18 +1348,35 @@ const SharedPostScreen = ({ route, navigation }) => {
                   <Text style={{ ...styles.text, color: colors.textColor }}>
                     {selectedValue1 || "Public"}
                   </Text>
-                  <Icon name="down" size={15} color="#000" type="AntDesign" />
+                  <Icon
+                    name="down"
+                    size={15}
+                    color={colors.textColor}
+                    type="AntDesign"
+                  />
                 </TouchableOpacity>
 
                 {isOpen2 && (
-                  <View style={globalStyles.dropdownListShare}>
+                  <View
+                    style={{
+                      ...globalStyles.dropdownListShare,
+                      borderColor: colors.textinputbordercolor,
+                    }}
+                  >
                     {options2.map((option, index) => (
                       <TouchableOpacity
                         key={index}
-                        style={globalStyles.dropdownItemShare}
+                        style={{
+                          ...globalStyles.dropdownItemShare,
+                          borderColor: colors.textinputbordercolor,
+                        }}
                         onPress={() => selectOption2(option)}
                       >
-                        <Text style={styles.text}>{option}</Text>
+                        <Text
+                          style={{ ...styles.text, color: colors.textColor }}
+                        >
+                          {option}
+                        </Text>
                       </TouchableOpacity>
                     ))}
                   </View>
@@ -1301,10 +1384,20 @@ const SharedPostScreen = ({ route, navigation }) => {
               </View>
             </ScrollView>
             <TouchableOpacity
-              style={globalStyles.saveButton}
+              style={{
+                ...globalStyles.saveButton,
+                backgroundColor: colors.AppmainColor,
+              }}
               onPress={() => handleSharePost()}
             >
-              <Text style={globalStyles.saveButtonText}>Save</Text>
+              <Text
+                style={{
+                  ...globalStyles.saveButtonText,
+                  color: colors.ButtonTextColor,
+                }}
+              >
+                Save
+              </Text>
             </TouchableOpacity>
 
             <Modal
@@ -1313,9 +1406,21 @@ const SharedPostScreen = ({ route, navigation }) => {
               animationType="slide"
             >
               <View style={globalStyles.shareModalMain}>
-                <View style={globalStyles.shareModalMain2}>
+                <View
+                  style={{
+                    ...globalStyles.shareModalMain2,
+                    backgroundColor: colors.modelBackground,
+                  }}
+                >
                   <View style={globalStyles.FD_Row_JC_SB}>
-                    <Text style={globalStyles.shareText1}>Search User</Text>
+                    <Text
+                      style={{
+                        ...globalStyles.shareText1,
+                        color: colors.textColor,
+                      }}
+                    >
+                      Search User
+                    </Text>
                     <TouchableOpacity
                       hitSlop={20}
                       onPress={() => {
@@ -1325,7 +1430,7 @@ const SharedPostScreen = ({ route, navigation }) => {
                       <Icon
                         name="cross"
                         size={15}
-                        color="black"
+                        color={colors.textColor}
                         type="Entypo"
                       />
                     </TouchableOpacity>
@@ -1333,15 +1438,19 @@ const SharedPostScreen = ({ route, navigation }) => {
                   <TextInput
                     value={username}
                     placeholder="Enter user name"
-                    style={globalStyles.shareInput}
+                    style={{
+                      ...globalStyles.shareInput,
+                      borderColor: colors.textinputbordercolor,
+                      color: colors.textColor,
+                    }}
                     onChangeText={handleContactSearch}
-                    placeholderTextColor={"black"}
+                    placeholderTextColor={colors.placeholderTextColor}
                   />
                   <View style={{ flex: 1 }}>
                     {loadingContacts ? (
                       <ActivityIndicator
                         size="large"
-                        color={Colors.main_primary}
+                        color={colors.AppmainColor}
                         style={{ marginTop: 30 }}
                       />
                     ) : filteredContacts.length === 0 ? (
@@ -1349,7 +1458,7 @@ const SharedPostScreen = ({ route, navigation }) => {
                         style={{
                           textAlign: "center",
                           padding: 20,
-                          color: Colors.gray,
+                          color: colors.placeholderTextColor,
                           fontSize: 16,
                         }}
                       >
@@ -1372,12 +1481,12 @@ const SharedPostScreen = ({ route, navigation }) => {
                                 height: 20,
                                 borderWidth: 2,
                                 borderColor: selectedUsers.includes(item.UserId)
-                                  ? "blue"
-                                  : "#aaa",
+                                  ? colors.AppmainColor
+                                  : colors.placeholderTextColor,
                                 backgroundColor: selectedUsers.includes(
                                   item.UserId
                                 )
-                                  ? "blue"
+                                  ? colors.AppmainColor
                                   : "transparent",
                                 justifyContent: "center",
                                 alignItems: "center",
@@ -1388,7 +1497,7 @@ const SharedPostScreen = ({ route, navigation }) => {
                               {selectedUsers.includes(item.UserId) && (
                                 <Text
                                   style={{
-                                    color: "white",
+                                    color: colors.ButtonTextColor,
                                     fontWeight: "bold",
                                   }}
                                 >
@@ -1407,12 +1516,18 @@ const SharedPostScreen = ({ route, navigation }) => {
                               />
                             </View>
                             <View style={{ padding: 10, flex: 1 }}>
-                              <Text style={{ fontSize: 16, fontWeight: "600" }}>
+                              <Text
+                                style={{
+                                  fontSize: 16,
+                                  fontWeight: "600",
+                                  color: colors.textColor,
+                                }}
+                              >
                                 {item?.UserName}
                               </Text>
                               <Text
                                 style={{
-                                  color: Colors.gray,
+                                  color: colors.placeholderTextColor,
                                   marginBottom: 5,
                                 }}
                               >
@@ -1427,20 +1542,26 @@ const SharedPostScreen = ({ route, navigation }) => {
                   </View>
                   <TouchableOpacity
                     onPress={async () => {
-                      try {
-                        for (const userId of selectedUsers) {
-                          await sendMessage(userId, passImageInModal);
-                        }
-                        setSelectedUsers([]);
-                        setModalVisibleShare(false);
-                        setModalVisible(false);
-                      } catch (err) {
-                        console.error("Sharing error:", err);
+                      for (const userId of selectedUsers) {
+                        await sendMessage(userId, passImageInModal);
                       }
+                      setSelectedUsers([]);
+                      setModalVisibleShare(false);
+                      // setModalVisible(!!modalVisible);
                     }}
-                    style={globalStyles.shareModal}
+                    style={{
+                      ...globalStyles.shareModal,
+                      backgroundColor: colors.AppmainColor,
+                    }}
                   >
-                    <Text style={globalStyles.shareText}>Share</Text>
+                    <Text
+                      style={{
+                        ...globalStyles.shareText,
+                        color: colors.ButtonTextColor,
+                      }}
+                    >
+                      Share
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -1483,17 +1604,36 @@ const SharedPostScreen = ({ route, navigation }) => {
       >
         <KeyboardAvoidingWrapper offset={40}>
           <View style={globalStyles.centeredView}>
-            <View style={{ ...globalStyles.modalView, flex: 0.8, padding: 20 }}>
+            <View
+              style={{
+                ...globalStyles.modalView,
+                flex: 0.8,
+                padding: 20,
+                backgroundColor: colors.modelBackground,
+              }}
+            >
               <TouchableOpacity
                 onPress={() => setModalVisible1(false)}
                 style={{
                   alignSelf: "flex-end",
                 }}
               >
-                <Icon name="cross" size={25} color="000" type="Entypo" />
+                <Icon
+                  name="cross"
+                  size={25}
+                  color={colors.textColor}
+                  type="Entypo"
+                />
               </TouchableOpacity>
               <View style={{ alignItems: "center", backgroundColor: "" }}>
-                <Text style={globalStyles.commentTitle}>Comments</Text>
+                <Text
+                  style={{
+                    ...globalStyles.commentTitle,
+                    color: colors.textColor,
+                  }}
+                >
+                  Comments
+                </Text>
               </View>
 
               <View
@@ -1503,7 +1643,9 @@ const SharedPostScreen = ({ route, navigation }) => {
               >
                 <View style={{ paddingLeft: 10 }}>
                   <FlatList
-                    data={[...commentList].reverse()}
+                    // ref={flatListRef}
+                    data={commentList}
+                    // data={[...commentList].reverse()}
                     renderItem={renderItem1}
                     keyExtractor={(item) => item.id?.toString()}
                     showsVerticalScrollIndicator={false}
@@ -1528,9 +1670,13 @@ const SharedPostScreen = ({ route, navigation }) => {
                   />
                 </View>
               </View>
-              {/* </ScrollView> */}
 
-              <View style={globalStyles.ViewCommentImg}>
+              <View
+                style={{
+                  ...globalStyles.ViewCommentImg,
+                  borderColor: colors.textinputbordercolor,
+                }}
+              >
                 <Image
                   source={
                     userProfileData?.Data?.profilePhoto
@@ -1541,14 +1687,20 @@ const SharedPostScreen = ({ route, navigation }) => {
                 />
 
                 <TextInput
-                  style={[globalStyles.textInputComment, { flex: 1 }]}
+                  style={[
+                    globalStyles.textInputComment,
+                    {
+                      flex: 1,
+                      color: colors.textColor,
+                    },
+                  ]}
                   // style={globalStyles.textInputComment}
                   onChangeText={onChangeNumber}
                   value={number}
                   placeholder="Write your Comment"
                   keyboardType="default"
                   multiline
-                  placeholderTextColor="#aaa"
+                  placeholderTextColor={colors.placeholderTextColor}
                 />
 
                 <TouchableOpacity
@@ -1558,7 +1710,7 @@ const SharedPostScreen = ({ route, navigation }) => {
                     opacity: isCommentEmpty || isCommentSending ? 0.4 : 1,
                   }}
                   onPress={async () => {
-                    if (isCommentEmpty || isCommentSending) return; // prevent double tap
+                    if (isCommentEmpty || isCommentSending) return;
                     if (!number.trim()) {
                       showError("Comment cannot be empty.");
                       return;
@@ -1582,7 +1734,7 @@ const SharedPostScreen = ({ route, navigation }) => {
                   <Icon
                     name="paper-plane"
                     size={20}
-                    color="#888"
+                    color={colors.placeholderTextColor}
                     type="Entypo"
                   />
                 </TouchableOpacity>
@@ -1590,6 +1742,7 @@ const SharedPostScreen = ({ route, navigation }) => {
             </View>
           </View>
         </KeyboardAvoidingWrapper>
+        {/* </CommonBottomSheet> */}
       </Modal>
     </SafeAreaView>
   );

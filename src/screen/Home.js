@@ -96,33 +96,7 @@ export default function ({ route, tabBarVisible }) {
   const smallImageWidth = containerWidth * 0.35;
   const imageHeight = 250;
   const smallImageHeight = (imageHeight - 8) / 3;
-  // const scrollY = useSharedValue(0);
-  // const scrollHandler = useAnimatedScrollHandler({
-  //   onScroll: event => {
-  //     const currentOffset = event.contentOffset.y;
-  //     if (currentOffset > scrollY.value && currentOffset > 50) {
-  //       tabBarVisible.value = false;
-  //     } else if (currentOffset < scrollY.value) {
-  //       tabBarVisible.value = true;
-  //     }
-  //     scrollY.value = currentOffset;
-  //   },
-  // });
-  // const animatedHeaderStyle = useAnimatedStyle(() => {
-  //   return {
-  //     height: withTiming(tabBarVisible.value ? 60 : 0, {duration: 300}),
-  //     transform: [
-  //       {
-  //         translateY: withTiming(tabBarVisible.value ? 0 : -100, {
-  //           duration: 300,
-  //         }),
-  //       },
-  //     ],
-  //     opacity: withTiming(tabBarVisible.value ? 1 : 0, {duration: 300}),
-  //     overflow: 'hidden',
-  //   };
-  // });
-
+  const [inputHeight, setInputHeight] = useState(70);
   useFocusEffect(
     React.useCallback(() => {
       if (route.params?.scrollToTop) {
@@ -190,6 +164,7 @@ export default function ({ route, tabBarVisible }) {
   const [modalImageVisible, setModalImageVisible] = useState(false);
   const [isCommentSending, setIsCommentSending] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const isCommentEmpty = !number.trim();
   const isPostEmpty = !postText?.trim();
   const openImageModal = (imageUrl, index = 0) => {
@@ -202,6 +177,7 @@ export default function ({ route, tabBarVisible }) {
     setImages(updated);
   };
   const [initialLoading, setInitialLoading] = useState(true);
+
   const onShare = async () => {
     const payload = JSON.stringify({
       postId: passImageInModal?.id?.toString(),
@@ -345,12 +321,16 @@ export default function ({ route, tabBarVisible }) {
     setCurrentPage(1);
     fetchPosts(1, true);
   };
+  const onEndReachedCalledDuringMomentum = useRef(true);
   const handleLoadMore = () => {
     if (isFirstLoad.current) return;
     if (loading || refreshing || initialLoading) return;
     if (!hasMoreData) return;
-    const nextPage = currentPage + 1;
-    fetchPosts(nextPage);
+    if (onEndReachedCalledDuringMomentum.current) return;
+    fetchPosts(currentPage + 1);
+    onEndReachedCalledDuringMomentum.current = true;
+    // const nextPage = currentPage + 1;
+    // fetchPosts(nextPage);
   };
   const fetchPosts = async (
     page = 1,
@@ -365,7 +345,7 @@ export default function ({ route, tabBarVisible }) {
     } else if (page === 1 && !isAfterPost) {
       setInitialLoading(true);
     } else {
-      setLoading(true);
+      setLoadingMore(true);
     }
 
     try {
@@ -377,7 +357,6 @@ export default function ({ route, tabBarVisible }) {
         userId: userData?.User?.userId,
         page: page,
       });
-      // console.log(body, 'bodybodybodybodybody');
 
       const response = await fetch(`${baseUrl}${postlist}`, {
         method: "POST",
@@ -387,18 +366,21 @@ export default function ({ route, tabBarVisible }) {
         body: body,
       });
       const data = await response.json();
+
       if (response.ok) {
         if (data.Data && data.Data.length > 0) {
+          // If there is new data, update the state correctly
           setPostData((prev) =>
             isRefresh || page === 1 ? data.Data : [...prev, ...data.Data]
           );
-          setHasMoreData(true);
+          setHasMoreData(data.Data.length === 20);
           setCurrentPage(page);
         } else {
+          // No data, set hasMoreData to false
           setHasMoreData(false);
         }
       } else {
-        showError(data.Message || "Failed to fetch posts");
+        showError(data.Message);
       }
     } catch (error) {
       showError("Failed to fetch posts. Please try again later.");
@@ -406,9 +388,69 @@ export default function ({ route, tabBarVisible }) {
     } finally {
       setInitialLoading(false);
       setLoading(false);
+      setLoadingMore(false);
       setRefreshing(false);
     }
   };
+
+  // const fetchPosts = async (
+  //   page = 1,
+  //   isRefresh = false,
+  //   isAfterPost = false
+  // ) => {
+  //   if (loading && !isRefresh && !isAfterPost) return;
+  //   if (!hasMoreData && !isRefresh && !isAfterPost) return;
+
+  //   if (isRefresh) {
+  //     setRefreshing(true);
+  //   } else if (page === 1 && !isAfterPost) {
+  //     setInitialLoading(true);
+  //   } else {
+  //     setLoadingMore(true);
+  //   }
+
+  //   try {
+  //     const body = JSON.stringify({
+  //       id: Item?.optionalId || Item?.id || "",
+  //       status: 1,
+  //       per_page: 20,
+  //       postType: Item?.postType || " ",
+  //       userId: userData?.User?.userId,
+  //       page: page,
+  //     });
+  //     // console.log(body, 'bodybodybodybodybody');
+
+  //     const response = await fetch(`${baseUrl}${postlist}`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: body,
+  //     });
+  //     const data = await response.json();
+  //     if (response.ok) {
+  //       if (data.Data && data.Data.length > 0) {
+  //         setPostData((prev) =>
+  //           isRefresh || page === 1 ? data.Data : [...prev, ...data.Data]
+  //         );
+  //         setHasMoreData(true);
+  //         setCurrentPage(page);
+  //       } else {
+  //         setHasMoreData(false);
+  //       }
+  //     } else {
+  //       showError(data.Message);
+  //     }
+  //   } catch (error) {
+  //     showError("Failed to fetch posts. Please try again later.");
+  //     console.error("Fetch Error:", error);
+  //   } finally {
+  //     setInitialLoading(false);
+  //     setLoading(false);
+  //     setLoadingMore(false);
+  //     setRefreshing(false);
+  //   }
+  // };
   useEffect(() => {
     if (isOpen2 && scrollViewRef.current) {
       setTimeout(() => {
@@ -873,7 +915,7 @@ export default function ({ route, tabBarVisible }) {
               if (response.ok) {
                 setPage(1);
                 setPostData([]);
-                fetchPosts(1);
+                fetchPosts(1, false, true);
               }
             } catch (error) {
               console.error("Delete Error:", error);
@@ -968,8 +1010,10 @@ export default function ({ route, tabBarVisible }) {
                 : require("../assets/placeholderprofileimage.png")
             }
           />
-          <View>
-            <View style={[globalStyles?.flexRow, { alignItems: "center" }]}>
+          <View style={{ flex: 1 }}>
+            <View
+              style={[globalStyles?.flexRow, { alignItems: "center", flex: 1 }]}
+            >
               <Text
                 style={{
                   fontWeight: "700",
@@ -988,6 +1032,7 @@ export default function ({ route, tabBarVisible }) {
                 {getTimeAgo(item.DateAdded)}
               </Text>
             </View>
+
             <View style={{ flexDirection: "row" }}>
               <View style={{ flex: 1 }}>
                 <Text
@@ -995,7 +1040,6 @@ export default function ({ route, tabBarVisible }) {
                     fontSize: 12,
                     width: "100%",
                     color: colors.textColor,
-                    lineHeight: 16,
                   }}
                 >
                   {item.JobTitle} at {item.CompanyName}
@@ -1473,7 +1517,7 @@ export default function ({ route, tabBarVisible }) {
           setModalVisible(false);
           setPage(1);
           setPostData([]);
-          fetchPosts(1);
+          fetchPosts(1, false, true);
         }
       }
     } catch (error) {
@@ -1721,20 +1765,21 @@ export default function ({ route, tabBarVisible }) {
           </View>
         ) : null}
       </Animated.View> */}
+
       <FlatList
-        //Animated.FlatList
         ref={flatListRef}
         data={postData}
         renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
         onEndReached={handleLoadMore}
+        onMomentumScrollBegin={() => {
+          onEndReachedCalledDuringMomentum.current = false;
+        }}
         onEndReachedThreshold={0.5}
         contentContainerStyle={{
           paddingBottom: 40,
           flexGrow: 1,
         }}
-        // onScroll={scrollHandler}
-        // scrollEventThrottle={16}
         ListHeaderComponent={
           <>
             <View
@@ -1854,7 +1899,7 @@ export default function ({ route, tabBarVisible }) {
                         }
                         style={globalStyles.ImgUserProfile}
                       />
-                      <View>
+                      <View style={{ flex: 1 }}>
                         <Text
                           style={{
                             ...globalStyles?.FS_16_FW_B,
@@ -1864,17 +1909,24 @@ export default function ({ route, tabBarVisible }) {
                           {userProfileData?.Data?.firstName}{" "}
                           {userProfileData?.Data?.lastName}
                         </Text>
-
-                        <Text
+                        <View
                           style={{
-                            fontSize: 12,
-                            color: colors.placeholderTextColor,
-                            width: "76%",
+                            flexDirection: "row",
+                            flex: 1,
                           }}
                         >
-                          {userProfileData?.Data?.courseName} -{" "}
-                          {userProfileData?.Data?.companyName}
-                        </Text>
+                          <View style={{ flex: 1 }}>
+                            <Text
+                              style={{
+                                fontSize: 12,
+                                color: colors.placeholderTextColor,
+                              }}
+                            >
+                              {userProfileData?.Data?.courseName} -{" "}
+                              {userProfileData?.Data?.companyName}
+                            </Text>
+                          </View>
+                        </View>
                       </View>
                     </TouchableOpacity>
 
@@ -1905,7 +1957,7 @@ export default function ({ route, tabBarVisible }) {
                       </View>
                     )}
 
-                    <TextInput
+                    {/* <TextInput
                       style={{
                         ...globalStyles.PostTextViewINPut,
                         textAlignVertical: "top",
@@ -1920,7 +1972,29 @@ export default function ({ route, tabBarVisible }) {
                       keyboardType="default"
                       multiline
                       placeholderTextColor={colors.placeholderTextColor}
+                    /> */}
+                    <TextInput
+                      style={{
+                        ...globalStyles.PostTextViewINPut,
+                        height: Math.max(70, Math.min(inputHeight, 200)),
+                        textAlignVertical: "top",
+                        color: colors.textColor,
+                        borderColor: postTextErr
+                          ? "red"
+                          : colors.textinputbordercolor,
+                        backgroundColor: colors.textinputBackgroundcolor,
+                      }}
+                      multiline
+                      value={postText}
+                      onChangeText={handleTextChange}
+                      placeholder="What's in your mind?"
+                      placeholderTextColor={colors.placeholderTextColor}
+                      onContentSizeChange={(e) => {
+                        setInputHeight(e.nativeEvent.contentSize.height);
+                      }}
+                      scrollEnabled={inputHeight > 200}
                     />
+
                     {showList && contacts.length > 0
                       ? contacts.map((item, index) => {
                           return (
@@ -2172,7 +2246,7 @@ export default function ({ route, tabBarVisible }) {
           </>
         }
         ListFooterComponent={
-          loading ? (
+          loadingMore ? (
             <ActivityIndicator size="large" color={colors.AppmainColor} />
           ) : !hasMoreData ? (
             <Text
@@ -2185,6 +2259,9 @@ export default function ({ route, tabBarVisible }) {
               No more posts to show
             </Text>
           ) : null
+        }
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
         ListEmptyComponent={
           !loading ? (
@@ -2208,10 +2285,8 @@ export default function ({ route, tabBarVisible }) {
             </View>
           ) : null
         }
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
-        }
       />
+
       <Modal
         animationType="slide"
         transparent={true}
@@ -2630,7 +2705,9 @@ export default function ({ route, tabBarVisible }) {
               >
                 <View style={{ paddingLeft: 10 }}>
                   <FlatList
-                    data={[...commentList].reverse()}
+                    ref={flatListRef}
+                    data={commentList}
+                    // data={[...commentList].reverse()}
                     renderItem={renderItem1}
                     keyExtractor={(item) => item.id?.toString()}
                     showsVerticalScrollIndicator={false}

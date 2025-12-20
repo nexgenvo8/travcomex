@@ -580,34 +580,34 @@ const Registration = () => {
       setErrors(tempErrors);
       return false;
     }
-    if (!phone.trim() || phone.length !== 10) {
-      tempErrors.phone = true;
-      showError("Valid 10-digit phone number required");
-      setErrors(tempErrors);
-      return false;
-    }
+    // if (!phone.trim() || phone.length !== 10) {
+    //   tempErrors.phone = true;
+    //   showError("Valid 10-digit phone number required");
+    //   setErrors(tempErrors);
+    //   return false;
+    // }
 
     // ---------- BIRTHDAY ----------
-    if (!selectedDay) {
-      tempErrors.day = true;
-      showError("Please select birth day");
-      setErrors(tempErrors);
-      return false;
-    }
+    // if (!selectedDay) {
+    //   tempErrors.day = true;
+    //   showError("Please select birth day");
+    //   setErrors(tempErrors);
+    //   return false;
+    // }
 
-    if (!selectedMonth) {
-      tempErrors.month = true;
-      showError("Please select birth month");
-      setErrors(tempErrors);
-      return false;
-    }
+    // if (!selectedMonth) {
+    //   tempErrors.month = true;
+    //   showError("Please select birth month");
+    //   setErrors(tempErrors);
+    //   return false;
+    // }
 
-    if (!selectedYear) {
-      tempErrors.year = true;
-      showError("Please select birth year");
-      setErrors(tempErrors);
-      return false;
-    }
+    // if (!selectedYear) {
+    //   tempErrors.year = true;
+    //   showError("Please select birth year");
+    //   setErrors(tempErrors);
+    //   return false;
+    // }
 
     // ---------- GENDER ----------
     // if (!selectedGender) {
@@ -700,7 +700,7 @@ const Registration = () => {
       segments: segmentsMap[selectedSegments] || "Null",
       employmentId: 101,
       membershipId: 2001,
-      templateId: 123,
+      templateId: 125,
       jobTitle: jobTitle || "Null",
       passingyear: parseInt(passingYear) || 0,
       departmentname: department || "Null",

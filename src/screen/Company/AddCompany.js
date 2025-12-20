@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -14,13 +14,13 @@ import {
   Modal,
   ActivityIndicator,
   Button,
-} from 'react-native';
-import globalStyles from '../GlobalCSS';
-import Header from '../Header/Header';
-import Colors from '../color';
-import Icon from '../Icons/Icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+} from "react-native";
+import globalStyles from "../GlobalCSS";
+import Header from "../Header/Header";
+import Colors from "../color";
+import Icon from "../Icons/Icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import {
   AddCompanyApi,
   addjob,
@@ -30,48 +30,48 @@ import {
   StateList,
   UpdateCompany,
   updatejob,
-} from '../baseURL/api';
-import ImagePicker from 'react-native-image-crop-picker';
-import {showError, showSuccess} from '../components/Toast';
-import {useTheme} from '../../theme/ThemeContext';
-import KeyboardAvoidingWrapper from '../components/KeyboardAvoidingWrapper';
+} from "../baseURL/api";
+import ImagePicker from "react-native-image-crop-picker";
+import { showError, showSuccess } from "../components/Toast";
+import { useTheme } from "../../theme/ThemeContext";
+import KeyboardAvoidingWrapper from "../components/KeyboardAvoidingWrapper";
 
-const AddCompany = ({navigation, route}) => {
-  const {Item = {}, AdditionalData = []} = route.params || {};
-  console.log('Item ---- >', Item);
-  const {isDark, colors, toggleTheme} = useTheme();
-  const [number, onChangeNumber] = useState('');
-  const [selectedValue5, setSelectedValue5] = useState('Select');
+const AddCompany = ({ navigation, route }) => {
+  const { Item = {}, AdditionalData = [] } = route.params || {};
+  console.log("Item ---- >", Item);
+  const { isDark, colors, toggleTheme } = useTheme();
+  const [number, onChangeNumber] = useState("");
+  const [selectedValue5, setSelectedValue5] = useState("Select");
   const [isOpen5, setIsOpen5] = useState(false);
-  const [selectedValueComp, setSelectedValueComp] = useState('Select');
-  const [selectedValue2, setSelectedValue2] = useState('Select');
+  const [selectedValueComp, setSelectedValueComp] = useState("Select");
+  const [selectedValue2, setSelectedValue2] = useState("Select");
   const [isOpen2, setIsOpen2] = useState(false);
   const [industryData, setIndustryData] = useState([]);
-  const [perfID1, setPerfID1] = useState('');
-  const [description, setDescription] = useState('');
+  const [perfID1, setPerfID1] = useState("");
+  const [description, setDescription] = useState("");
   const [userData, setUserData] = useState(null);
   const [errorTitle, setErrorTitle] = useState(false);
-  console.log('errorTitle', errorTitle);
+  console.log("errorTitle", errorTitle);
   const [errorCategory, setErrorCategory] = useState(false);
   const [errorCareerLevel, setErrorCareerLevel] = useState(false);
   const [errorDescription, setErrorDescription] = useState(false);
   const [errorCompany, setErrorCompany] = useState(false);
-  const [tag, setTag] = useState('');
-  const [establishedYear, setEstablishedYear] = useState('');
-  const [errorCountry, setErrorCountry] = useState('');
-  const [errorState, setErrorState] = useState('');
+  const [tag, setTag] = useState("");
+  const [establishedYear, setEstablishedYear] = useState("");
+  const [errorCountry, setErrorCountry] = useState("");
+  const [errorState, setErrorState] = useState("");
   const [errorTag, setErrorTag] = useState(false);
   const [errorYear, setErrorYear] = useState(false);
   const [errorImg, setErrorImg] = useState(false);
-
-  const [city, setCity] = useState('');
+  const [showIndustryModal, setShowIndustryModal] = useState(false);
+  const [city, setCity] = useState("");
   const [errorCity, setErrorCity] = useState(false);
   const [errorPostalCode, setErrorPostalCode] = useState(false);
-  const [postalCode, setPostalCode] = useState('');
-  const [pNo, setPNo] = useState('');
-  const [eMail, setEMail] = useState('');
-  const [compURL, setCompURL] = useState('');
-  const [aboutComp, setAboutComp] = useState('');
+  const [postalCode, setPostalCode] = useState("");
+  const [pNo, setPNo] = useState("");
+  const [eMail, setEMail] = useState("");
+  const [compURL, setCompURL] = useState("");
+  const [aboutComp, setAboutComp] = useState("");
   const [errorPNo, setErrorPNo] = useState(false);
   const [errorEmail, setErrorEmail] = useState(false);
   const [errorCopmURL, setErrorCopmURL] = useState(false);
@@ -79,7 +79,7 @@ const AddCompany = ({navigation, route}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [countryList, setCountryList] = useState([]);
   const [selectedCountry, setSelectedCountry] = useState(null);
-  console.log('selectedCountry', selectedCountry);
+  console.log("selectedCountry", selectedCountry);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [stateModalVisible, setStateModalVisible] = useState(false);
@@ -87,37 +87,45 @@ const AddCompany = ({navigation, route}) => {
   const [selectedState, setSelectedState] = useState(null);
   const [stateLoading, setStateLoading] = useState(false);
   const [image, setImage] = useState(null);
-
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [logoImage, setLogoImage] = useState(null);
   const [bannerImage, setBannerImage] = useState(null);
   const [base64Logo, setBase64Logo] = useState(null);
   const [base64Banner, setBase64Banner] = useState(null);
   const [checked, setChecked] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchQueryStates, setSearchQueryStates] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQueryStates, setSearchQueryStates] = useState("");
   const [filteredCountries, setFilteredCountries] = useState([]);
   const [filteredStates, setFilteredStates] = useState([]);
-  const validateEmail = email => {
+  const [perPage] = useState(10);
+  const validateEmail = (email) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email.trim());
   };
+  const handleRefresh = () => {
+    setRefreshing(true);
+    setPage(1);
+    setHasMoreData(true);
+  };
 
   useEffect(() => {
-    if (searchQueryStates === '') {
+    if (searchQueryStates === "") {
       setFilteredStates(stateList);
     } else {
-      const filtered = stateList.filter(item =>
-        item.label.toLowerCase().includes(searchQueryStates.toLowerCase()),
+      const filtered = stateList.filter((item) =>
+        item.label.toLowerCase().includes(searchQueryStates.toLowerCase())
       );
       setFilteredStates(filtered);
     }
   }, [searchQueryStates, stateList]);
   useEffect(() => {
-    if (searchQuery === '') {
+    if (searchQuery === "") {
       setFilteredCountries(countryList);
     } else {
-      const filtered = countryList.filter(item =>
-        item.label.toLowerCase().includes(searchQuery.toLowerCase()),
+      const filtered = countryList.filter((item) =>
+        item.label.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setFilteredCountries(filtered);
     }
@@ -132,19 +140,19 @@ const AddCompany = ({navigation, route}) => {
       setEstablishedYear(Item.establishedYear?.toString());
       if (Item?.empStrength) {
         const selectedOption = optionsApply1.find(
-          option => option.id === Item.empStrength,
+          (option) => option.id === Item.empStrength
         );
         setSelectedValue2(selectedOption || null);
       }
       setDescription(Item?.companyAddress);
       setSelectedCountry(Item?.countryName);
       setSelectedState(Item?.stateName);
-      setAboutComp(Item.aboutCompany || '');
-      setCity(Item.cityName || '');
-      setCompURL(Item.companyUrl || '');
-      setPNo(Item.phoneNumber || '');
-      setEMail(Item.emailAddress || '');
-      setPostalCode(Item.postalCode || '');
+      setAboutComp(Item.aboutCompany || "");
+      setCity(Item.cityName || "");
+      setCompURL(Item.companyUrl || "");
+      setPNo(Item.phoneNumber || "");
+      setEMail(Item.emailAddress || "");
+      setPostalCode(Item.postalCode || "");
       if (Item?.companyLogo) {
         // setImage(Item.companyLogo);
         setLogoImage(Item.companyLogo);
@@ -157,21 +165,21 @@ const AddCompany = ({navigation, route}) => {
   }, []);
   const UserValue = async () => {
     try {
-      const userDta = await AsyncStorage.getItem('userData');
+      const userDta = await AsyncStorage.getItem("userData");
       const parsedData = JSON.parse(userDta);
       setUserData(parsedData);
     } catch (error) {
-      console.error('ErrorUserValue:', error);
+      console.error("ErrorUserValue:", error);
     }
   };
   useEffect(() => {
-    if (selectedValue5 !== 'Select' && selectedValue5) {
+    if (selectedValue5 !== "Select" && selectedValue5) {
       setErrorCategory(false);
     }
-    if (selectedValue2 !== 'Select' && selectedValue5) {
+    if (selectedValue2 !== "Select" && selectedValue5) {
       setErrorCareerLevel(false);
     }
-    if (selectedValueComp !== 'Select' && selectedValue5) {
+    if (selectedValueComp !== "Select" && selectedValue5) {
       setErrorCompany(false);
     }
 
@@ -193,42 +201,91 @@ const AddCompany = ({navigation, route}) => {
     selectedState,
     image,
   ]);
+  useEffect(() => {
+    if (showIndustryModal) {
+      setPage(1);
+      setHasMore(true);
+      getIndustryList(1);
+    }
+  }, [showIndustryModal]);
 
-  const getIndustryList = async Val => {
-    console.log(' value --- > ', Val);
+  const getIndustryList = async (pageNumber = 1) => {
+    if (loading || (!hasMore && pageNumber !== 1)) return;
+
+    if (pageNumber === 1) setRefreshing(true);
+    else setLoading(true);
+
     try {
       const response = await fetch(`${baseUrl}${listoption}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          Accept: "application/json",
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          optionType: Val,
+          optionType: "industry",
+          per_page: perPage,
+          page: pageNumber,
         }),
       });
 
       const data = await response.json();
-      console.log(' value data --------->>>>>> > ', data?.DataList);
 
       if (response.ok) {
-        setIndustryData(data?.DataList);
+        const newData = data?.DataList || [];
+
+        setIndustryData((prev) =>
+          pageNumber === 1 ? newData : [...prev, ...newData]
+        );
+
+        setHasMore(newData.length === perPage);
+        setPage(pageNumber + 1);
       } else {
-        showError(data.message);
+        console.error("API Error:", data.message);
       }
     } catch (error) {
-      console.error('getIndustryListss Error:', error);
+      console.error("Industry List Error:", error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
     }
   };
-  const selectOption5 = option => {
+
+  // const getIndustryList = async (Val) => {
+  //   console.log(" value --- > ", Val);
+  //   try {
+  //     const response = await fetch(`${baseUrl}${listoption}`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         optionType: Val,
+  //       }),
+  //     });
+
+  //     const data = await response.json();
+  //     console.log(" value data --------->>>>>> > ", data?.DataList);
+
+  //     if (response.ok) {
+  //       setIndustryData(data?.DataList);
+  //     } else {
+  //       showError(data.message);
+  //     }
+  //   } catch (error) {
+  //     console.error("getIndustryListss Error:", error);
+  //   }
+  // };
+  const selectOption5 = (option) => {
     setPerfID1(option?.Id);
     setSelectedValue5(option?.Name);
     setIsOpen5(false);
   };
   const toggleDropdown5 = () => {
-    getIndustryList('industry');
+    getIndustryList("industry");
     setIsOpen5(!isOpen5);
   };
-  const selectOption2 = option => {
+  const selectOption2 = (option) => {
     setSelectedValue2(option);
     setIsOpen2(false);
   };
@@ -237,12 +294,12 @@ const AddCompany = ({navigation, route}) => {
   };
 
   const optionsApply1 = [
-    {id: 1, label: '0 - 10'},
-    {id: 2, label: '10 - 50'},
-    {id: 3, label: '50 - 100'},
-    {id: 4, label: '100 - 1000'},
-    {id: 5, label: '1000 - 10000'},
-    {id: 6, label: '10000+'},
+    { id: 1, label: "0 - 10" },
+    { id: 2, label: "10 - 50" },
+    { id: 3, label: "50 - 100" },
+    { id: 4, label: "100 - 1000" },
+    { id: 5, label: "1000 - 10000" },
+    { id: 6, label: "10000+" },
   ];
   const AddCompanyPost = async () => {
     let isValid = true;
@@ -251,7 +308,7 @@ const AddCompany = ({navigation, route}) => {
       setErrorTitle(true);
       isValid = false;
     }
-    console.log('isValid', isValid);
+    console.log("isValid", isValid);
     if (!tag) {
       setErrorTag(true);
       isValid = false;
@@ -260,7 +317,7 @@ const AddCompany = ({navigation, route}) => {
       setErrorCategory(true);
       isValid = false;
     }
-    if (selectedValue2 === 'Select') {
+    if (selectedValue2 === "Select") {
       setErrorCareerLevel(true);
       isValid = false;
     }
@@ -290,7 +347,7 @@ const AddCompany = ({navigation, route}) => {
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!eMail || !emailRegex.test(eMail.trim())) {
-      showError('Please enter a valid email address.');
+      showError("Please enter a valid email address.");
       setErrorEmail(true);
       isValid = false;
     }
@@ -325,9 +382,9 @@ const AddCompany = ({navigation, route}) => {
 
     try {
       const response = await fetch(apiUrl, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: payload,
       });
@@ -335,16 +392,16 @@ const AddCompany = ({navigation, route}) => {
       const data = await response.json();
 
       if (response.ok) {
-        console.log('Add data  ----', data);
+        console.log("Add data  ----", data);
         // navigation.goBack();
-        navigation.replace('CompanyProfiles');
+        navigation.replace("CompanyProfiles");
         showSuccess(data.Message);
       } else {
         showError(data.message);
         console.log(data);
       }
     } catch (error) {
-      console.error('Fetch Error of AddCompanyPost:', error);
+      console.error("Fetch Error of AddCompanyPost:", error);
     } finally {
       setLoading(false);
     }
@@ -354,64 +411,67 @@ const AddCompany = ({navigation, route}) => {
     setLoading(true);
     try {
       const response = await fetch(`${baseUrl}${CountryList}`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({search: ''}),
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ search: "" }),
       });
 
       const data = await response.json();
       if (data?.Data) {
         setCountryList(
-          data.Data.map(item => ({
+          data.Data.map((item) => ({
             id: item.id,
             label: item.country_name,
             phonecode: item.phonecode,
             country_code: item.country_code,
-          })),
+          }))
         );
       }
     } catch (error) {
-      console.error('Error fetching countries:', error);
+      console.error("Error fetching countries:", error);
       setError(true);
     } finally {
       setLoading(false);
     }
   };
   // Fetch state list from API based on selected country
-  const fetchStateList = async countryId => {
-    console.log('Fetching states for country:', countryId);
+  const fetchStateList = async (countryId) => {
+    console.log("Fetching states for country:", countryId);
     setStateLoading(true);
     try {
       const response = await fetch(`${baseUrl}${StateList}`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({search: '', countryId: countryId}),
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ search: "", countryId: countryId }),
       });
 
       const data = await response.json();
-      console.log('State Data:', data);
+      console.log("State Data:", data);
       if (data?.Data) {
         setStateList(
-          data.Data.map(item => ({id: item.countryId, label: item.stateName})),
+          data.Data.map((item) => ({
+            id: item.countryId,
+            label: item.stateName,
+          }))
         );
       }
     } catch (error) {
-      console.error('Error fetching states:', error);
+      console.error("Error fetching states:", error);
     } finally {
       setStateLoading(false);
     }
   };
-  const selectImage = async type => {
+  const selectImage = async (type) => {
     try {
       const pickedImage = await ImagePicker.openPicker({
         width: 300,
         height: 300,
         cropping: true,
-        cropperCircleOverlay: type === 'logo',
+        cropperCircleOverlay: type === "logo",
         includeBase64: true, // Keep false if uploading to storage
       });
 
-      if (type === 'logo') {
+      if (type === "logo") {
         setLogoImage(pickedImage.path);
         setBase64Logo(pickedImage.data);
       } else {
@@ -419,7 +479,7 @@ const AddCompany = ({navigation, route}) => {
         setBase64Banner(pickedImage.data);
       }
     } catch (error) {
-      console.error('Error picking image:', error);
+      console.error("Error picking image:", error);
     }
   };
 
@@ -428,10 +488,11 @@ const AddCompany = ({navigation, route}) => {
       style={{
         ...globalStyles.SafeAreaView,
         backgroundColor: colors.background,
-      }}>
+      }}
+    >
       <Header title="Add Company Profile" navigation={navigation} />
       <KeyboardAvoidingWrapper offset={40}>
-        <View style={{flex: 1}}>
+        <View style={{ flex: 1 }}>
           <View style={{}}>
             <ScrollView showsVerticalScrollIndicator={false}>
               <View style={globalStyles.ViewINter1}>
@@ -439,7 +500,8 @@ const AddCompany = ({navigation, route}) => {
                   style={{
                     ...globalStyles.headlineText,
                     color: colors.textColor,
-                  }}>
+                  }}
+                >
                   Create Company Profile
                 </Text>
               </View>
@@ -448,13 +510,15 @@ const AddCompany = ({navigation, route}) => {
                 style={{
                   ...globalStyles.JobfiledSection,
                   paddingHorizontal: 10,
-                }}>
+                }}
+              >
                 <Text
                   style={{
                     ...globalStyles.JobfiledSectionText,
                     color: colors.textColor,
                     // color: errorTitle ? Colors.error : Colors.gray,
-                  }}>
+                  }}
+                >
                   Company Name<Text style={styles.red}>*</Text>
                 </Text>
 
@@ -467,7 +531,7 @@ const AddCompany = ({navigation, route}) => {
                     color: colors.textColor,
                     backgroundColor: colors.textinputBackgroundcolor,
                   }}
-                  onChangeText={value => {
+                  onChangeText={(value) => {
                     onChangeNumber(value);
                     setErrorTitle(value.trim().length === 0);
                   }}
@@ -483,25 +547,28 @@ const AddCompany = ({navigation, route}) => {
                 style={{
                   ...globalStyles.JobfiledSection,
                   paddingHorizontal: 10,
-                }}>
+                }}
+              >
                 <Text
                   style={{
                     ...globalStyles.JobfiledSectionText,
                     color: colors.textColor,
                     // color: errorTag ? Colors.error : Colors.gray,
-                  }}>
+                  }}
+                >
                   Tag ID<Text style={styles.red}>*</Text>
                 </Text>
-                <View style={{position: 'relative'}}>
+                <View style={{ position: "relative" }}>
                   <Text
                     style={{
-                      position: 'absolute',
+                      position: "absolute",
                       left: 15, // Adjust as needed
-                      top: '30%',
-                      transform: [{translateY: -10}],
+                      top: "30%",
+                      transform: [{ translateY: -10 }],
                       color: colors.placeholderTextColor,
                       fontSize: 16,
-                    }}>
+                    }}
+                  >
                     @
                   </Text>
 
@@ -515,7 +582,7 @@ const AddCompany = ({navigation, route}) => {
                       backgroundColor: colors.textinputBackgroundcolor,
                       paddingLeft: 30, // Add padding to prevent text overlap
                     }}
-                    onChangeText={value => {
+                    onChangeText={(value) => {
                       setTag(value);
                       setErrorTag(value.trim().length === 0);
                     }}
@@ -528,16 +595,38 @@ const AddCompany = ({navigation, route}) => {
                 </View>
               </View>
 
-              <View style={{marginHorizontal: 10}}>
+              <View style={{ marginHorizontal: 10 }}>
                 <Text
                   style={{
                     marginTop: 20,
                     color: colors.textColor,
                     // color: errorCategory ? Colors.error : Colors.gray,
-                  }}>
+                  }}
+                >
                   Industry<Text style={styles.red}>*</Text>
                 </Text>
                 <TouchableOpacity
+                  onPress={() => setShowIndustryModal(true)}
+                  style={{
+                    ...globalStyles.seclectIndiaView,
+                    borderColor: errorCategory
+                      ? Colors.error
+                      : colors.textinputbordercolor,
+                    backgroundColor: colors.textinputBackgroundcolor,
+                  }}
+                >
+                  <Text
+                    style={{
+                      ...globalStyles.JobfiledSectionText,
+                      paddingBottom: 0,
+                      color: colors.textColor,
+                    }}
+                  >
+                    {selectedValue5 || "Select"}
+                  </Text>
+                </TouchableOpacity>
+
+                {/* <TouchableOpacity
                   onPress={toggleDropdown5}
                   style={{
                     ...globalStyles.seclectIndiaView,
@@ -545,14 +634,16 @@ const AddCompany = ({navigation, route}) => {
                       ? Colors.error
                       : colors.textinputbordercolor,
                     backgroundColor: colors.textinputBackgroundcolor,
-                  }}>
+                  }}
+                >
                   <Text
                     style={{
                       ...globalStyles.JobfiledSectionText,
                       paddingBottom: 0,
                       color: colors.textColor,
-                    }}>
-                    {selectedValue5 || 'Select'}
+                    }}
+                  >
+                    {selectedValue5 || "Select"}
                   </Text>
                 </TouchableOpacity>
                 {isOpen5 && (
@@ -561,8 +652,9 @@ const AddCompany = ({navigation, route}) => {
                       ...globalStyles.dropdownList,
                       backgroundColor: colors.textinputBackgroundcolor,
                       borderColor: colors.textinputbordercolor,
-                    }}>
-                    {industryData.map(item => (
+                    }}
+                  >
+                    {industryData.map((item) => (
                       <TouchableOpacity
                         key={item.Id}
                         style={{
@@ -571,27 +663,30 @@ const AddCompany = ({navigation, route}) => {
                         }}
                         onPress={() => {
                           selectOption5(item);
-                        }}>
-                        <Text style={{fontSize: 14, color: colors.textColor}}>
+                        }}
+                      >
+                        <Text style={{ fontSize: 14, color: colors.textColor }}>
                           {item?.Name}
                         </Text>
                       </TouchableOpacity>
                     ))}
                   </View>
-                )}
+                )} */}
               </View>
 
               <View
                 style={{
                   ...globalStyles.JobfiledSection,
                   paddingHorizontal: 10,
-                }}>
+                }}
+              >
                 <Text
                   style={{
                     ...globalStyles.JobfiledSectionText,
                     color: colors.textColor,
                     // color: errorYear ? Colors.error : Colors.gray,
-                  }}>
+                  }}
+                >
                   Established in the year<Text style={styles.red}>*</Text>
                 </Text>
 
@@ -604,8 +699,8 @@ const AddCompany = ({navigation, route}) => {
                     color: colors.textColor,
                     backgroundColor: colors.textinputBackgroundcolor,
                   }}
-                  onChangeText={value => {
-                    const numericValue = value.replace(/[^0-9]/g, '');
+                  onChangeText={(value) => {
+                    const numericValue = value.replace(/[^0-9]/g, "");
                     setEstablishedYear(numericValue);
                     setErrorYear(numericValue.length !== 4);
                   }}
@@ -617,13 +712,14 @@ const AddCompany = ({navigation, route}) => {
                 />
               </View>
 
-              <View style={{marginHorizontal: 10}}>
+              <View style={{ marginHorizontal: 10 }}>
                 <Text
                   style={{
                     marginTop: 20,
                     color: colors.textColor,
                     // color: errorCareerLevel ? Colors.error : Colors.gray,
-                  }}>
+                  }}
+                >
                   Employee Strength<Text style={styles.red}>*</Text>
                 </Text>
                 <TouchableOpacity
@@ -634,14 +730,16 @@ const AddCompany = ({navigation, route}) => {
                       ? Colors.error
                       : colors.textinputbordercolor,
                     backgroundColor: colors.textinputBackgroundcolor,
-                  }}>
+                  }}
+                >
                   <Text
                     style={{
                       ...globalStyles.JobfiledSectionText,
                       paddingBottom: 0,
                       color: colors.textColor,
-                    }}>
-                    {selectedValue2?.label || 'Select Employee Strength'}
+                    }}
+                  >
+                    {selectedValue2?.label || "Select Employee Strength"}
                   </Text>
                 </TouchableOpacity>
                 {isOpen2 && (
@@ -650,16 +748,18 @@ const AddCompany = ({navigation, route}) => {
                       ...globalStyles.dropdownList,
                       backgroundColor: colors.textinputBackgroundcolor,
                       borderColor: colors.textinputbordercolor,
-                    }}>
-                    {optionsApply1.map(item => (
+                    }}
+                  >
+                    {optionsApply1.map((item) => (
                       <TouchableOpacity
                         key={item.id}
                         style={{
                           ...globalStyles.dropdownItem,
                           borderColor: colors.textinputbordercolor,
                         }}
-                        onPress={() => selectOption2(item)}>
-                        <Text style={{fontSize: 14, color: colors.textColor}}>
+                        onPress={() => selectOption2(item)}
+                      >
+                        <Text style={{ fontSize: 14, color: colors.textColor }}>
                           {item.label}
                         </Text>
                       </TouchableOpacity>
@@ -675,7 +775,8 @@ const AddCompany = ({navigation, route}) => {
                     paddingHorizontal: 10,
                     color: colors.textColor,
                     // color: errorDescription ? Colors.error : Colors.gray,
-                  }}>
+                  }}
+                >
                   Company address
                 </Text>
                 <TextInput
@@ -688,7 +789,7 @@ const AddCompany = ({navigation, route}) => {
                     backgroundColor: colors.textinputBackgroundcolor,
                     // borderColor: errorDescription ? Colors.error : Colors.gray,
                   }}
-                  onChangeText={value => {
+                  onChangeText={(value) => {
                     setDescription(value);
                     //setErrorDescription(value.trim().length === 0);
                   }}
@@ -700,9 +801,9 @@ const AddCompany = ({navigation, route}) => {
                 />
               </View>
 
-              <View style={{marginHorizontal: 10, marginTop: 20}}>
+              <View style={{ marginHorizontal: 10, marginTop: 20 }}>
                 {/* Select Country */}
-                <Text style={{color: colors.textColor}}>
+                <Text style={{ color: colors.textColor }}>
                   Country<Text style={styles.red}>*</Text>
                 </Text>
                 <TouchableOpacity
@@ -716,26 +817,28 @@ const AddCompany = ({navigation, route}) => {
                       ? Colors.error
                       : colors.textinputbordercolor,
                     backgroundColor: colors.textinputBackgroundcolor,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                  }}>
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
                   <Text
                     style={{
                       ...globalStyles.JobfiledSectionText,
                       color: colors.textColor,
                       // color: errorCountry ? Colors.error : 'black',
-                    }}>
+                    }}
+                  >
                     {/* {selectedCountry || 'Select Country'} */}
                     {selectedCountry
                       ? selectedCountry.label || selectedCountry
-                      : 'Select Country'}
+                      : "Select Country"}
                   </Text>
                   <Icon
                     name="down"
                     type="AntDesign"
                     size={15}
                     color={colors.backIconColor}
-                    style={{paddingLeft: 10}}
+                    style={{ paddingLeft: 10 }}
                   />
                 </TouchableOpacity>
 
@@ -745,47 +848,50 @@ const AddCompany = ({navigation, route}) => {
                     marginTop: 15,
                     color: colors.textColor,
                     // color: errorState ? Colors.error : 'black',
-                  }}>
+                  }}
+                >
                   State<Text style={styles.red}>*</Text>
                 </Text>
                 <TouchableOpacity
                   onPress={() => {
                     if (selectedCountry) {
                       console.log(
-                        'Selected Country:',
-                        selectedCountry?.phonecode,
+                        "Selected Country:",
+                        selectedCountry?.phonecode
                       );
                       fetchStateList(selectedCountry.id);
                       setStateModalVisible(true);
                     } else {
-                      showError('Please select a country first');
+                      showError("Please select a country first");
                     }
                   }}
                   style={{
                     ...globalStyles.seclectIndiaView,
-                    flexDirection: 'row',
-                    alignItems: 'center',
+                    flexDirection: "row",
+                    alignItems: "center",
                     borderColor: errorState
                       ? Colors.error
                       : colors.textinputbordercolor,
                     backgroundColor: colors.textinputBackgroundcolor,
-                  }}>
+                  }}
+                >
                   <Text
                     style={{
                       ...globalStyles.JobfiledSectionText,
                       color: colors.textColor,
                       // color: errorState ? Colors.error : 'black',
-                    }}>
+                    }}
+                  >
                     {selectedState
                       ? selectedState.label || selectedState
-                      : 'Select State'}
+                      : "Select State"}
                   </Text>
                   <Icon
                     name="down"
                     type="AntDesign"
                     size={15}
                     color={colors.backIconColor}
-                    style={{paddingLeft: 10}}
+                    style={{ paddingLeft: 10 }}
                   />
                 </TouchableOpacity>
 
@@ -795,23 +901,26 @@ const AddCompany = ({navigation, route}) => {
                     style={{
                       flex: 1,
                       paddingVertical: 30,
-                      justifyContent: 'center',
-                      backgroundColor: 'rgba(0,0,0,0.5)',
-                    }}>
+                      justifyContent: "center",
+                      backgroundColor: "rgba(0,0,0,0.5)",
+                    }}
+                  >
                     <View
                       style={{
                         backgroundColor: colors.modelBackground,
                         padding: 20,
                         marginHorizontal: 30,
                         borderRadius: 10,
-                        height: '80%',
-                      }}>
+                        height: "80%",
+                      }}
+                    >
                       <Text
                         style={{
                           fontSize: 18,
-                          fontWeight: 'bold',
+                          fontWeight: "bold",
                           color: colors.textColor,
-                        }}>
+                        }}
+                      >
                         Select a Country
                       </Text>
                       <TextInput
@@ -834,14 +943,14 @@ const AddCompany = ({navigation, route}) => {
                         <ActivityIndicator
                           size="large"
                           color={colors.AppmainColor}
-                          style={{marginTop: 20}}
+                          style={{ marginTop: 20 }}
                         />
                       ) : (
                         <FlatList
                           data={filteredCountries}
                           // data={countryList}
-                          keyExtractor={item => item.id.toString()}
-                          renderItem={({item}) => (
+                          keyExtractor={(item) => item.id.toString()}
+                          renderItem={({ item }) => (
                             <TouchableOpacity
                               onPress={() => {
                                 setSelectedCountry(item);
@@ -852,9 +961,14 @@ const AddCompany = ({navigation, route}) => {
                                 paddingVertical: 10,
                                 borderBottomWidth: 1,
                                 borderBottomColor: colors.textinputbordercolor,
-                              }}>
+                              }}
+                            >
                               <Text
-                                style={{fontSize: 16, color: colors.textColor}}>
+                                style={{
+                                  fontSize: 16,
+                                  color: colors.textColor,
+                                }}
+                              >
                                 {item.label}
                               </Text>
                             </TouchableOpacity>
@@ -866,9 +980,10 @@ const AddCompany = ({navigation, route}) => {
                         onPress={() => setModalVisible(false)}
                         style={{
                           marginTop: 20,
-                          alignItems: 'center',
-                        }}>
-                        <Text style={{color: 'red', fontWeight: 'bold'}}>
+                          alignItems: "center",
+                        }}
+                      >
+                        <Text style={{ color: "red", fontWeight: "bold" }}>
                           Cancel
                         </Text>
                       </TouchableOpacity>
@@ -880,28 +995,32 @@ const AddCompany = ({navigation, route}) => {
                 <Modal
                   visible={stateModalVisible}
                   transparent
-                  animationType="slide">
+                  animationType="slide"
+                >
                   <View
                     style={{
                       flex: 1,
                       paddingVertical: 30,
-                      justifyContent: 'center',
-                      backgroundColor: 'rgba(0,0,0,0.5)',
-                    }}>
+                      justifyContent: "center",
+                      backgroundColor: "rgba(0,0,0,0.5)",
+                    }}
+                  >
                     <View
                       style={{
                         backgroundColor: colors.modelBackground,
                         padding: 20,
                         marginHorizontal: 30,
                         borderRadius: 10,
-                        height: '80%',
-                      }}>
+                        height: "80%",
+                      }}
+                    >
                       <Text
                         style={{
                           fontSize: 18,
-                          fontWeight: 'bold',
+                          fontWeight: "bold",
                           color: colors.textColor,
-                        }}>
+                        }}
+                      >
                         Select a State
                       </Text>
                       <TextInput
@@ -924,14 +1043,14 @@ const AddCompany = ({navigation, route}) => {
                         <ActivityIndicator
                           size="large"
                           color={colors.AppmainColor}
-                          style={{marginTop: 20}}
+                          style={{ marginTop: 20 }}
                         />
                       ) : (
                         <FlatList
                           data={filteredStates}
                           //  data={stateList}
-                          keyExtractor={item => item.id.toString()}
-                          renderItem={({item}) => (
+                          keyExtractor={(item) => item.id.toString()}
+                          renderItem={({ item }) => (
                             <TouchableOpacity
                               onPress={() => {
                                 setSelectedState(item);
@@ -941,9 +1060,14 @@ const AddCompany = ({navigation, route}) => {
                                 paddingVertical: 10,
                                 borderBottomWidth: 1,
                                 borderBottomColor: colors.textinputbordercolor,
-                              }}>
+                              }}
+                            >
                               <Text
-                                style={{fontSize: 16, color: colors.textColor}}>
+                                style={{
+                                  fontSize: 16,
+                                  color: colors.textColor,
+                                }}
+                              >
                                 {item.label}
                               </Text>
                             </TouchableOpacity>
@@ -953,8 +1077,9 @@ const AddCompany = ({navigation, route}) => {
 
                       <TouchableOpacity
                         onPress={() => setStateModalVisible(false)}
-                        style={{marginTop: 20, alignItems: 'center'}}>
-                        <Text style={{color: 'red', fontWeight: 'bold'}}>
+                        style={{ marginTop: 20, alignItems: "center" }}
+                      >
+                        <Text style={{ color: "red", fontWeight: "bold" }}>
                           Cancel
                         </Text>
                       </TouchableOpacity>
@@ -967,13 +1092,15 @@ const AddCompany = ({navigation, route}) => {
                 style={{
                   ...globalStyles.JobfiledSection,
                   paddingHorizontal: 10,
-                }}>
+                }}
+              >
                 <Text
                   style={{
                     ...globalStyles.JobfiledSectionText,
                     color: colors.textColor,
                     // color: errorCity ? Colors.error : Colors.gray,
-                  }}>
+                  }}
+                >
                   City<Text style={styles.red}>*</Text>
                 </Text>
 
@@ -986,7 +1113,7 @@ const AddCompany = ({navigation, route}) => {
                     color: colors.textColor,
                     backgroundColor: colors.textinputBackgroundcolor,
                   }}
-                  onChangeText={value => {
+                  onChangeText={(value) => {
                     setCity(value);
                     setErrorCity(value.trim().length === 0);
                   }}
@@ -1002,13 +1129,15 @@ const AddCompany = ({navigation, route}) => {
                 style={{
                   ...globalStyles.JobfiledSection,
                   paddingHorizontal: 10,
-                }}>
+                }}
+              >
                 <Text
                   style={{
                     ...globalStyles.JobfiledSectionText,
                     color: colors.textColor,
                     // color: errorPostalCode ? Colors.error : Colors.gray,
-                  }}>
+                  }}
+                >
                   Postal code<Text style={styles.red}>*</Text>
                 </Text>
 
@@ -1021,7 +1150,7 @@ const AddCompany = ({navigation, route}) => {
                     color: colors.textColor,
                     backgroundColor: colors.textinputBackgroundcolor,
                   }}
-                  onChangeText={value => {
+                  onChangeText={(value) => {
                     setPostalCode(value);
                     setErrorPostalCode(value.trim().length === 0);
                   }}
@@ -1037,13 +1166,15 @@ const AddCompany = ({navigation, route}) => {
                 style={{
                   ...globalStyles.JobfiledSection,
                   paddingHorizontal: 10,
-                }}>
+                }}
+              >
                 <Text
                   style={{
                     ...globalStyles.JobfiledSectionText,
                     color: colors.textColor,
                     // color: errorPNo ? Colors.error : Colors.gray,
-                  }}>
+                  }}
+                >
                   Phone number
                 </Text>
 
@@ -1056,7 +1187,7 @@ const AddCompany = ({navigation, route}) => {
                     backgroundColor: colors.textinputBackgroundcolor,
                     // borderColor: errorPNo ? Colors.error : Colors.gray,
                   }}
-                  onChangeText={value => {
+                  onChangeText={(value) => {
                     setPNo(value);
                     // setErrorPNo(value.trim().length === 0);
                   }}
@@ -1072,13 +1203,15 @@ const AddCompany = ({navigation, route}) => {
                 style={{
                   ...globalStyles.JobfiledSection,
                   paddingHorizontal: 10,
-                }}>
+                }}
+              >
                 <Text
                   style={{
                     ...globalStyles.JobfiledSectionText,
                     color: colors.textColor,
                     // color: errorEmail ? Colors.error : Colors.gray,
-                  }}>
+                  }}
+                >
                   Email address<Text style={styles.red}>*</Text>
                 </Text>
 
@@ -1091,7 +1224,7 @@ const AddCompany = ({navigation, route}) => {
                     color: colors.textColor,
                     backgroundColor: colors.textinputBackgroundcolor,
                   }}
-                  onChangeText={value => {
+                  onChangeText={(value) => {
                     setEMail(value);
                     const isValidEmail = validateEmail(value);
                     setErrorEmail(!isValidEmail);
@@ -1112,13 +1245,15 @@ const AddCompany = ({navigation, route}) => {
                 style={{
                   ...globalStyles.JobfiledSection,
                   paddingHorizontal: 10,
-                }}>
+                }}
+              >
                 <Text
                   style={{
                     ...globalStyles.JobfiledSectionText,
                     color: colors.textColor,
                     // color: errorCopmURL ? Colors.error : Colors.gray,
-                  }}>
+                  }}
+                >
                   Company website
                 </Text>
 
@@ -1130,7 +1265,7 @@ const AddCompany = ({navigation, route}) => {
                     backgroundColor: colors.textinputBackgroundcolor,
                     //borderColor: errorCopmURL ? Colors.error : Colors.gray,
                   }}
-                  onChangeText={value => {
+                  onChangeText={(value) => {
                     setCompURL(value);
                     // setErrorCopmURL(value.trim().length === 0);
                   }}
@@ -1149,7 +1284,8 @@ const AddCompany = ({navigation, route}) => {
                     paddingHorizontal: 10,
                     color: colors.textColor,
                     // color: errorAboutComp ? Colors.error : Colors.gray,
-                  }}>
+                  }}
+                >
                   About your company
                 </Text>
                 <TextInput
@@ -1162,7 +1298,7 @@ const AddCompany = ({navigation, route}) => {
                     backgroundColor: colors.textinputBackgroundcolor,
                     //borderColor: errorAboutComp ? Colors.error : Colors.gray,
                   }}
-                  onChangeText={value => {
+                  onChangeText={(value) => {
                     setAboutComp(value);
                     //  setErrorAboutComp(value.trim().length === 0);
                   }}
@@ -1177,14 +1313,15 @@ const AddCompany = ({navigation, route}) => {
                 {/* Logo Upload Section */}
                 <View
                   style={{
-                    alignItems: 'center',
+                    alignItems: "center",
                     backgroundColor: colors.textinputBackgroundcolor,
                     margin: 10,
                     padding: 20,
                     borderRadius: 10,
-                  }}>
+                  }}
+                >
                   {!logoImage && (
-                    <TouchableOpacity onPress={() => selectImage('logo')}>
+                    <TouchableOpacity onPress={() => selectImage("logo")}>
                       <Icon
                         name="cloud-upload"
                         size={60}
@@ -1194,7 +1331,7 @@ const AddCompany = ({navigation, route}) => {
                     </TouchableOpacity>
                   )}
                   {!logoImage && (
-                    <Text style={{fontSize: 16, color: colors.AppmainColor}}>
+                    <Text style={{ fontSize: 16, color: colors.AppmainColor }}>
                       Upload Company Logo
                     </Text>
                   )}
@@ -1203,18 +1340,19 @@ const AddCompany = ({navigation, route}) => {
                     <>
                       <TouchableOpacity
                         onPress={() => setLogoImage(null)}
-                        style={{position: 'absolute', top: 10, right: 10}}>
+                        style={{ position: "absolute", top: 10, right: 10 }}
+                      >
                         <Icon
                           name="close"
                           size={20}
                           color={colors.backIconColor}
                           type="AntDesign"
-                          style={{padding: 5}}
+                          style={{ padding: 5 }}
                         />
                       </TouchableOpacity>
 
                       <Image
-                        source={{uri: logoImage}}
+                        source={{ uri: logoImage }}
                         style={{
                           width: 100,
                           height: 100,
@@ -1229,14 +1367,15 @@ const AddCompany = ({navigation, route}) => {
                 {/* Banner Upload Section */}
                 <View
                   style={{
-                    alignItems: 'center',
+                    alignItems: "center",
                     backgroundColor: colors.textinputBackgroundcolor,
                     margin: 10,
                     padding: 20,
                     borderRadius: 10,
-                  }}>
+                  }}
+                >
                   {!bannerImage && (
-                    <TouchableOpacity onPress={() => selectImage('banner')}>
+                    <TouchableOpacity onPress={() => selectImage("banner")}>
                       <Icon
                         name="image-inverted"
                         size={60}
@@ -1246,7 +1385,7 @@ const AddCompany = ({navigation, route}) => {
                     </TouchableOpacity>
                   )}
                   {!bannerImage && (
-                    <Text style={{fontSize: 16, color: colors.AppmainColor}}>
+                    <Text style={{ fontSize: 16, color: colors.AppmainColor }}>
                       Upload Company Banner
                     </Text>
                   )}
@@ -1255,18 +1394,19 @@ const AddCompany = ({navigation, route}) => {
                     <>
                       <TouchableOpacity
                         onPress={() => setBannerImage(null)}
-                        style={{position: 'absolute', top: 10, right: 10}}>
+                        style={{ position: "absolute", top: 10, right: 10 }}
+                      >
                         <Icon
                           name="close"
                           size={20}
                           color={colors.backIconColor}
                           type="AntDesign"
-                          style={{padding: 5}}
+                          style={{ padding: 5 }}
                         />
                       </TouchableOpacity>
 
                       <Image
-                        source={{uri: bannerImage}}
+                        source={{ uri: bannerImage }}
                         style={{
                           width: 100,
                           height: 100,
@@ -1286,16 +1426,17 @@ const AddCompany = ({navigation, route}) => {
                   borderLeftWidth: 4,
                   paddingLeft: 10,
                   borderColor: colors.AppmainColor,
-                }}>
-                <View style={{flexDirection: 'row'}}>
+                }}
+              >
+                <View style={{ flexDirection: "row" }}>
                   <TouchableOpacity onPress={() => setChecked(!checked)}>
                     <MaterialCommunityIcons
                       name={
-                        checked ? 'checkbox-marked' : 'checkbox-blank-outline'
+                        checked ? "checkbox-marked" : "checkbox-blank-outline"
                       }
                       size={24}
                       color={colors.AppmainColor}
-                      style={{marginRight: 10}}
+                      style={{ marginRight: 10 }}
                     />
                   </TouchableOpacity>
                   <Text
@@ -1303,7 +1444,8 @@ const AddCompany = ({navigation, route}) => {
                       fontSize: 14,
                       flexShrink: 1,
                       color: colors.textColor,
-                    }}>
+                    }}
+                  >
                     I confirm that I am authorized to create this Job and the
                     information given is correct.
                   </Text>
@@ -1316,12 +1458,14 @@ const AddCompany = ({navigation, route}) => {
                   margin: 20,
                   backgroundColor: colors.AppmainColor,
                 }}
-                onPress={() => AddCompanyPost()}>
+                onPress={() => AddCompanyPost()}
+              >
                 <Text
                   style={{
                     ...globalStyles.saveButtonText,
                     color: colors.textColor,
-                  }}>
+                  }}
+                >
                   Save
                 </Text>
               </TouchableOpacity>
@@ -1329,6 +1473,110 @@ const AddCompany = ({navigation, route}) => {
           </View>
         </View>
       </KeyboardAvoidingWrapper>
+      <Modal
+        visible={showIndustryModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowIndustryModal(false)}
+      >
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: "rgba(0,0,0,0.4)",
+            justifyContent: "center",
+            paddingHorizontal: 20,
+          }}
+        >
+          <View
+            style={{
+              // height: 400,
+              backgroundColor: colors.textinputBackgroundcolor,
+              borderRadius: 8,
+              flex: 1,
+              maxHeight: 400,
+            }}
+          >
+            <FlatList
+              data={industryData}
+              keyExtractor={(item) => item.Id.toString()}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={globalStyles.dropdownItem}
+                  onPress={() => {
+                    selectOption5(item);
+                    setShowIndustryModal(false);
+                  }}
+                >
+                  <Text style={{ color: colors.textColor }}>{item.Name}</Text>
+                </TouchableOpacity>
+              )}
+              onEndReached={() => getIndustryList(page)}
+              onEndReachedThreshold={0.1}
+              contentContainerStyle={{ flexGrow: 1 }}
+              ListFooterComponent={
+                loading && page > 1 ? (
+                  <ActivityIndicator size="small" style={{ margin: 10 }} />
+                ) : !hasMore && industryData.length > 0 ? (
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      padding: 10,
+                      color: colors.textColor,
+                    }}
+                  >
+                    No more data
+                  </Text>
+                ) : null
+              }
+              ListEmptyComponent={
+                !loading ? (
+                  <View
+                    style={{
+                      flex: 1,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Text
+                      style={{
+                        textAlign: "center",
+                        padding: 10,
+                        color: colors.textColor,
+                      }}
+                    >
+                      No data available
+                    </Text>
+                  </View>
+                ) : null
+              }
+              refreshing={refreshing}
+              onRefresh={() => {
+                setPage(1);
+                setHasMore(true);
+                getIndustryList(1);
+              }}
+            />
+          </View>
+          <TouchableOpacity
+            onPress={() => setShowIndustryModal(false)}
+            style={{
+              position: "absolute",
+              top: "50%",
+              right: 20,
+              transform: [{ translateY: -200 }],
+              padding: 10,
+              zIndex: 10,
+            }}
+          >
+            <Icon
+              type="Entypo"
+              name="cross"
+              size={30}
+              color={colors.backIconColor}
+            />
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -1336,6 +1584,6 @@ const AddCompany = ({navigation, route}) => {
 export default AddCompany;
 const styles = StyleSheet.create({
   red: {
-    color: 'red',
+    color: "red",
   },
 });
