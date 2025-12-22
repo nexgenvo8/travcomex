@@ -43,6 +43,8 @@ const AddCareer = ({ navigation, route }) => {
   const [subCategoryLoading, setSubCategoryLoading] = useState(false);
   const [perfID1, setPerfID1] = useState("");
   const [perfID2, setPerfID2] = useState("");
+  console.log(perfID2, "perfID2perfID2perfID2perfID2perfID2perfID2perfID2");
+
   const [description, setDescription] = useState("");
   const [yearBusiness, setYearBusiness] = useState("");
   const [userData, setUserData] = useState(null);
@@ -362,6 +364,7 @@ const AddCareer = ({ navigation, route }) => {
 
   const selectOption6 = (item) => {
     setSelectedValue6(item.Name);
+    setPerfID2(item?.Id);
   };
 
   const toggleDropdown5 = () => {
@@ -449,7 +452,7 @@ const AddCareer = ({ navigation, route }) => {
       userId: userData?.User?.userId,
       companyBusinessName: number,
       companyTypeId: perfID1,
-      subIndustryId: 5,
+      subIndustryId: perfID2 || 0,
       establishedYear: selectedYear,
       countryId: selectedCountry?.id?.toString(),
       stateId: selectedState?.id?.toString(),

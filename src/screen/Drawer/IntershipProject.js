@@ -13,6 +13,7 @@ import {
   Image,
   Modal,
   KeyboardAvoidingView,
+  ActivityIndicator,
 } from "react-native";
 import globalStyles from "../GlobalCSS";
 import Header from "../Header/Header";
@@ -80,6 +81,11 @@ const IntershipProject = ({ navigation, route }) => {
   const [myProjectData, setMyProjectData] = useState([]);
   const [industryData, setIndustryData] = useState([]);
   // console.log('industryData', industryData);
+  const [showIndustryModal, setShowIndustryModal] = useState(false);
+  const [perPage] = useState(10);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [skills, setSkills] = useState("");
   const [price, setPrice] = useState("");
   const [city, setCity] = useState("");
@@ -160,10 +166,6 @@ const IntershipProject = ({ navigation, route }) => {
     }
   }, [day, month, year]);
 
-  useEffect(() => {
-    UserValue();
-    getIndustryList({ Val: "" });
-  }, []);
   useEffect(() => {
     if (selectedValue5 !== "Select" && selectedValue5) {
       setErrorsServieSeeker(false);
@@ -352,30 +354,84 @@ const IntershipProject = ({ navigation, route }) => {
       console.error("Fetch Error:", error);
     }
   };
-  const getIndustryList = async ({ Val = "" } = {}) => {
+  useEffect(() => {
+    if (showIndustryModal) {
+      setPage(1);
+      setHasMore(true);
+      getIndustryList(1);
+    }
+  }, [showIndustryModal]);
+
+  const getIndustryList = async (pageNumber = 1) => {
+    if (loading || (!hasMore && pageNumber !== 1)) return;
+
+    if (pageNumber === 1) setRefreshing(true);
+    else setLoading(true);
+
     try {
       const response = await fetch(`${baseUrl}${listoption}`, {
         method: "POST",
         headers: {
+          Accept: "application/json",
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          optionType: Val,
+          optionType: "industry",
+          //  optionType: Val,
+          per_page: perPage,
+          page: pageNumber,
         }),
       });
 
       const data = await response.json();
-      console.log(" value data --------->>>>>> > ", data?.DataList);
 
       if (response.ok) {
-        setIndustryData(data?.DataList);
+        const newData = data?.DataList || [];
+
+        setIndustryData((prev) =>
+          pageNumber === 1 ? newData : [...prev, ...newData]
+        );
+
+        setHasMore(newData.length === perPage);
+        setPage(pageNumber + 1);
       } else {
-        showError(data.message || "Failed to Industry List");
+        console.error("API Error:", data.message);
       }
     } catch (error) {
-      console.error("Fetch Error:", error);
+      console.error("Industry List Error:", error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
     }
   };
+  useEffect(() => {
+    UserValue();
+    // getIndustryList({ Val: "" });
+  }, []);
+  // const getIndustryList = async ({ Val = "" } = {}) => {
+  //   try {
+  //     const response = await fetch(`${baseUrl}${listoption}`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         optionType: Val,
+  //       }),
+  //     });
+
+  //     const data = await response.json();
+  //     console.log(" value data --------->>>>>> > ", data?.DataList);
+
+  //     if (response.ok) {
+  //       setIndustryData(data?.DataList);
+  //     } else {
+  //       showError(data.message || "Failed to Industry List");
+  //     }
+  //   } catch (error) {
+  //     console.error("Fetch Error:", error);
+  //   }
+  // };
   const handleCheckboxToggle = () => {
     const isValid =
       !!number?.trim() &&
@@ -883,9 +939,14 @@ const IntershipProject = ({ navigation, route }) => {
     "Administrative",
     "Others",
   ];
-  const selectOption5 = (option) => {
+  // const selectOption5 = (option) => {
+  //   setSelectedValue5(option);
+  //   setIsOpen5(false);
+  // };
+  const selectOption5 = (item, option) => {
+    setIndustryValue(item.Name);
     setSelectedValue5(option);
-    setIsOpen5(false);
+    setShowIndustryModal(false);
   };
   const toggleDropdown5 = () => {
     setIsOpen5(!isOpen5);
@@ -1538,7 +1599,7 @@ const IntershipProject = ({ navigation, route }) => {
                       Industry category<Text style={styles.redstar}>*</Text>
                     </Text>
 
-                    <TouchableOpacity
+                    {/* <TouchableOpacity
                       onPress={() => setFlatlist(!flatlist)}
                       style={{
                         ...styles.textInput,
@@ -1567,7 +1628,30 @@ const IntershipProject = ({ navigation, route }) => {
                         renderItem={renderItemInter}
                         keyExtractor={(item, index) => `${item.id}-${index}`}
                       />
-                    ) : null}
+                    ) : null} */}
+                    <TouchableOpacity
+                      onPress={() => setShowIndustryModal(true)}
+                      style={{
+                        ...styles.textInput,
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        borderColor: errorIndustry
+                          ? Colors.error
+                          : colors.textinputbordercolor,
+                        backgroundColor: colors.textinputBackgroundcolor,
+                      }}
+                    >
+                      <Text style={{ color: colors.textColor }}>
+                        {industryValue || "Industry"}
+                      </Text>
+
+                      <Icon
+                        name="down"
+                        size={15}
+                        color={colors.backIconColor}
+                        type="AntDesign"
+                      />
+                    </TouchableOpacity>
                   </View>
 
                   <Text
@@ -3565,6 +3649,110 @@ const IntershipProject = ({ navigation, route }) => {
           <View style={{ flex: 1 }}>{renderContent()}</View>
         </View>
       </KeyboardAvoidingWrapper>
+      <Modal
+        visible={showIndustryModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowIndustryModal(false)}
+      >
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: "rgba(0,0,0,0.4)",
+            justifyContent: "center",
+            paddingHorizontal: 20,
+          }}
+        >
+          <View
+            style={{
+              // height: 400,
+              backgroundColor: colors.textinputBackgroundcolor,
+              borderRadius: 8,
+              flex: 1,
+              maxHeight: 400,
+            }}
+          >
+            <FlatList
+              data={industryData}
+              keyExtractor={(item) => item.Id.toString()}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={globalStyles.dropdownItem}
+                  onPress={() => {
+                    selectOption5(item);
+                    setShowIndustryModal(false);
+                  }}
+                >
+                  <Text style={{ color: colors.textColor }}>{item.Name}</Text>
+                </TouchableOpacity>
+              )}
+              onEndReached={() => getIndustryList(page)}
+              onEndReachedThreshold={0.1}
+              contentContainerStyle={{ flexGrow: 1 }}
+              ListFooterComponent={
+                loading && page > 1 ? (
+                  <ActivityIndicator size="small" style={{ margin: 10 }} />
+                ) : !hasMore && industryData.length > 0 ? (
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      padding: 10,
+                      color: colors.textColor,
+                    }}
+                  >
+                    No more data
+                  </Text>
+                ) : null
+              }
+              ListEmptyComponent={
+                !loading ? (
+                  <View
+                    style={{
+                      flex: 1,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Text
+                      style={{
+                        textAlign: "center",
+                        padding: 10,
+                        color: colors.textColor,
+                      }}
+                    >
+                      No data available
+                    </Text>
+                  </View>
+                ) : null
+              }
+              refreshing={refreshing}
+              onRefresh={() => {
+                setPage(1);
+                setHasMore(true);
+                getIndustryList(1);
+              }}
+            />
+          </View>
+          <TouchableOpacity
+            onPress={() => setShowIndustryModal(false)}
+            style={{
+              position: "absolute",
+              top: "50%",
+              right: 20,
+              transform: [{ translateY: -200 }],
+              padding: 10,
+              zIndex: 10,
+            }}
+          >
+            <Icon
+              type="Entypo"
+              name="cross"
+              size={30}
+              color={colors.backIconColor}
+            />
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
