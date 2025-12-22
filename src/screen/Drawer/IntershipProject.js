@@ -123,6 +123,9 @@ const IntershipProject = ({ navigation, route }) => {
   const [mySeekerData, setMySeekerData] = useState({});
   const [checked, setChecked] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const pageRef = useRef(1);
+  const onEndReachedCalledDuringMomentum = useRef(true);
   const scrollRef = useRef(null);
   const isActive = (section) => selectedSection === section;
   const monthRef = useRef(null);
@@ -172,12 +175,6 @@ const IntershipProject = ({ navigation, route }) => {
     }
   }, [selectedValue5]);
 
-  useEffect(() => {
-    if (userData?.User?.userId) {
-      fetchArticles();
-    }
-  }, [userData, isFocused]);
-
   const UserValue = async () => {
     try {
       const userDta = await AsyncStorage.getItem("userData");
@@ -187,31 +184,99 @@ const IntershipProject = ({ navigation, route }) => {
       console.log("Error:", error);
     }
   };
-  const fetchArticles = async (item) => {
-    setInitialLoading(true);
+  useEffect(() => {
+    if (userData?.User?.userId) {
+      pageRef.current = 1;
+      setHasMore(true);
+      setProjectList([]);
+      fetchArticles(1);
+    }
+  }, [userData, isFocused]);
+  const onRefresh = () => {
+    pageRef.current = 1;
+    setHasMore(true);
+    fetchArticles(1);
+  };
+
+  const loadMore = () => {
+    if (
+      isLoadingMore ||
+      initialLoading ||
+      !hasMore ||
+      onEndReachedCalledDuringMomentum.current
+    )
+      return;
+
+    onEndReachedCalledDuringMomentum.current = true;
+    fetchArticles(pageRef.current + 1);
+  };
+
+  const fetchArticles = async (pageNumber = 1) => {
+    pageNumber === 1 ? setInitialLoading(true) : setIsLoadingMore(true);
+
     try {
       const response = await fetch(`${baseUrl}${listproject}`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: userData?.User?.userId,
           projectTitle: title || GlobalSearch?.projectTitle || "",
           proCity: cityTitle || "",
           proNature: selectedValue4 || "",
+          page: pageNumber,
+          per_page: perPage,
         }),
       });
 
       const data = await response.json();
+
       if (response.ok && data.Status === 1) {
-        setProjectList(data.Data);
+        setProjectList((prev) => {
+          if (pageNumber === 1) return data.Data;
+
+          const existingIds = new Set(prev.map((i) => i.id));
+          const newData = data.Data.filter((i) => !existingIds.has(i.id));
+
+          return [...prev, ...newData];
+        });
+
+        pageRef.current = pageNumber;
+
+        setHasMore(data.Data.length === perPage);
       }
+    } catch (e) {
+      console.error(e);
+    } finally {
       setInitialLoading(false);
-    } catch (error) {
-      console.error("Fetch Error:", error);
+      setIsLoadingMore(false);
     }
   };
+
+  // const fetchArticles = async (item) => {
+  //   setInitialLoading(true);
+  //   try {
+  //     const response = await fetch(`${baseUrl}${listproject}`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         userId: userData?.User?.userId,
+  //         projectTitle: title || GlobalSearch?.projectTitle || "",
+  //         proCity: cityTitle || "",
+  //         proNature: selectedValue4 || "",
+  //       }),
+  //     });
+
+  //     const data = await response.json();
+  //     if (response.ok && data.Status === 1) {
+  //       setProjectList(data.Data);
+  //     }
+  //     setInitialLoading(false);
+  //   } catch (error) {
+  //     console.error("Fetch Error:", error);
+  //   }
+  // };
   useEffect(() => {
     myInternshipProject();
   }, [valueMyInter, valueBookmarked, valueInterested]);
@@ -1506,16 +1571,46 @@ const IntershipProject = ({ navigation, route }) => {
               data={projectList}
               keyExtractor={(item) => item.id.toString()}
               renderItem={renderItem}
+              onEndReached={loadMore}
+              onEndReachedThreshold={0.3}
+              refreshing={initialLoading}
+              onRefresh={onRefresh}
+              onMomentumScrollBegin={() => {
+                onEndReachedCalledDuringMomentum.current = false;
+              }}
+              ListFooterComponent={() => {
+                if (isLoadingMore) {
+                  return (
+                    <ActivityIndicator size="small" color={colors.primary} />
+                  );
+                }
+                if (!hasMore && projectList.length > 0) {
+                  return (
+                    <Text
+                      style={{
+                        textAlign: "center",
+                        padding: 10,
+                        color: colors.textColor,
+                      }}
+                    >
+                      No more projects
+                    </Text>
+                  );
+                }
+                return null;
+              }}
               ListEmptyComponent={
-                <Text
-                  style={{
-                    textAlign: "center",
-                    marginTop: 20,
-                    color: colors.textColor,
-                  }}
-                >
-                  No projects available.
-                </Text>
+                !initialLoading && (
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      marginTop: 20,
+                      color: colors.textColor,
+                    }}
+                  >
+                    No projects available
+                  </Text>
+                )
               }
             />
           </>
@@ -3680,6 +3775,7 @@ const IntershipProject = ({ navigation, route }) => {
                   style={globalStyles.dropdownItem}
                   onPress={() => {
                     selectOption5(item);
+                    setIndustryValueID(item?.Id);
                     setShowIndustryModal(false);
                   }}
                 >

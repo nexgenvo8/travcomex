@@ -1,4 +1,4 @@
-import {useEffect, useState, useRef} from 'react';
+import { useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
@@ -9,10 +9,10 @@ import {
   TouchableOpacity,
   FlatList,
   Image,
-} from 'react-native';
-import Colors from './color';
-import Icon1 from 'react-native-vector-icons/AntDesign';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+} from "react-native";
+import Colors from "./color";
+import Icon1 from "react-native-vector-icons/AntDesign";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   baseUrl,
   contactList,
@@ -23,21 +23,21 @@ import {
   acceptrequest,
   removecontact,
   cancelContactRequest,
-} from './baseURL/api';
-import globalStyles from './GlobalCSS';
-import CommonLoader from './components/CommonLoader';
-import {showError, showSuccess} from './components/Toast';
-import {useTheme} from '../theme/ThemeContext';
+} from "./baseURL/api";
+import globalStyles from "./GlobalCSS";
+import CommonLoader from "./components/CommonLoader";
+import { showError, showSuccess } from "./components/Toast";
+import { useTheme } from "../theme/ThemeContext";
 import {
   useSharedValue,
   useAnimatedScrollHandler,
-} from 'react-native-reanimated';
-import Animated, {useAnimatedStyle} from 'react-native-reanimated';
-import Header from './Header/Header';
+} from "react-native-reanimated";
+import Animated, { useAnimatedStyle } from "react-native-reanimated";
+import Header from "./Header/Header";
 
-const Contacts = ({navigation, tabBarVisible, route}) => {
-  const {ContactsScreen} = route.params;
-  const {isDark, colors, toggleTheme} = useTheme();
+const Contacts = ({ navigation, tabBarVisible, route }) => {
+  const { ContactsScreen } = route.params;
+  const { isDark, colors, toggleTheme } = useTheme();
   const debounceTimer = useRef(null);
   const inputRef = useRef(null);
   const abortControllerRef = useRef(null);
@@ -49,10 +49,10 @@ const Contacts = ({navigation, tabBarVisible, route}) => {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [initialLoading, setInitialLoading] = useState(true);
-  const [number, setNumber] = useState('');
+  const [number, setNumber] = useState("");
   const scrollY = useSharedValue(0);
   const scrollHandler = useAnimatedScrollHandler({
-    onScroll: event => {
+    onScroll: (event) => {
       const currentOffset = event.contentOffset.y;
       if (currentOffset > scrollY.value && currentOffset > 50) {
         tabBarVisible.value = false;
@@ -67,11 +67,11 @@ const Contacts = ({navigation, tabBarVisible, route}) => {
       inputRef.current.blur();
     }
   }, []);
-  const onChangeNumber = value => {
+  const onChangeNumber = (value) => {
     setNumber(value);
   };
   const UserValue = async () => {
-    const userDta = await AsyncStorage.getItem('userData');
+    const userDta = await AsyncStorage.getItem("userData");
     const parsedData = JSON.parse(userDta);
     setUserData(parsedData);
   };
@@ -100,8 +100,8 @@ const Contacts = ({navigation, tabBarVisible, route}) => {
     // setInitialLoading(true);
     try {
       const response = await fetch(`${baseUrl}${knownPeople}`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: userData?.User?.userId,
           search: searchValue,
@@ -113,21 +113,21 @@ const Contacts = ({navigation, tabBarVisible, route}) => {
 
       const data = await response.json();
       if (response.ok) {
-        setknownPeopleData(prev =>
-          pageNumber === 1 ? data?.Users : [...prev, ...data?.Users],
+        setknownPeopleData((prev) =>
+          pageNumber === 1 ? data?.Users : [...prev, ...data?.Users]
         );
-        setPage(prev => (pageNumber ? pageNumber + 1 : prev + 1));
+        setPage((prev) => (pageNumber ? pageNumber + 1 : prev + 1));
       }
     } catch (error) {
-      if (error.name !== 'AbortError') {
-        showError('Error', 'Failed to fetch data');
+      if (error.name !== "AbortError") {
+        showError("Error", "Failed to fetch data");
       }
     } finally {
       setLoading(false);
       //   setInitialLoading(false);
     }
   };
-  const handleSearch = value => {
+  const handleSearch = (value) => {
     setNumber(value);
     if (debounceTimer.current) {
       clearTimeout(debounceTimer.current);
@@ -142,9 +142,9 @@ const Contacts = ({navigation, tabBarVisible, route}) => {
     setInitialLoading(true);
     try {
       const response = await fetch(`${baseUrl}${PendingContactRequest}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           userId: userData?.User?.userId?.toString(),
@@ -156,112 +156,113 @@ const Contacts = ({navigation, tabBarVisible, route}) => {
         setPendingRequestList(data);
       }
     } catch (error) {
-      showError('Failed to fetch Pending Request');
-      console.error('Fetch Error:', error);
+      showError("Failed to fetch Pending Request");
+      console.error("Fetch Error:", error);
     } finally {
       setLoading(false);
       setInitialLoading(false);
     }
   };
-  const accecptRequest = async ({item}) => {
+  const accecptRequest = async ({ item }) => {
     try {
       const url = `${baseUrl}${acceptrequest}`;
-      console.log('Final URL:', url);
+      console.log("Final URL:", url);
       const response = await fetch(url, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           senderUserId: item?.SenderUserDetail?.UserId,
           receiverUserId: userData?.User?.userId?.toString(),
         }),
       });
-      console.log('Response Status:', response.status);
+      console.log("Response Status:", response.status);
       const data = await response.json();
-      console.log('API Response Data:', data);
+      console.log("API Response Data:", data);
 
       if (response.ok) {
         setRefresh(!refresh);
-        console.log('Accecpt Request Success ----->>>', JSON.stringify(data));
+        console.log("Accecpt Request Success ----->>>", JSON.stringify(data));
       } else {
-        console.error('API Error:', data);
+        console.error("API Error:", data);
       }
     } catch (error) {
-      console.error('Fetch Error:', error.message);
+      console.error("Fetch Error:", error.message);
     }
   };
-  const cancelContactRequestApi = async ({item}) => {
+  const cancelContactRequestApi = async ({ item }) => {
     try {
       const payload = JSON.stringify({
         id: item.id,
       });
       const url = `${baseUrl}${cancelContactRequest}`;
-      console.log('Final URL:', url);
+      console.log("Final URL:", url);
       const response = await fetch(url, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: payload,
       });
 
-      console.log('Response Status:', response.status);
+      console.log("Response Status:", response.status);
 
       const data = await response.json();
 
-      console.log('API Response Data:', data);
+      console.log("API Response Data:", data);
 
       if (response.ok) {
         setRefresh(!refresh);
         showSuccess(data.Message);
-        console.log('Delete Request Success ----->>>', JSON.stringify(data));
+        console.log("Delete Request Success ----->>>", JSON.stringify(data));
       } else {
-        console.error('API Error:', data);
+        console.error("API Error:", data);
       }
     } catch (error) {
-      console.error('Fetch Error:', error.message);
+      console.error("Fetch Error:", error.message);
     }
   };
-  const deleteRequest = async ({item}) => {
+  const deleteRequest = async ({ item }) => {
     try {
       const payload = JSON.stringify({
         id: item.id,
       });
       const url = `${baseUrl}${declinerequest}`;
-      console.log('Final URL:', url);
+      console.log("Final URL:", url);
 
       const response = await fetch(url, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: payload,
       });
 
-      console.log('Response Status:', response.status);
+      console.log("Response Status:", response.status);
       const data = await response.json();
-      console.log('API Response Data:', data);
+      console.log("API Response Data:", data);
 
       if (response.ok) {
         setRefresh(!refresh);
-        console.log('Delete Request Success ----->>>', JSON.stringify(data));
+        console.log("Delete Request Success ----->>>", JSON.stringify(data));
       } else {
-        console.error('API Error:', data);
+        console.error("API Error:", data);
       }
     } catch (error) {
-      console.error('Fetch Error:', error.message);
+      console.error("Fetch Error:", error.message);
     }
   };
-  const renderItem1 = ({item}) => {
+  const renderItem1 = ({ item }) => {
     return (
       <TouchableOpacity
         onPress={() =>
-          navigation.navigate('ProfileDetails', {
+          navigation.navigate("ProfileDetails", {
             Item: item.SenderUserDetail,
           })
         }
-        style={globalStyles.contantlistMainView}>
+        style={globalStyles.contantlistMainView}
+      >
         <View>
           <Image
             style={globalStyles.contantlistImage}
@@ -273,29 +274,31 @@ const Contacts = ({navigation, tabBarVisible, route}) => {
                       item.SenderUserDetail.ProfileUrl ||
                       item.SenderUserDetail.ProfilePhoto,
                   }
-                : require('../assets/placeholderprofileimage.png')
+                : require("../assets/placeholderprofileimage.png")
             }
           />
         </View>
-        <View style={{padding: 10, flex: 1}}>
+        <View style={{ padding: 10, flex: 1 }}>
           <Text
-            style={{fontSize: 16, fontWeight: '600', color: colors.textColor}}>
+            style={{ fontSize: 16, fontWeight: "600", color: colors.textColor }}
+          >
             {item?.SenderUserDetail?.UserName}
           </Text>
-          <Text style={{color: colors.placeholderTextColor, marginBottom: 5}}>
-            {item?.SenderUserDetail?.JobTitle} at{' '}
+          <Text style={{ color: colors.placeholderTextColor, marginBottom: 5 }}>
+            {item?.SenderUserDetail?.JobTitle} at{" "}
             {item?.SenderUserDetail?.CompanyName}
           </Text>
         </View>
-        <View style={{flexDirection: 'row', flex: 0.4}}>
+        <View style={{ flexDirection: "row", flex: 0.4 }}>
           <TouchableOpacity
             style={{
               ...globalStyles.PendingIcons,
               borderColor: colors.textinputbordercolor,
             }}
             onPress={() => {
-              cancelContactRequestApi({item});
-            }}>
+              cancelContactRequestApi({ item });
+            }}
+          >
             <Icon1 name="close" size={15} color={colors.backIconColor} />
           </TouchableOpacity>
           <TouchableOpacity
@@ -304,15 +307,16 @@ const Contacts = ({navigation, tabBarVisible, route}) => {
               borderColor: colors.textinputbordercolor,
             }}
             onPress={() => {
-              accecptRequest({item});
-            }}>
+              accecptRequest({ item });
+            }}
+          >
             <Icon1 name="check" size={15} color={colors.backIconColor} />
           </TouchableOpacity>
         </View>
       </TouchableOpacity>
     );
   };
-  const sendRequest = async ({item}) => {
+  const sendRequest = async ({ item }) => {
     try {
       const payload = JSON.stringify({
         senderUserId: userData?.User?.userId,
@@ -320,38 +324,40 @@ const Contacts = ({navigation, tabBarVisible, route}) => {
       });
       const url = `${baseUrl}${sendRequestapi}`;
       const response = await fetch(url, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: payload,
       });
 
       const text = await response.text();
-      console.log('Raw response:', text);
+      console.log("Raw response:", text);
       let data;
       try {
         data = JSON.parse(text);
       } catch (e) {
-        console.error('Failed to parse JSON. Response was:', text);
-        throw new Error('Invalid JSON response');
+        console.error("Failed to parse JSON. Response was:", text);
+        throw new Error("Invalid JSON response");
       }
       if (response.ok) {
-        setknownPeopleData(prevData =>
-          prevData.map(user =>
-            user.UserId === item.UserId ? {...user, IsRequestSent: true} : user,
-          ),
+        setknownPeopleData((prevData) =>
+          prevData.map((user) =>
+            user.UserId === item.UserId
+              ? { ...user, IsRequestSent: true }
+              : user
+          )
         );
-        console.log('Send Request Success ----->>>', JSON.stringify(data));
+        console.log("Send Request Success ----->>>", JSON.stringify(data));
         showSuccess(data.Message);
       } else {
-        console.error('API Error:', data);
+        console.error("API Error:", data);
       }
     } catch (error) {
-      console.error('Fetch Error:', error.message);
+      console.error("Fetch Error:", error.message);
     }
   };
-  const handleScroll = event => {
+  const handleScroll = (event) => {
     const contentHeight = event.nativeEvent.contentSize.height;
     const contentOffsetY = event.nativeEvent.contentOffset.y;
     const scrollViewHeight = event.nativeEvent.layoutMeasurement.height;
@@ -361,7 +367,7 @@ const Contacts = ({navigation, tabBarVisible, route}) => {
       }
     }
   };
-  const renderItem = ({item}) => {
+  const renderItem = ({ item }) => {
     return (
       <TouchableOpacity
         style={{
@@ -370,25 +376,27 @@ const Contacts = ({navigation, tabBarVisible, route}) => {
           padding: 0,
         }}
         onPress={() =>
-          navigation.navigate('ProfileDetails', {
+          navigation.navigate("ProfileDetails", {
             Item: item,
             groupId: item?.Id,
           })
-        }>
+        }
+      >
         <Image
           style={globalStyles.contantlistImage}
           source={
             item?.ProfilePhoto
-              ? {uri: item?.ProfilePhoto}
-              : require('../assets/placeholderprofileimage.png')
+              ? { uri: item?.ProfilePhoto }
+              : require("../assets/placeholderprofileimage.png")
           }
         />
-        <View style={{padding: 10, flex: 1}}>
+        <View style={{ padding: 10, flex: 1 }}>
           <Text
-            style={{...globalStyles?.FS_16_FW_400, color: colors.textColor}}>
+            style={{ ...globalStyles?.FS_16_FW_400, color: colors.textColor }}
+          >
             {item?.UserName}
           </Text>
-          <Text style={{color: colors.placeholderTextColor, marginBottom: 5}}>
+          <Text style={{ color: colors.placeholderTextColor, marginBottom: 5 }}>
             at {item?.CompanyName || item?.title}
           </Text>
 
@@ -397,13 +405,15 @@ const Contacts = ({navigation, tabBarVisible, route}) => {
               style={{
                 ...globalStyles?.SendBtn,
                 borderColor: colors.textinputbordercolor,
-              }}>
+              }}
+            >
               <Text
                 style={{
                   fontSize: 15,
-                  textAlign: 'center',
+                  textAlign: "center",
                   color: colors.textColor,
-                }}>
+                }}
+              >
                 Already Send
               </Text>
             </View>
@@ -412,19 +422,20 @@ const Contacts = ({navigation, tabBarVisible, route}) => {
               style={{
                 ...globalStyles?.SendBtn,
                 borderColor: colors.textinputbordercolor,
-                alignItems: 'center',
-                flexDirection: 'row',
+                alignItems: "center",
+                flexDirection: "row",
               }}
               onPress={() => {
-                sendRequest({item});
-              }}>
+                sendRequest({ item });
+              }}
+            >
               <Icon1
                 name="plus"
                 size={15}
                 color={colors.backIconColor}
-                style={{paddingHorizontal: 5}}
+                style={{ paddingHorizontal: 5 }}
               />
-              <Text style={{fontSize: 15, color: colors.textColor}}>
+              <Text style={{ fontSize: 15, color: colors.textColor }}>
                 Send Request
               </Text>
             </TouchableOpacity>
@@ -441,7 +452,8 @@ const Contacts = ({navigation, tabBarVisible, route}) => {
       style={{
         ...globalStyles.SafeAreaView,
         backgroundColor: colors.background,
-      }}>
+      }}
+    >
       {ContactsScreen ? (
         <Header title="Contacts" navigation={navigation} />
       ) : null}
@@ -451,13 +463,15 @@ const Contacts = ({navigation, tabBarVisible, route}) => {
             paddingHorizontal: 12,
             paddingVertical: 20,
             margin: 10,
-          }}>
+          }}
+        >
           <Text
             style={{
               fontSize: 17,
               color: colors.AppmainColor,
               paddingBottom: 10,
-            }}>
+            }}
+          >
             Search for Contacts
           </Text>
           <TextInput
@@ -485,29 +499,31 @@ const Contacts = ({navigation, tabBarVisible, route}) => {
           // scrollEventThrottle={400}
         >
           <TouchableOpacity
-            onPress={() => navigation.navigate('ContactList')}
+            onPress={() => navigation.navigate("ContactList")}
             style={{
               backgroundColor: colors.textinputBackgroundcolor,
               marginHorizontal: 10,
               marginBottom: 10,
               paddingVertical: 10,
               paddingHorizontal: 10,
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-            }}>
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
             <View style={globalStyles?.flexRow}>
               <Icon1
                 name="contacts"
                 size={18}
                 color={colors.placeholderTextColor}
               />
-              <View style={{paddingLeft: 3}}>
+              <View style={{ paddingLeft: 3 }}>
                 <Text
                   style={{
                     fontSize: 17,
-                    fontWeight: '600',
+                    fontWeight: "600",
                     color: colors.textColor,
-                  }}>
+                  }}
+                >
                   My Contact List
                 </Text>
               </View>
@@ -517,7 +533,7 @@ const Contacts = ({navigation, tabBarVisible, route}) => {
           </TouchableOpacity>
           <FlatList
             data={pendingRequestList?.DataList}
-            keyExtractor={item => item.id}
+            keyExtractor={(item) => item.id}
             renderItem={renderItem1}
           />
           <View>
@@ -528,28 +544,30 @@ const Contacts = ({navigation, tabBarVisible, route}) => {
                 paddingBottom: 10,
                 borderBottomWidth: 0.5,
                 borderColor: colors.textinputbordercolor,
-              }}>
-              <Text style={{fontSize: 20, color: colors.AppmainColor}}>
+              }}
+            >
+              <Text style={{ fontSize: 20, color: colors.AppmainColor }}>
                 People you may know
               </Text>
             </View>
 
-            <View style={{marginBottom: 40}}>
+            <View style={{ marginBottom: 40 }}>
               {/* {knownPeopleData?.map((item, index) => renderItem({item: item}))} */}
               <FlatList
                 data={knownPeopleData}
                 keyExtractor={(item, index) => index.toString()}
-                renderItem={({item}) => renderItem({item})}
+                renderItem={({ item }) => renderItem({ item })}
               />
             </View>
 
             {loading && (
               <Text
                 style={{
-                  textAlign: 'center',
+                  textAlign: "center",
                   padding: 10,
                   color: colors.textColor,
-                }}>
+                }}
+              >
                 Loading...
               </Text>
             )}

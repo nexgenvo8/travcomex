@@ -40,7 +40,7 @@ import { universityFullName } from "../constants";
 
 const AddEvent = ({ navigation, route }) => {
   const { Item = {} } = route.params || {};
-  console.log("ItemItemItemItemItemItemItem", Item);
+  // console.log("ItemItemItemItemItemItemItem", Item);
   const { isDark, colors, toggleTheme } = useTheme();
   const [number, onChangeNumber] = useState("");
   const [selectedValue5, setSelectedValue5] = useState("Select");
@@ -154,30 +154,55 @@ const AddEvent = ({ navigation, route }) => {
     return date;
   };
 
+  // useEffect(() => {
+  //   if (Item) {
+  //     onChangeNumber(Item?.eventName);
+  //     setSelectedValue2(Item?.eventType);
+  //     setDescription(Item?.eventVenue);
+  //     setSelectedCountry(Item?.eventCountry);
+  //     setSelectedValue3(Item?.eventDuration);
+  //     setCity(Item?.eventBrief);
+  //     setPostalCode(Item?.eventDetails);
+  //     setPNo(Item?.eventAgenda);
+  //     setEMail(Item?.websiteurl);
+  //     const startDate = parseDate(Item?.eventDate);
+  //     const endDate = parseDate(Item?.eventTillDate);
+
+  //     if (startDate) setDate(startDate);
+  //     if (endDate) setDate1(endDate);
+
+  //     const startTime = parseTime(Item?.starttime, startDate);
+  //     const endTime = parseTime(Item?.endtime, endDate);
+
+  //     if (startTime) setTime(startTime);
+  //     if (endTime) setTime1(endTime);
+  //   }
+  // }, [Item]);
   useEffect(() => {
-    if (Item) {
-      onChangeNumber(Item?.eventName);
-      setSelectedValue2(Item?.eventType);
-      setDescription(Item?.eventVenue);
-      setSelectedCountry(Item?.eventCountry);
-      setSelectedValue3(Item?.eventDuration);
-      setCity(Item?.eventBrief);
-      setPostalCode(Item?.eventDetails);
-      setPNo(Item?.eventAgenda);
-      setEMail(Item?.websiteurl);
-      const startDate = parseDate(Item?.eventDate);
-      const endDate = parseDate(Item?.eventTillDate);
+    if (!Item?.id) return; // 👈 stop for Add mode
 
-      if (startDate) setDate(startDate);
-      if (endDate) setDate1(endDate);
+    onChangeNumber(Item.eventName || "");
+    setSelectedValue2(Item.eventType || "Select");
+    setDescription(Item.eventVenue || "");
+    setSelectedCountry(Item.eventCountry || null);
+    setSelectedValue3(Item.eventDuration || "Select");
+    setCity(Item.eventBrief || "");
+    setPostalCode(Item.eventDetails || "");
+    setPNo(Item.eventAgenda || "");
+    setEMail(Item.websiteurl || "");
 
-      const startTime = parseTime(Item?.starttime, startDate);
-      const endTime = parseTime(Item?.endtime, endDate);
+    const startDate = parseDate(Item.eventDate);
+    const endDate = parseDate(Item.eventTillDate);
 
-      if (startTime) setTime(startTime);
-      if (endTime) setTime1(endTime);
-    }
-  }, [Item]);
+    if (startDate) setDate(startDate);
+    if (endDate) setDate1(endDate);
+
+    const startTime = parseTime(Item.starttime, startDate);
+    const endTime = parseTime(Item.endtime, endDate);
+
+    if (startTime) setTime(startTime);
+    if (endTime) setTime1(endTime);
+  }, [Item?.id]);
 
   useEffect(() => {
     UserValue();

@@ -26,6 +26,8 @@ import {
 import ImagePicker from "react-native-image-crop-picker";
 import { showError, showSuccess } from "../components/Toast";
 import { useTheme } from "../../theme/ThemeContext";
+import ImageViewer from "react-native-image-zoom-viewer";
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
 const EventDetails = ({ navigation, route }) => {
   const { Item = {}, Career = {} } = route.params || {};
@@ -42,6 +44,9 @@ const EventDetails = ({ navigation, route }) => {
   const [isOpen2, setIsOpen2] = useState(false);
   const [loading, setLoading] = useState(false);
   const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
+  const [modalImageVisible, setModalImageVisible] = useState(false);
+  const [modalImages, setModalImages] = useState([]);
+  const [modalIndex, setModalIndex] = useState(0);
 
   const toggleDropdown2 = () => setIsOpen2(!isOpen2);
   const options2 = ["Yes", "Maybe", "No"];
@@ -785,6 +790,58 @@ const EventDetails = ({ navigation, route }) => {
               </Text>
             ) : null}
             <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+              {Item?.Images?.length > 0 &&
+                Item.Images.map((img, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => {
+                      setModalImageVisible(true); // open modal
+                      setModalImages(
+                        Item.Images.map((i) => ({ url: i.imageName })) // format for ImageViewer
+                      );
+                      setModalIndex(index); // which image to show first
+                    }}
+                    style={{ margin: 5 }}
+                  >
+                    <Image
+                      source={{ uri: img.imageName }}
+                      style={{
+                        width: 90,
+                        height: 90,
+                        backgroundColor: Colors?.lite_gray,
+                      }}
+                      resizeMode="contain"
+                    />
+                  </TouchableOpacity>
+                ))}
+            </View>
+
+            {/* ImageViewer Modal */}
+            <Modal
+              visible={modalImageVisible}
+              transparent={true}
+              onRequestClose={() => setModalImageVisible(false)}
+            >
+              <ImageViewer
+                imageUrls={modalImages} // array of { url: '...' }
+                index={modalIndex} // start index
+                onCancel={() => setModalImageVisible(false)}
+                enableSwipeDown={true}
+                onSwipeDown={() => setModalImageVisible(false)}
+                renderIndicator={() => null}
+                renderHeader={() => (
+                  <TouchableOpacity
+                    hitSlop={15}
+                    style={styles.closeImageButton}
+                    onPress={() => setModalImageVisible(false)}
+                  >
+                    <MaterialIcons name="close" size={24} color="white" />
+                  </TouchableOpacity>
+                )}
+              />
+            </Modal>
+
+            {/* <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
               {Item?.Images?.length > 0
                 ? Item.Images.map((img, index) => (
                     <View style={{}}>
@@ -869,7 +926,7 @@ const EventDetails = ({ navigation, route }) => {
                     </View>
                   ))
                 : null}
-            </View>
+            </View> */}
           </View>
           <View style={{ marginHorizontal: 10, marginTop: 20 }}>
             <Text
@@ -1134,6 +1191,20 @@ const styles = StyleSheet.create({
   },
   closeTextimg: {
     fontWeight: "bold",
+  },
+  closeImageButton: {
+    position: "absolute",
+    top: 50,
+    right: 20,
+    zIndex: 10,
+    padding: 4,
+    backgroundColor: "grey",
+    borderRadius: 14,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 5,
   },
 });
 

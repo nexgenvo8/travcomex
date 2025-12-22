@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState, useRef} from 'react';
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
@@ -10,24 +10,24 @@ import {
   Alert,
   FlatList,
   RefreshControl,
-} from 'react-native';
+} from "react-native";
 import {
   baseUrl,
   contactList,
   removecontact,
   SentJoinGroup,
-} from '../baseURL/api';
-import Colors from '../color';
-import globalStyles from '../GlobalCSS';
-import Header from '../Header/Header';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import Icon from '../Icons/Icons';
-import {showSuccess} from '../components/Toast';
-import {useTheme} from '../../theme/ThemeContext';
+} from "../baseURL/api";
+import Colors from "../color";
+import globalStyles from "../GlobalCSS";
+import Header from "../Header/Header";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Icon from "../Icons/Icons";
+import { showSuccess } from "../components/Toast";
+import { useTheme } from "../../theme/ThemeContext";
 
-const ContactList = ({navigation, route}) => {
-  const {Item = {}, InviteFriends = false} = route.params || {};
-  const {isDark, colors, toggleTheme} = useTheme();
+const ContactList = ({ navigation, route }) => {
+  const { Item = {}, InviteFriends = false } = route.params || {};
+  const { isDark, colors, toggleTheme } = useTheme();
   const [userData, setUserData] = useState(null);
   const [knownPeopleData, setKnownPeopleData] = useState([]);
   const [page, setPage] = useState(1);
@@ -39,7 +39,7 @@ const ContactList = ({navigation, route}) => {
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const userDta = await AsyncStorage.getItem('userData');
+      const userDta = await AsyncStorage.getItem("userData");
       const parsedData = JSON.parse(userDta);
       setUserData(parsedData);
     };
@@ -78,8 +78,8 @@ const ContactList = ({navigation, route}) => {
     return (
       <ActivityIndicator
         size="large"
-        color="#0000ff"
-        style={{marginVertical: 10}}
+        color={colors.AppmainColor}
+        style={{ marginVertical: 10 }}
       />
     );
   };
@@ -92,23 +92,23 @@ const ContactList = ({navigation, route}) => {
 
     const payload = JSON.stringify({
       userId: Item?.UserId ?? userData?.User?.userId,
-      groupId: Item?.id || '',
+      groupId: Item?.id || "",
       page: pageNumber,
       per_page: PAGE_SIZE,
     });
 
     try {
       const response = await fetch(`${baseUrl}${contactList}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: payload,
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Server returned error:', response.status, errorText);
+        console.error("Server returned error:", response.status, errorText);
 
         if (response.status === 429) {
           // Retry after a short delay (basic backoff strategy)
@@ -126,7 +126,7 @@ const ContactList = ({navigation, route}) => {
       try {
         data = JSON.parse(text);
       } catch (e) {
-        console.error('JSON parse error:', e, text);
+        console.error("JSON parse error:", e, text);
         return;
       }
 
@@ -135,13 +135,13 @@ const ContactList = ({navigation, route}) => {
       if (pageNumber === 1) {
         setKnownPeopleData(newData);
       } else {
-        setKnownPeopleData(prevData => [...prevData, ...newData]);
+        setKnownPeopleData((prevData) => [...prevData, ...newData]);
       }
 
       setHasMoreData(newData.length === PAGE_SIZE);
       setPage(pageNumber + 1);
     } catch (error) {
-      console.error('Fetch Error:', error);
+      console.error("Fetch Error:", error);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -207,24 +207,24 @@ const ContactList = ({navigation, route}) => {
   //   }
   // };
 
-  const removeContact = async ({item}) => {
-    console.log('item?.UserId', item?.UserId);
+  const removeContact = async ({ item }) => {
+    console.log("item?.UserId", item?.UserId);
     Alert.alert(
-      'Confirmation',
-      'Are you sure you want to delete this Contact?',
+      "Confirmation",
+      "Are you sure you want to delete this Contact?",
       [
         {
-          text: 'No',
-          style: 'cancel',
+          text: "No",
+          style: "cancel",
         },
         {
-          text: 'Yes',
+          text: "Yes",
           onPress: async () => {
             try {
               const response = await fetch(`${baseUrl}${removecontact}`, {
-                method: 'POST',
+                method: "POST",
                 headers: {
-                  'Content-Type': 'application/json',
+                  "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
                   removeBy: userData?.User?.userId,
@@ -233,48 +233,49 @@ const ContactList = ({navigation, route}) => {
               });
               const data = await response.json();
               if (response.ok) {
-                console.log('Deleted contact successfully:', data);
-                setKnownPeopleData(prevData =>
-                  prevData.filter(contact => contact.id !== item.id),
+                console.log("Deleted contact successfully:", data);
+                setKnownPeopleData((prevData) =>
+                  prevData.filter((contact) => contact.id !== item.id)
                 );
               } else {
                 console.error(
-                  'Failed to delete contact:',
+                  "Failed to delete contact:",
                   response.status,
-                  data,
+                  data
                 );
               }
             } catch (error) {
-              console.error('Fetch Error delete contact:', error);
+              console.error("Fetch Error delete contact:", error);
             }
           },
         },
       ],
-      {cancelable: false},
+      { cancelable: false }
     );
   };
-  const renderContacts = ({item}) => {
+  const renderContacts = ({ item }) => {
     return (
       <TouchableOpacity
         onPress={() =>
           item.IsBlocked === false
-            ? navigation.navigate('ProfileDetails', {Item: item})
+            ? navigation.navigate("ProfileDetails", { Item: item })
             : null
         }
         style={{
-          flexDirection: 'row',
+          flexDirection: "row",
           padding: 10,
           marginHorizontal: 10,
           borderBottomWidth: 0.5,
-          alignItems: 'center',
-          position: 'relative',
+          alignItems: "center",
+          position: "relative",
           borderColor: colors.textinputbordercolor,
-        }}>
+        }}
+      >
         <Image
           source={
             item?.ProfilePhoto
-              ? {uri: item?.ProfilePhoto}
-              : require('../../assets/placeholderprofileimage.png')
+              ? { uri: item?.ProfilePhoto }
+              : require("../../assets/placeholderprofileimage.png")
           }
           style={{
             width: 61,
@@ -282,12 +283,12 @@ const ContactList = ({navigation, route}) => {
             borderRadius: 40,
             marginRight: 5,
             borderWidth: 3,
-            borderColor: 'yellow',
+            borderColor: "yellow",
             backgroundColor: Colors.lite_gray,
           }}
         />
-        {item?.IsOnline === 'Online' && (
-          <View style={{position: 'absolute', left: -10}}>
+        {item?.IsOnline === "Online" && (
+          <View style={{ position: "absolute", left: -10 }}>
             <Icon
               type="Entypo"
               name="dot-single"
@@ -296,12 +297,13 @@ const ContactList = ({navigation, route}) => {
             />
           </View>
         )}
-        <View style={{flex: 1, padding: 10}}>
+        <View style={{ flex: 1, padding: 10 }}>
           <Text
-            style={{...globalStyles?.FS_16_FW_400, color: colors.textColor}}>
+            style={{ ...globalStyles?.FS_16_FW_400, color: colors.textColor }}
+          >
             {item?.UserName}
           </Text>
-          <Text style={{color: colors.placeholderTextColor, marginBottom: 5}}>
+          <Text style={{ color: colors.placeholderTextColor, marginBottom: 5 }}>
             at {item?.CompanyName}
           </Text>
         </View>
@@ -310,18 +312,20 @@ const ContactList = ({navigation, route}) => {
             onPress={() => handleJoinGroup(item)}
             style={{
               backgroundColor: colors.AppmainColor,
-              alignSelf: 'flex-start',
+              alignSelf: "flex-start",
               padding: 5,
               borderRadius: 5,
-            }}>
-            <Text style={{color: colors.textColor, fontWeight: '600'}}>
+            }}
+          >
+            <Text style={{ color: colors.textColor, fontWeight: "600" }}>
               {item?.IsGroupMember}
             </Text>
           </TouchableOpacity>
         ) : null}
         <TouchableOpacity
-          onPress={() => removeContact({item})}
-          style={{padding: 10}}>
+          onPress={() => removeContact({ item })}
+          style={{ padding: 10 }}
+        >
           <Icon
             name="user-times"
             size={18}
@@ -333,7 +337,7 @@ const ContactList = ({navigation, route}) => {
     );
   };
 
-  const handleJoinGroup = async item => {
+  const handleJoinGroup = async (item) => {
     const requestBody = {
       senderUserId: userData?.User?.userId,
       receiverUserId: item?.UserId,
@@ -341,13 +345,13 @@ const ContactList = ({navigation, route}) => {
     };
     try {
       const response = await fetch(`${baseUrl}${SentJoinGroup}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(requestBody),
       });
-      console.log('requestBody ', requestBody);
+      console.log("requestBody ", requestBody);
       const text = await response.text();
 
       const data = await response.json();
@@ -355,10 +359,10 @@ const ContactList = ({navigation, route}) => {
         // navigation.goBack();
         showSuccess(data.Message);
       } else {
-        console.error('Error joining:', data);
+        console.error("Error joining:", data);
       }
     } catch (error) {
-      console.error('Network error:', error);
+      console.error("Network error:", error);
     }
   };
   return (
@@ -366,26 +370,29 @@ const ContactList = ({navigation, route}) => {
       style={{
         ...globalStyles.SafeAreaView,
         backgroundColor: colors.background,
-      }}>
+      }}
+    >
       <Header
-        title={Item?.UserId ? 'Contact List' : 'My Contact List'}
+        title={Item?.UserId ? "Contact List" : "My Contact List"}
         navigation={navigation}
       />
 
-      <View style={{flex: 1}}>
+      <View style={{ flex: 1 }}>
         {knownPeopleData.length === 0 && !loading && !refreshing ? (
           <View
             style={{
               flex: 1,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
             <Text
               style={{
                 color: colors.placeholderTextColor,
                 fontSize: 16,
-                fontWeight: '500',
-              }}>
+                fontWeight: "500",
+              }}
+            >
               No contacts available.
             </Text>
           </View>
@@ -406,7 +413,7 @@ const ContactList = ({navigation, route}) => {
               />
             }
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{paddingBottom: 20}}
+            contentContainerStyle={{ paddingBottom: 20 }}
           />
         )}
       </View>
