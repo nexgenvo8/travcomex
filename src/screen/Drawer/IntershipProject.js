@@ -2572,180 +2572,217 @@ const IntershipProject = ({ navigation, route }) => {
       case "Search":
         return (
           <>
-            <View style={{}}>
-              <View style={{ flexDirection: "row" }}>
-                <View
-                  style={{
-                    ...globalStyles.JobfiledSection,
-                    paddingHorizontal: 10,
-                    flex: 1,
-                  }}
-                >
-                  <Text
-                    style={{
-                      ...styles.JobfiledSectionText,
-                      color: colors.textColor,
-                    }}
-                  >
-                    What Internship name
-                  </Text>
-
-                  <TextInput
-                    style={{
-                      ...styles.textInput,
-                      borderColor: colors.textinputbordercolor,
-                      color: colors.textColor,
-                      backgroundColor: colors.textinputBackgroundcolor,
-                      //   borderColor: errorJob ? Colors.error : Colors.gray,
-                    }}
-                    onChangeText={(value) => {
-                      setTitle(value);
-                      //   setErrorJov(value.trim().length === 0);
-                    }}
-                    value={title}
-                    placeholder=""
-                    keyboardType="default"
-                    multiline
-                    placeholderTextColor={colors.placeholderTextColor}
-                  />
-                </View>
-
-                <View
-                  style={{
-                    ...globalStyles.JobfiledSection,
-                    paddingHorizontal: 10,
-                    flex: 1,
-                  }}
-                >
-                  <Text
-                    style={{
-                      ...styles.JobfiledSectionText,
-                      color: colors.textColor,
-                      // height: 40,
-                      //   color: errorJob ? Colors.error : Colors.gray,
-                    }}
-                  >
-                    Where City or country
-                  </Text>
-
-                  <TextInput
-                    style={{
-                      ...styles.textInput,
-                      borderColor: colors.textinputbordercolor,
-                      color: colors.textColor,
-                      backgroundColor: colors.textinputBackgroundcolor,
-                    }}
-                    onChangeText={(value) => {
-                      setCityTitle(value);
-                    }}
-                    value={cityTitle}
-                    placeholder=""
-                    keyboardType="default"
-                    multiline
-                    placeholderTextColor={colors.placeholderTextColor}
-                  />
-                </View>
-              </View>
-
-              <Text
-                style={{
-                  marginTop: 20,
-                  paddingHorizontal: 10,
-                  color: colors.textColor,
-                }}
-              >
-                Nature of Internship
-              </Text>
-              <TouchableOpacity
-                onPress={toggleDropdown4}
-                style={{
-                  marginHorizontal: 10,
-                  ...globalStyles.seclectIndiaView,
-                  borderColor: colors.textinputbordercolor,
-                  backgroundColor: colors.textinputBackgroundcolor,
-                }}
-              >
-                <Text
-                  style={{
-                    ...styles.JobfiledSectionText,
-                    paddingBottom: 0,
-                    color: colors.textColor,
-                  }}
-                >
-                  {selectedValue4}
-                </Text>
-              </TouchableOpacity>
-              {isOpen4 && (
-                <View
-                  style={{
-                    ...globalStyles.dropdownList,
-                    backgroundColor: colors.textinputBackgroundcolor,
-                    borderColor: colors.textinputbordercolor,
-                  }}
-                >
-                  {options4.map((option, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      style={{
-                        ...globalStyles.dropdownItem,
-                        borderColor: colors.textinputbordercolor,
-                      }}
-                      onPress={() => selectOption4(option)}
-                    >
-                      <Text style={{ ...styles.text, color: colors.textColor }}>
-                        {option}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-
-              <TouchableOpacity
-                style={{
-                  ...globalStyles.saveButton,
-                  backgroundColor: colors.AppmainColor,
-                  margin: 20,
-                }}
-                onPress={() => {
-                  fetchArticles(), setCityTitle(""), setTitle("");
-                }}
-              >
-                <Text
-                  style={{
-                    ...globalStyles.saveButtonText,
-                    color: colors.ButtonTextColor,
-                  }}
-                >
-                  Search
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            <View style={globalStyles.ViewINter1}>
-              <Text
-                style={{
-                  ...globalStyles.headlineText,
-                  color: colors.textColor,
-                }}
-              >
-                All Internship{" "}
-              </Text>
-            </View>
-
             <FlatList
               data={projectList}
               keyExtractor={(item) => item.id.toString()}
               renderItem={renderItem}
+              onEndReached={loadMore}
+              onEndReachedThreshold={0.3}
+              refreshing={initialLoading}
+              onRefresh={onRefresh}
+              ListHeaderComponent={
+                <>
+                  <View style={{}}>
+                    <View style={{ flexDirection: "row" }}>
+                      <View
+                        style={{
+                          ...globalStyles.JobfiledSection,
+                          paddingHorizontal: 10,
+                          flex: 1,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            ...styles.JobfiledSectionText,
+                            color: colors.textColor,
+                          }}
+                        >
+                          What Internship name
+                        </Text>
+
+                        <TextInput
+                          style={{
+                            ...styles.textInput,
+                            borderColor: colors.textinputbordercolor,
+                            color: colors.textColor,
+                            backgroundColor: colors.textinputBackgroundcolor,
+                            //   borderColor: errorJob ? Colors.error : Colors.gray,
+                          }}
+                          onChangeText={(value) => {
+                            setTitle(value);
+                            //   setErrorJov(value.trim().length === 0);
+                          }}
+                          value={title}
+                          placeholder=""
+                          keyboardType="default"
+                          multiline
+                          placeholderTextColor={colors.placeholderTextColor}
+                        />
+                      </View>
+
+                      <View
+                        style={{
+                          ...globalStyles.JobfiledSection,
+                          paddingHorizontal: 10,
+                          flex: 1,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            ...styles.JobfiledSectionText,
+                            color: colors.textColor,
+                            // height: 40,
+                            //   color: errorJob ? Colors.error : Colors.gray,
+                          }}
+                        >
+                          Where City or country
+                        </Text>
+
+                        <TextInput
+                          style={{
+                            ...styles.textInput,
+                            borderColor: colors.textinputbordercolor,
+                            color: colors.textColor,
+                            backgroundColor: colors.textinputBackgroundcolor,
+                          }}
+                          onChangeText={(value) => {
+                            setCityTitle(value);
+                          }}
+                          value={cityTitle}
+                          placeholder=""
+                          keyboardType="default"
+                          multiline
+                          placeholderTextColor={colors.placeholderTextColor}
+                        />
+                      </View>
+                    </View>
+
+                    <Text
+                      style={{
+                        marginTop: 20,
+                        paddingHorizontal: 10,
+                        color: colors.textColor,
+                      }}
+                    >
+                      Nature of Internship
+                    </Text>
+                    <TouchableOpacity
+                      onPress={toggleDropdown4}
+                      style={{
+                        marginHorizontal: 10,
+                        ...globalStyles.seclectIndiaView,
+                        borderColor: colors.textinputbordercolor,
+                        backgroundColor: colors.textinputBackgroundcolor,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          ...styles.JobfiledSectionText,
+                          paddingBottom: 0,
+                          color: colors.textColor,
+                        }}
+                      >
+                        {selectedValue4}
+                      </Text>
+                    </TouchableOpacity>
+                    {isOpen4 && (
+                      <View
+                        style={{
+                          ...globalStyles.dropdownList,
+                          backgroundColor: colors.textinputBackgroundcolor,
+                          borderColor: colors.textinputbordercolor,
+                        }}
+                      >
+                        {options4.map((option, index) => (
+                          <TouchableOpacity
+                            key={index}
+                            style={{
+                              ...globalStyles.dropdownItem,
+                              borderColor: colors.textinputbordercolor,
+                            }}
+                            onPress={() => selectOption4(option)}
+                          >
+                            <Text
+                              style={{
+                                ...styles.text,
+                                color: colors.textColor,
+                              }}
+                            >
+                              {option}
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    )}
+
+                    <TouchableOpacity
+                      style={{
+                        ...globalStyles.saveButton,
+                        backgroundColor: colors.AppmainColor,
+                        margin: 20,
+                      }}
+                      onPress={() => {
+                        fetchArticles(), setCityTitle(""), setTitle("");
+                      }}
+                    >
+                      <Text
+                        style={{
+                          ...globalStyles.saveButtonText,
+                          color: colors.ButtonTextColor,
+                        }}
+                      >
+                        Search
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                  <View style={globalStyles.ViewINter1}>
+                    <Text
+                      style={{
+                        ...globalStyles.headlineText,
+                        color: colors.textColor,
+                      }}
+                    >
+                      All Internship{" "}
+                    </Text>
+                  </View>
+                </>
+              }
+              onMomentumScrollBegin={() => {
+                onEndReachedCalledDuringMomentum.current = false;
+              }}
+              ListFooterComponent={() => {
+                if (isLoadingMore) {
+                  return (
+                    <ActivityIndicator size="small" color={colors.primary} />
+                  );
+                }
+                if (!hasMore && projectList.length > 0) {
+                  return (
+                    <Text
+                      style={{
+                        textAlign: "center",
+                        padding: 10,
+                        color: colors.textColor,
+                      }}
+                    >
+                      No more projects
+                    </Text>
+                  );
+                }
+                return null;
+              }}
               ListEmptyComponent={
-                <Text
-                  style={{
-                    textAlign: "center",
-                    marginTop: 20,
-                    color: colors.textColor,
-                  }}
-                >
-                  No projects available.
-                </Text>
+                !initialLoading && (
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      marginTop: 20,
+                      color: colors.textColor,
+                    }}
+                  >
+                    No projects available
+                  </Text>
+                )
               }
             />
           </>

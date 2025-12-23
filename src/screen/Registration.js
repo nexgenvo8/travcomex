@@ -704,7 +704,7 @@ const Registration = () => {
       jobTitle: jobTitle || "Null",
       passingyear: parseInt(passingYear) || 0,
       departmentname: department || "Null",
-      companyName: companyName || "Company Name.",
+      companyName: companyName || "",
       industryId: selectedIndustry?.Id || 1,
       countryName: "India",
       cityName: "Delhi",

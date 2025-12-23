@@ -4,7 +4,8 @@ export const universityFullName = "TRAVCOMEX";
 export const emailId = "info@corrintech.com";
 // Image
 
-export const appIcon = require("../assets/appicon.png");
+// export const appIcon = require("../assets/appicon.png");
+export const appIcon = require("../assets/travcomex_logo.png");
 //Registration
 export const registrationbackgroundimage = require("../assets/login_bg.png");
 export const registrationbackgroundimage_dark = require("../assets/login_bg_dark.png");
