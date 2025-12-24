@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -8,32 +8,34 @@ import {
   StyleSheet,
   FlatList,
   ScrollView,
-} from 'react-native';
-import Colors from './color';
-import CalIcon from 'react-native-vector-icons/FontAwesome5';
-import MonthPicker from 'react-native-month-year-picker';
-import CheckBox from '@react-native-community/checkbox';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import Icon from '../screen/Icons/Icons';
-import Header from './Header/Header';
-import globalStyles from './GlobalCSS';
+  Modal,
+  ActivityIndicator,
+} from "react-native";
+import Colors from "./color";
+import CalIcon from "react-native-vector-icons/FontAwesome5";
+import MonthPicker from "react-native-month-year-picker";
+import CheckBox from "@react-native-community/checkbox";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Icon from "../screen/Icons/Icons";
+import Header from "./Header/Header";
+import globalStyles from "./GlobalCSS";
 import {
   baseUrl,
   addExperience,
   editExperience,
   listoption,
-} from './baseURL/api';
-import {showError} from './components/Toast';
-import {useTheme} from '../theme/ThemeContext';
+} from "./baseURL/api";
+import { showError } from "./components/Toast";
+import { useTheme } from "../theme/ThemeContext";
 
-const AddExperience = ({navigation, route}) => {
-  const {Item = {}} = route.params || {};
-  const {isDark, colors, toggleTheme} = useTheme();
-  const [number, onChangeNumber] = useState('');
-  const [campany, setCampany] = useState('');
-  const [industry, setIndustry] = useState('');
-  const [location, setLocation] = useState('');
-  const [description, setDescription] = useState('');
+const AddExperience = ({ navigation, route }) => {
+  const { Item = {} } = route.params || {};
+  const { isDark, colors, toggleTheme } = useTheme();
+  const [number, onChangeNumber] = useState("");
+  const [campany, setCampany] = useState("");
+  const [industry, setIndustry] = useState("");
+  const [location, setLocation] = useState("");
+  const [description, setDescription] = useState("");
   const [date, setDate] = useState(null);
   const [date1, setDate1] = useState(null);
   const [show, setShow] = useState(false);
@@ -45,23 +47,29 @@ const AddExperience = ({navigation, route}) => {
   const [errorLocation, SetErrorLocation] = useState(false);
   const [errorDescription, SetErrorDescription] = useState(false);
   const [flatlist, setFlatlist] = useState(false);
-  const [industryValue, setIndustryValue] = useState('');
-  console.log('industryValue', industryValue);
+  const [industryValue, setIndustryValue] = useState("");
+  const [showIndustryModal, setShowIndustryModal] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [perPage] = useState(20);
+  const [loading, setLoading] = useState(false);
+  console.log("industryValue", industryValue);
   const [userData, setUserData] = useState(null);
-  const formatMonthYear = d => {
-    if (!d) return '';
-    return `${d.toLocaleString('default', {
-      month: 'short',
+  const formatMonthYear = (d) => {
+    if (!d) return "";
+    return `${d.toLocaleString("default", {
+      month: "short",
     })} ${d.getFullYear()}`;
   };
   const UserValue = async () => {
-    const userDta = await AsyncStorage.getItem('userData');
+    const userDta = await AsyncStorage.getItem("userData");
     const parsedData = JSON.parse(userDta);
     setUserData(parsedData);
   };
   useEffect(() => {
     UserValue();
-    getIndustryList();
+    // getIndustryList();
   }, []);
 
   const onValueChange = (event, selectedDate) => {
@@ -77,7 +85,7 @@ const AddExperience = ({navigation, route}) => {
     }
     setShow1(false);
   };
-  const handleCheckboxChange = newValue => {
+  const handleCheckboxChange = (newValue) => {
     setIsChecked(newValue);
   };
   const showPicker = () => {
@@ -87,30 +95,80 @@ const AddExperience = ({navigation, route}) => {
     setShow1(true);
   };
   const [industryData, setIndustryData] = useState([]);
-  const getIndustryList = async () => {
+  // const getIndustryList = async () => {
+  //   try {
+  //     const response = await fetch(`${baseUrl}${listoption}`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         optionType: "industry",
+  //       }),
+  //     });
+
+  //     const data = await response.json();
+
+  //     if (response.ok) {
+  //       setIndustryData(data?.DataList);
+  //     } else {
+  //       showError(data.message || "Failed to Industry List");
+  //     }
+  //   } catch (error) {
+  //     console.error("Fetch Error:", error);
+  //   }
+  // };
+  useEffect(() => {
+    if (showIndustryModal) {
+      setPage(1);
+      setHasMore(true);
+      getIndustryList(1);
+    }
+  }, [showIndustryModal]);
+
+  const loadingRef = useRef(false);
+
+  const getIndustryList = async (pageNumber = 1) => {
+    if (loadingRef.current || (pageNumber !== 1 && !hasMore)) return;
+
+    loadingRef.current = true;
+
+    if (pageNumber === 1) setRefreshing(true);
+    else setLoading(true);
+
     try {
       const response = await fetch(`${baseUrl}${listoption}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          Accept: "application/json",
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          optionType: 'industry',
+          optionType: "industry",
+          per_page: perPage,
+          page: pageNumber,
         }),
       });
 
       const data = await response.json();
-
       if (response.ok) {
-        setIndustryData(data?.DataList);
+        const newData = data?.DataList || [];
+        setIndustryData((prev) =>
+          pageNumber === 1 ? newData : [...prev, ...newData]
+        );
+        setHasMore(newData.length === perPage);
+        setPage(pageNumber + 1);
       } else {
-        showError(data.message || 'Failed to Industry List');
+        console.error("API Error:", data.message);
       }
     } catch (error) {
-      console.error('Fetch Error:', error);
+      console.error("Industry List Error:", error);
+    } finally {
+      loadingRef.current = false;
+      setLoading(false);
+      setRefreshing(false);
     }
   };
-
   const handleSave = async () => {
     let isValid = true;
 
@@ -156,7 +214,7 @@ const AddExperience = ({navigation, route}) => {
     }
 
     if (isValid) {
-      console.log('All fields are valid');
+      console.log("All fields are valid");
       const fromYear = date
         ? date.getFullYear()
         : Item?.FromYear || new Date().getFullYear();
@@ -189,22 +247,22 @@ const AddExperience = ({navigation, route}) => {
         const response = await fetch(
           `${baseUrl}${Item?.JobTitle ? editExperience : addExperience}`,
           {
-            method: 'POST',
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
             body: payload,
-          },
+          }
         );
         const data = await response.json();
         if (response.ok) {
-          console.log('Add data  ----', data);
+          console.log("Add data  ----", data);
           navigation.goBack();
         } else {
-          console.error('Fetch Error:', data);
+          console.error("Fetch Error:", data);
         }
       } catch (error) {
-        console.error('Fetch Error:', error);
+        console.error("Fetch Error:", error);
       } finally {
         setLoading(false);
       }
@@ -222,7 +280,7 @@ const AddExperience = ({navigation, route}) => {
     }
   }, []);
 
-  const renderItem = ({item}) => {
+  const renderItem = ({ item }) => {
     return (
       <TouchableOpacity
         onPress={() => {
@@ -234,8 +292,9 @@ const AddExperience = ({navigation, route}) => {
           backgroundColor: colors.textinputBackgroundcolor,
           margin: 5,
           padding: 5,
-        }}>
-        <Text style={{color: colors.textColor}}>{item.Name}</Text>
+        }}
+      >
+        <Text style={{ color: colors.textColor }}>{item.Name}</Text>
       </TouchableOpacity>
     );
   };
@@ -245,22 +304,24 @@ const AddExperience = ({navigation, route}) => {
       style={{
         ...globalStyles.SafeAreaView,
         backgroundColor: colors.background,
-      }}>
+      }}
+    >
       <View style={globalStyles.SafeAreaView}>
         <Header
-          title={Item?.JobTitle ? 'Edit Experience' : 'Add Experience'}
+          title={Item?.JobTitle ? "Edit Experience" : "Add Experience"}
           navigation={navigation}
         />
 
-        <ScrollView style={{flex: 1}} showsVerticalScrollIndicator={false}>
-          <View style={{flex: 1, paddingHorizontal: 12}}>
+        <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+          <View style={{ flex: 1, paddingHorizontal: 12 }}>
             <View
               style={{
                 paddingVertical: 15,
                 borderBottomWidth: 0.2,
                 borderColor: colors.textinputbordercolor,
-              }}>
-              <Text style={{fontSize: 18, color: colors.textColor}}>
+              }}
+            >
+              <Text style={{ fontSize: 18, color: colors.textColor }}>
                 Professional experience
               </Text>
             </View>
@@ -270,7 +331,8 @@ const AddExperience = ({navigation, route}) => {
                 style={{
                   ...styles.JobfiledSectionText,
                   color: errorJob ? Colors.error : colors.textColor,
-                }}>
+                }}
+              >
                 Job Title
               </Text>
 
@@ -283,7 +345,7 @@ const AddExperience = ({navigation, route}) => {
                   color: colors.textColor,
                   backgroundColor: colors.textinputBackgroundcolor,
                 }}
-                onChangeText={value => {
+                onChangeText={(value) => {
                   onChangeNumber(value);
                   setErrorJov(value.trim().length === 0);
                 }}
@@ -300,7 +362,8 @@ const AddExperience = ({navigation, route}) => {
                 style={{
                   ...styles.JobfiledSectionText,
                   color: errorCampany ? Colors.error : colors.textColor,
-                }}>
+                }}
+              >
                 Company Name
               </Text>
               <TextInput
@@ -312,7 +375,7 @@ const AddExperience = ({navigation, route}) => {
                   color: colors.textColor,
                   backgroundColor: colors.textinputBackgroundcolor,
                 }}
-                onChangeText={value => {
+                onChangeText={(value) => {
                   setCampany(value);
                   SetErrorCampany(value.trim().length === 0);
                 }}
@@ -329,23 +392,44 @@ const AddExperience = ({navigation, route}) => {
                 style={{
                   ...styles.JobfiledSectionText,
                   color: errorIndustry ? Colors.error : colors.textColor,
-                }}>
+                }}
+              >
                 Industry
               </Text>
-
               <TouchableOpacity
-                onPress={() => setFlatlist(!flatlist)}
+                onPress={() => setShowIndustryModal(true)}
                 style={{
-                  ...styles.textInput,
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
+                  ...globalStyles.seclectIndiaView,
                   borderColor: errorIndustry
                     ? Colors.error
                     : colors.textinputbordercolor,
                   backgroundColor: colors.textinputBackgroundcolor,
-                }}>
-                <Text style={{color: colors.textColor}}>
-                  {industryValue ? industryValue : 'Industry'}
+                }}
+              >
+                <Text
+                  style={{
+                    ...globalStyles.JobfiledSectionText,
+                    paddingBottom: 0,
+                    color: colors.textColor,
+                  }}
+                >
+                  {industryValue ? industryValue : "Industry"}
+                </Text>
+              </TouchableOpacity>
+              {/* <TouchableOpacity
+                onPress={() => setFlatlist(!flatlist)}
+                style={{
+                  ...styles.textInput,
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  borderColor: errorIndustry
+                    ? Colors.error
+                    : colors.textinputbordercolor,
+                  backgroundColor: colors.textinputBackgroundcolor,
+                }}
+              >
+                <Text style={{ color: colors.textColor }}>
+                  {industryValue ? industryValue : "Industry"}
                 </Text>
                 <Icon
                   name="down"
@@ -361,7 +445,7 @@ const AddExperience = ({navigation, route}) => {
                   renderItem={renderItem}
                   keyExtractor={(item, index) => `${item.id}-${index}`}
                 />
-              ) : null}
+              ) : null} */}
             </View>
 
             <View style={globalStyles.JobfiledSection}>
@@ -369,7 +453,8 @@ const AddExperience = ({navigation, route}) => {
                 style={{
                   ...styles.JobfiledSectionText,
                   color: errorLocation ? Colors.error : colors.textColor,
-                }}>
+                }}
+              >
                 Location
               </Text>
               <TextInput
@@ -381,7 +466,7 @@ const AddExperience = ({navigation, route}) => {
                   color: colors.textColor,
                   backgroundColor: colors.textinputBackgroundcolor,
                 }}
-                onChangeText={value => {
+                onChangeText={(value) => {
                   setLocation(value);
                   SetErrorLocation(value.trim().length === 0);
                 }}
@@ -395,47 +480,53 @@ const AddExperience = ({navigation, route}) => {
 
             <View
               style={{
-                flexDirection: 'row',
+                flexDirection: "row",
                 marginTop: 10,
-                alignItems: 'center',
-              }}>
+                alignItems: "center",
+              }}
+            >
               <CheckBox
                 value={isChecked}
-                onValueChange={newValue => handleCheckboxChange(newValue)}
+                onValueChange={(newValue) => handleCheckboxChange(newValue)}
                 style={{
-                  transform: [{scaleX: 0.8}, {scaleY: 0.8}],
+                  transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }],
                 }}
               />
-              <Text style={{color: colors.textColor}}>Current position</Text>
+              <Text style={{ color: colors.textColor }}>Current position</Text>
             </View>
 
             <View style={globalStyles.JobfiledSection}>
-              <Text style={{fontSize: 13, color: colors.textColor}}>
+              <Text style={{ fontSize: 13, color: colors.textColor }}>
                 Period
               </Text>
             </View>
             <View
               style={{
                 paddingTop: 10,
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-              }}>
-              <Text style={{fontSize: 13, color: colors.textColor}}>From</Text>
+                flexDirection: "row",
+                justifyContent: "space-between",
+              }}
+            >
+              <Text style={{ fontSize: 13, color: colors.textColor }}>
+                From
+              </Text>
 
               {Item?.FromMonth ? (
                 <TouchableOpacity
-                  style={{flexDirection: 'row'}}
-                  onPress={showPicker}>
-                  <Text style={{...styles.label, color: colors.textColor}}>
+                  style={{ flexDirection: "row" }}
+                  onPress={showPicker}
+                >
+                  <Text style={{ ...styles.label, color: colors.textColor }}>
                     {Item?.FromMonth}/{Item?.FromYear}
                   </Text>
                 </TouchableOpacity>
               ) : (
                 <TouchableOpacity
-                  style={{flexDirection: 'row'}}
-                  onPress={showPicker}>
-                  <Text style={{...styles.label, color: colors.textColor}}>
-                    {date ? formatMonthYear(date) : 'Select Month & Year'}{' '}
+                  style={{ flexDirection: "row" }}
+                  onPress={showPicker}
+                >
+                  <Text style={{ ...styles.label, color: colors.textColor }}>
+                    {date ? formatMonthYear(date) : "Select Month & Year"}{" "}
                   </Text>
                   <CalIcon
                     name="calendar-alt"
@@ -463,25 +554,30 @@ const AddExperience = ({navigation, route}) => {
               <View
                 style={{
                   paddingTop: 10,
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                }}>
-                <Text style={{fontSize: 13, color: colors.textColor}}>To</Text>
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Text style={{ fontSize: 13, color: colors.textColor }}>
+                  To
+                </Text>
 
                 {Item?.ToMonth ? (
                   <TouchableOpacity
-                    style={{flexDirection: 'row'}}
-                    onPress={showPicker1}>
-                    <Text style={{...styles.label, color: colors.textColor}}>
+                    style={{ flexDirection: "row" }}
+                    onPress={showPicker1}
+                  >
+                    <Text style={{ ...styles.label, color: colors.textColor }}>
                       {Item?.ToMonth}/{Item?.ToYear}
                     </Text>
                   </TouchableOpacity>
                 ) : (
                   <TouchableOpacity
-                    style={{flexDirection: 'row'}}
-                    onPress={showPicker1}>
-                    <Text style={{...styles.label, color: colors.textColor}}>
-                      {date1 ? formatMonthYear(date1) : 'Select Month & Year'}{' '}
+                    style={{ flexDirection: "row" }}
+                    onPress={showPicker1}
+                  >
+                    <Text style={{ ...styles.label, color: colors.textColor }}>
+                      {date1 ? formatMonthYear(date1) : "Select Month & Year"}{" "}
                     </Text>
                     <CalIcon
                       name="calendar-alt"
@@ -510,21 +606,22 @@ const AddExperience = ({navigation, route}) => {
                 style={{
                   ...styles.JobfiledSectionText,
                   color: errorDescription ? Colors.error : colors.textColor,
-                }}>
+                }}
+              >
                 Description
               </Text>
               <TextInput
                 style={{
                   ...styles.textInput,
                   height: 80,
-                  textAlignVertical: 'top',
+                  textAlignVertical: "top",
                   borderColor: errorDescription
                     ? Colors.error
                     : colors.textinputbordercolor,
                   color: colors.textColor,
                   backgroundColor: colors.textinputBackgroundcolor,
                 }}
-                onChangeText={value => {
+                onChangeText={(value) => {
                   setDescription(value);
                   SetErrorDescription(value.trim().length === 0);
                 }}
@@ -541,18 +638,124 @@ const AddExperience = ({navigation, route}) => {
                 ...globalStyles.saveButton,
                 backgroundColor: colors.AppmainColor,
               }}
-              onPress={() => handleSave()}>
+              onPress={() => handleSave()}
+            >
               <Text
                 style={{
                   ...globalStyles.saveButtonText,
                   color: colors.ButtonTextColor,
-                }}>
+                }}
+              >
                 Save
               </Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
       </View>
+      <Modal
+        visible={showIndustryModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowIndustryModal(false)}
+      >
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: "rgba(0,0,0,0.4)",
+            justifyContent: "center",
+            paddingHorizontal: 20,
+          }}
+        >
+          <View
+            style={{
+              height: "70%",
+              backgroundColor: colors.textinputBackgroundcolor,
+              borderRadius: 8,
+              position: "relative",
+              overflow: "visible",
+            }}
+          >
+            <TouchableOpacity
+              onPress={() => setShowIndustryModal(false)}
+              style={{
+                position: "absolute",
+                top: 8,
+                right: 8,
+                zIndex: 1000,
+                elevation: 10,
+                padding: 8,
+              }}
+            >
+              <Icon
+                type="Entypo"
+                name="cross"
+                size={26}
+                color={colors.backIconColor}
+              />
+            </TouchableOpacity>
+            <FlatList
+              data={industryData}
+              keyExtractor={(item) => item.Id.toString()}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={globalStyles.dropdownItem}
+                  onPress={() => {
+                    selectOption5(item);
+                    setShowIndustryModal(false);
+                  }}
+                >
+                  <Text style={{ color: colors.textColor }}>{item.Name}</Text>
+                </TouchableOpacity>
+              )}
+              onEndReached={() => getIndustryList(page)}
+              onEndReachedThreshold={0.5}
+              contentContainerStyle={{ flexGrow: 1 }}
+              ListFooterComponent={
+                loading && page > 1 ? (
+                  <ActivityIndicator size="small" style={{ margin: 10 }} />
+                ) : !hasMore && industryData.length > 0 ? (
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      padding: 10,
+                      color: colors.textColor,
+                    }}
+                  >
+                    No more data
+                  </Text>
+                ) : null
+              }
+              ListEmptyComponent={
+                !loading ? (
+                  <View
+                    style={{
+                      flex: 1,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Text
+                      style={{
+                        textAlign: "center",
+                        padding: 10,
+                        color: colors.textColor,
+                      }}
+                    >
+                      No data available
+                    </Text>
+                  </View>
+                ) : null
+              }
+              refreshing={refreshing}
+              onRefresh={() => {
+                setPage(1);
+                setHasMore(true);
+                getIndustryList(1);
+              }}
+            />
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -561,13 +764,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     paddingRight: 10,
   },
-  JobfiledSectionText: {fontSize: 13, paddingBottom: 10},
+  JobfiledSectionText: { fontSize: 13, paddingBottom: 10 },
   textInput: {
     paddingTop: 12,
     paddingHorizontal: 10,
     fontSize: 14,
     borderWidth: 0.5,
-    borderColor: 'gray',
+    borderColor: "gray",
     borderRadius: 5,
     height: 40,
   },

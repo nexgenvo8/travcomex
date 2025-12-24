@@ -38,7 +38,7 @@ const GuestSpeakersTrainers = ({ navigation, route }) => {
   const [selectedValue5, setSelectedValue5] = useState(
     "Select Category Search"
   );
-  const [perPage] = useState(10);
+  const [perPage] = useState(20);
   const [hasMore, setHasMore] = useState(true);
   const [isOpen5, setIsOpen5] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -575,25 +575,25 @@ const GuestSpeakersTrainers = ({ navigation, route }) => {
                 </Text>
               </View>
 
-              {listTalent?.some((item) => item.userId === 1053) && (
-                <TouchableOpacity
+              {/* {listTalent?.some((item) => item.userId === 1053) && ( */}
+              <TouchableOpacity
+                style={{
+                  ...globalStyles.saveButton,
+                  marginHorizontal: 10,
+                  backgroundColor: colors.AppmainColor,
+                }}
+                onPress={() => navigation.navigate("AddTelentProfile")}
+              >
+                <Text
                   style={{
-                    ...globalStyles.saveButton,
-                    marginHorizontal: 10,
-                    backgroundColor: colors.AppmainColor,
+                    ...globalStyles.saveButtonText,
+                    color: colors.ButtonTextColor,
                   }}
-                  onPress={() => navigation.navigate("AddTelentProfile")}
                 >
-                  <Text
-                    style={{
-                      ...globalStyles.saveButtonText,
-                      color: colors.ButtonTextColor,
-                    }}
-                  >
-                    Create Talent Profile
-                  </Text>
-                </TouchableOpacity>
-              )}
+                  Create Talent Profile
+                </Text>
+              </TouchableOpacity>
+              {/* )} */}
               <View
                 style={{
                   ...styles.bulletRow,
@@ -640,13 +640,31 @@ const GuestSpeakersTrainers = ({ navigation, route }) => {
         >
           <View
             style={{
-              // height: 400,
+              height: "70%",
               backgroundColor: colors.textinputBackgroundcolor,
               borderRadius: 8,
-              flex: 1,
-              maxHeight: 400,
+              position: "relative",
+              overflow: "visible",
             }}
           >
+            <TouchableOpacity
+              onPress={() => setShowIndustryModal(false)}
+              style={{
+                position: "absolute",
+                top: 8,
+                right: 8,
+                zIndex: 1000,
+                elevation: 10,
+                padding: 8,
+              }}
+            >
+              <Icon
+                type="Entypo"
+                name="cross"
+                size={26}
+                color={colors.backIconColor}
+              />
+            </TouchableOpacity>
             <FlatList
               data={industryData}
               keyExtractor={(item) => item.Id.toString()}
@@ -708,24 +726,6 @@ const GuestSpeakersTrainers = ({ navigation, route }) => {
               }}
             />
           </View>
-          <TouchableOpacity
-            onPress={() => setShowIndustryModal(false)}
-            style={{
-              position: "absolute",
-              top: "50%",
-              right: 20,
-              transform: [{ translateY: -200 }],
-              padding: 10,
-              zIndex: 10,
-            }}
-          >
-            <Icon
-              type="Entypo"
-              name="cross"
-              size={30}
-              color={colors.backIconColor}
-            />
-          </TouchableOpacity>
         </View>
       </Modal>
     </SafeAreaView>

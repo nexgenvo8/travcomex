@@ -65,11 +65,11 @@ const CompanyDetails = ({ navigation, route }) => {
       onPress={() => setAboutItemOther(item)}
       style={{
         flexDirection: "row",
-        backgroundColor: "#fff",
+        backgroundColor: colors.textinputBackgroundcolor,
         padding: 10,
         marginBottom: 10,
         borderRadius: 8,
-        shadowColor: "#000",
+        shadowColor: colors.shadowColor,
         shadowOpacity: 0.1,
         shadowRadius: 5,
         elevation: 2,
@@ -93,12 +93,15 @@ const CompanyDetails = ({ navigation, route }) => {
           style={{
             fontSize: 16,
             fontWeight: "bold",
-            color: "#333",
+            color: colors.textColor,
           }}
         >
           {item.companyName}
         </Text>
-        <Text numberOfLines={2} style={{ fontSize: 12, color: "#888" }}>
+        <Text
+          numberOfLines={2}
+          style={{ fontSize: 12, color: colors.placeholderTextColor }}
+        >
           {item.aboutCompany}
         </Text>
       </View>

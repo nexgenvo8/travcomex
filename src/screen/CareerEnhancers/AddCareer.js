@@ -92,7 +92,7 @@ const AddCareer = ({ navigation, route }) => {
   const [filteredCountries, setFilteredCountries] = useState([]);
   const [filteredStates, setFilteredStates] = useState([]);
   const [showIndustryModal, setShowIndustryModal] = useState(false);
-  const [perPage] = useState(10);
+  const [perPage] = useState(20);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
 
@@ -1507,13 +1507,31 @@ const AddCareer = ({ navigation, route }) => {
         >
           <View
             style={{
-              // height: 400,
+              height: "70%",
               backgroundColor: colors.textinputBackgroundcolor,
               borderRadius: 8,
-              flex: 1,
-              maxHeight: 400,
+              position: "relative",
+              overflow: "visible",
             }}
           >
+            <TouchableOpacity
+              onPress={() => setShowIndustryModal(false)}
+              style={{
+                position: "absolute",
+                top: 8,
+                right: 8,
+                zIndex: 1000,
+                elevation: 10,
+                padding: 8,
+              }}
+            >
+              <Icon
+                type="Entypo"
+                name="cross"
+                size={26}
+                color={colors.backIconColor}
+              />
+            </TouchableOpacity>
             <FlatList
               data={modalType === "industry" ? industryData : subIndustryData}
               keyExtractor={(item) => item.Id.toString()}
@@ -1547,7 +1565,7 @@ const AddCareer = ({ navigation, route }) => {
                   });
                 }
               }}
-              onEndReachedThreshold={0.1}
+              onEndReachedThreshold={0.5}
               contentContainerStyle={{ flexGrow: 1 }}
               ListFooterComponent={() => {
                 const isIndustry = modalType === "industry";
@@ -1615,24 +1633,6 @@ const AddCareer = ({ navigation, route }) => {
               }}
             />
           </View>
-          <TouchableOpacity
-            onPress={() => setShowIndustryModal(false)}
-            style={{
-              position: "absolute",
-              top: "50%",
-              right: 20,
-              transform: [{ translateY: -200 }],
-              padding: 10,
-              zIndex: 10,
-            }}
-          >
-            <Icon
-              type="Entypo"
-              name="cross"
-              size={30}
-              color={colors.backIconColor}
-            />
-          </TouchableOpacity>
         </View>
       </Modal>
     </SafeAreaView>

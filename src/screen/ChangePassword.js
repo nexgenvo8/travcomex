@@ -12,7 +12,7 @@ import Header from "./Header/Header";
 import globalStyles from "./GlobalCSS";
 import { baseUrl, ChangePW, ForgetPW } from "./baseURL/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { showError } from "./components/Toast";
+import { showError, showSuccess } from "./components/Toast";
 import { useTheme } from "../theme/ThemeContext";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
@@ -73,7 +73,6 @@ const ChangePassword = ({ navigation, route }) => {
     }
 
     if (!isValid) return;
-
     try {
       const response = await fetch(
         `${baseUrl}${Item == "Forget" ? ForgetPW : ChangePW}`,
@@ -99,7 +98,7 @@ const ChangePassword = ({ navigation, route }) => {
       if (response.ok) {
         console.log("Password changed successfully", data);
 
-        showError("Password changed successfully");
+        showSuccess("Password changed successfully");
         Item === "Forget" ? navigation.pop(2) : navigation?.goBack();
       } else {
         showError(data?.message || "Something went wrong");

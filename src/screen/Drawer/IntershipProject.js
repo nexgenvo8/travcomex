@@ -82,7 +82,7 @@ const IntershipProject = ({ navigation, route }) => {
   const [industryData, setIndustryData] = useState([]);
   // console.log('industryData', industryData);
   const [showIndustryModal, setShowIndustryModal] = useState(false);
-  const [perPage] = useState(10);
+  const [perPage] = useState(20);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -3797,13 +3797,31 @@ const IntershipProject = ({ navigation, route }) => {
         >
           <View
             style={{
-              // height: 400,
+              height: "70%",
               backgroundColor: colors.textinputBackgroundcolor,
               borderRadius: 8,
-              flex: 1,
-              maxHeight: 400,
+              position: "relative",
+              overflow: "visible",
             }}
           >
+            <TouchableOpacity
+              onPress={() => setShowIndustryModal(false)}
+              style={{
+                position: "absolute",
+                top: 8,
+                right: 8,
+                zIndex: 1000,
+                elevation: 10,
+                padding: 8,
+              }}
+            >
+              <Icon
+                type="Entypo"
+                name="cross"
+                size={26}
+                color={colors.backIconColor}
+              />
+            </TouchableOpacity>
             <FlatList
               data={industryData}
               keyExtractor={(item) => item.Id.toString()}
@@ -3866,24 +3884,6 @@ const IntershipProject = ({ navigation, route }) => {
               }}
             />
           </View>
-          <TouchableOpacity
-            onPress={() => setShowIndustryModal(false)}
-            style={{
-              position: "absolute",
-              top: "50%",
-              right: 20,
-              transform: [{ translateY: -200 }],
-              padding: 10,
-              zIndex: 10,
-            }}
-          >
-            <Icon
-              type="Entypo"
-              name="cross"
-              size={30}
-              color={colors.backIconColor}
-            />
-          </TouchableOpacity>
         </View>
       </Modal>
     </SafeAreaView>

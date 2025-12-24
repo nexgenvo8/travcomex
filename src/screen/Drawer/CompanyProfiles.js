@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from "react";
 import {
   View,
   SafeAreaView,
@@ -9,30 +9,30 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   FlatList,
-} from 'react-native';
-import globalStyles from '../GlobalCSS';
-import Header from '../Header/Header';
-import Colors from '../color';
+} from "react-native";
+import globalStyles from "../GlobalCSS";
+import Header from "../Header/Header";
+import Colors from "../color";
 import {
   baseUrl,
   Featuredcompanies,
   FollowingCompanies,
   ListCompany,
-} from '../baseURL/api';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useIsFocused} from '@react-navigation/native';
-import CommonLoader from '../components/CommonLoader';
-import {showError} from '../components/Toast';
-import {useTheme} from '../../theme/ThemeContext';
-import {companyImage, universityFullName} from '../constants';
+} from "../baseURL/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useIsFocused } from "@react-navigation/native";
+import CommonLoader from "../components/CommonLoader";
+import { showError } from "../components/Toast";
+import { useTheme } from "../../theme/ThemeContext";
+import { companyImage, universityFullName } from "../constants";
 
-const CompanyProfiles = ({navigation, route}) => {
+const CompanyProfiles = ({ navigation, route }) => {
   const isFocused = useIsFocused();
-  const {Item = {}, ItemCompanyData = {}} = route.params || {};
-  const {isDark, colors, toggleTheme} = useTheme();
+  const { Item = {}, ItemCompanyData = {} } = route.params || {};
+  const { isDark, colors, toggleTheme } = useTheme();
   const [companyList, setCompanyList] = useState([]);
   const [userData, setUserData] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -50,11 +50,11 @@ const CompanyProfiles = ({navigation, route}) => {
 
   const UserValue = async () => {
     try {
-      const userDta = await AsyncStorage.getItem('userData');
+      const userDta = await AsyncStorage.getItem("userData");
       const parsedData = JSON.parse(userDta);
       setUserData(parsedData);
     } catch (error) {
-      console.log('UserValue Error:', error);
+      console.log("UserValue Error:", error);
     }
   };
   useEffect(() => {
@@ -83,12 +83,12 @@ const CompanyProfiles = ({navigation, route}) => {
     try {
       console.log(`Fetching data for page: ${page}, search: ${searchQuery}`);
       const response = await fetch(`${baseUrl}${ListCompany}`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: userData?.User?.userId,
           companyName: searchQuery || Item?.companyName,
-          entityName: '',
+          entityName: "",
           per_page: 5, // Fetch 5 items per page
           page: page,
         }),
@@ -98,15 +98,15 @@ const CompanyProfiles = ({navigation, route}) => {
 
       if (response.ok) {
         if (data?.Data?.length > 0) {
-          setCompanyList(prevList => [...prevList, ...data.Data]);
+          setCompanyList((prevList) => [...prevList, ...data.Data]);
         } else {
           setHasMore(false);
         }
       } else {
-        showError(data.message || 'Failed to fetch Company List');
+        showError(data.message || "Failed to fetch Company List");
       }
     } catch (error) {
-      console.error('Fetch getCompanyList Error:', error);
+      console.error("Fetch getCompanyList Error:", error);
     } finally {
       setLoading(false);
       setInitialLoading(false);
@@ -121,13 +121,13 @@ const CompanyProfiles = ({navigation, route}) => {
   const fetchYourEmployes = async () => {
     try {
       const response = await fetch(`${baseUrl}${ListCompany}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           userId: userData?.User?.userId,
-          entityName: 'self',
+          entityName: "self",
           per_page: 5,
           page: 1,
         }),
@@ -136,7 +136,7 @@ const CompanyProfiles = ({navigation, route}) => {
       const data = await response.json();
       setYourEmployes(data?.Data?.slice(0, 3)); // Show only 3 items
     } catch (error) {
-      console.error('Error fetching companies:', error);
+      console.error("Error fetching companies:", error);
     } finally {
       setLoading(false);
     }
@@ -144,9 +144,9 @@ const CompanyProfiles = ({navigation, route}) => {
   const fetchFollowingCompanies = async () => {
     try {
       const response = await fetch(`${baseUrl}${FollowingCompanies}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           userId: userData?.User?.userId,
@@ -158,7 +158,7 @@ const CompanyProfiles = ({navigation, route}) => {
       const data = await response.json();
       setFollowingCompanies(data?.Data?.slice(0, 3)); // Show only 3 items
     } catch (error) {
-      console.error('Error fetching companies:', error);
+      console.error("Error fetching companies:", error);
     } finally {
       setLoading(false);
     }
@@ -166,9 +166,9 @@ const CompanyProfiles = ({navigation, route}) => {
   const fetchFeaturedCompanies = async () => {
     try {
       const response = await fetch(`${baseUrl}${Featuredcompanies}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           userId: userData?.User?.userId,
@@ -180,7 +180,7 @@ const CompanyProfiles = ({navigation, route}) => {
       const data = await response.json();
       setFeaturedCompanies(data?.Data?.slice(0, 3)); // Show only 3 items
     } catch (error) {
-      console.error('Error fetching companies:', error);
+      console.error("Error fetching companies:", error);
     } finally {
       setLoading(false);
     }
@@ -188,13 +188,13 @@ const CompanyProfiles = ({navigation, route}) => {
   const fetchYouCompaniesPage = async () => {
     try {
       const response = await fetch(`${baseUrl}${ListCompany}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           userId: userData?.User?.userId,
-          entityName: 'self',
+          entityName: "self",
           per_page: 50,
           page: 1,
         }),
@@ -203,7 +203,7 @@ const CompanyProfiles = ({navigation, route}) => {
       const data = await response.json();
       setYouCompaniesPage(data?.Data?.slice(0, 3)); // Show only 3 items
     } catch (error) {
-      console.error('Error fetching companies:', error);
+      console.error("Error fetching companies:", error);
     } finally {
       setLoading(false);
     }
@@ -218,15 +218,17 @@ const CompanyProfiles = ({navigation, route}) => {
       style={{
         ...globalStyles.SafeAreaView,
         backgroundColor: colors.background,
-      }}>
+      }}
+    >
       <Header title="Company Profiles" navigation={navigation} />
 
       {/* Search Bar */}
       <View
         style={{
-          flexDirection: 'row',
+          flexDirection: "row",
           padding: 10,
-        }}>
+        }}
+      >
         <TextInput
           placeholder="Company search..."
           style={{
@@ -244,18 +246,19 @@ const CompanyProfiles = ({navigation, route}) => {
           style={{
             ...globalStyles?.SerachBtn,
             backgroundColor: colors.AppmainColor,
-          }}>
-          <Text style={{color: colors.textColor, fontWeight: 'bold'}}>
+          }}
+        >
+          <Text style={{ color: colors.ButtonTextColor, fontWeight: "bold" }}>
             Search
           </Text>
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={{flex: 1}} showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
         {/* Banner Image */}
         <Image
           source={companyImage}
-          style={{width: '100%', height: 220, resizeMode: 'stretch'}}
+          style={{ width: "100%", height: 220, resizeMode: "stretch" }}
         />
         <TouchableOpacity
           style={{
@@ -263,24 +266,27 @@ const CompanyProfiles = ({navigation, route}) => {
             marginHorizontal: 10,
             backgroundColor: colors.AppmainColor,
           }}
-          onPress={() => navigation.navigate('AddCompany')}>
+          onPress={() => navigation.navigate("AddCompany")}
+        >
           <Text
             style={{
               ...globalStyles.saveButtonText,
               color: colors.ButtonTextColor,
-            }}>
+            }}
+          >
             + Create Company Profile
           </Text>
         </TouchableOpacity>
 
-        <View style={{padding: 10, paddingVertical: 20}}>
+        <View style={{ padding: 10, paddingVertical: 20 }}>
           <Text
             style={{
               fontSize: 18,
-              fontWeight: 'bold',
+              fontWeight: "bold",
               marginBottom: 10,
               color: colors.textColor,
-            }}>
+            }}
+          >
             Company Profiles On {universityFullName}
           </Text>
 
@@ -290,7 +296,7 @@ const CompanyProfiles = ({navigation, route}) => {
               <TouchableOpacity
                 onPress={() => {
                   const nextItems = companyList.slice(index + 1, index + 4);
-                  navigation.navigate('CompanyDetails', {
+                  navigation.navigate("CompanyDetails", {
                     Item: item,
                     index: index,
                     nextItems: nextItems,
@@ -298,17 +304,18 @@ const CompanyProfiles = ({navigation, route}) => {
                 }}
                 key={index}
                 style={{
-                  flexDirection: 'row',
+                  flexDirection: "row",
                   backgroundColor: colors.textinputBackgroundcolor,
                   padding: 10,
                   marginTop: 10,
                   marginBottom: 10,
                   borderRadius: 8,
-                  shadowColor: '#000',
+                  shadowColor: "#000",
                   shadowOpacity: 0.1,
                   shadowRadius: 5,
                   elevation: 2,
-                }}>
+                }}
+              >
                 {/* Company Logo */}
                 <Image
                   source={
@@ -316,20 +323,21 @@ const CompanyProfiles = ({navigation, route}) => {
                       ? {
                           uri: item?.companyLogo,
                         }
-                      : require('../../assets/noimageplaceholder.png')
+                      : require("../../assets/noimageplaceholder.png")
                   }
-                  style={{width: 80, height: 80, borderRadius: 5}}
+                  style={{ width: 80, height: 80, borderRadius: 5 }}
                   resizeMode="contain"
                 />
 
                 {/* Company Info */}
-                <View style={{flex: 1, marginLeft: 10, marginTop: 10}}>
+                <View style={{ flex: 1, marginLeft: 10, marginTop: 10 }}>
                   <Text
                     style={{
                       fontSize: 16,
-                      fontWeight: 'bold',
+                      fontWeight: "bold",
                       color: colors.AppmainColor,
-                    }}>
+                    }}
+                  >
                     {item.companyName}
                   </Text>
                   <Text
@@ -338,7 +346,8 @@ const CompanyProfiles = ({navigation, route}) => {
                       fontSize: 13,
                       marginTop: 5,
                       color: colors.textColor,
-                    }}>
+                    }}
+                  >
                     {item.aboutCompany}
                   </Text>
                 </View>
@@ -347,10 +356,11 @@ const CompanyProfiles = ({navigation, route}) => {
           ) : (
             <Text
               style={{
-                textAlign: 'center',
+                textAlign: "center",
                 marginTop: 20,
                 color: colors.textColor,
-              }}>
+              }}
+            >
               No Companies Found
             </Text>
           )}
@@ -358,31 +368,36 @@ const CompanyProfiles = ({navigation, route}) => {
           {/* View More Section */}
           {hasMore && (
             <TouchableOpacity
-              onPress={() => navigation.navigate('ViewAllCompany', {userData})}
-              style={{marginTop: 10, alignItems: 'center'}}>
+              onPress={() =>
+                navigation.navigate("ViewAllCompany", { userData })
+              }
+              style={{ marginTop: 10, alignItems: "center" }}
+            >
               {loading ? (
                 <ActivityIndicator size="small" color={colors.AppmainColor} />
               ) : (
                 <Text
                   style={{
                     color: colors.AppmainColor,
-                    fontWeight: 'bold',
+                    fontWeight: "bold",
                     fontSize: 16,
-                  }}>
+                  }}
+                >
                   View More
                 </Text>
               )}
             </TouchableOpacity>
           )}
-          <View style={{padding: 10}}>
-            <View style={{paddingVertical: 20}}>
+          <View style={{ padding: 10 }}>
+            <View style={{ paddingVertical: 20 }}>
               <Text
                 style={{
                   fontSize: 18,
-                  fontWeight: 'bold',
+                  fontWeight: "bold",
                   marginBottom: 10,
                   color: colors.textColor,
-                }}>
+                }}
+              >
                 Your Employers
               </Text>
               {loading ? (
@@ -391,31 +406,32 @@ const CompanyProfiles = ({navigation, route}) => {
                 <FlatList
                   data={yourEmployes}
                   keyExtractor={(item, index) => index.toString()}
-                  renderItem={({item, index}) => (
+                  renderItem={({ item, index }) => (
                     <TouchableOpacity
                       onPress={() => {
                         const nextItems = companyList.slice(
                           index + 1,
-                          index + 4,
+                          index + 4
                         );
-                        navigation.navigate('CompanyDetails', {
+                        navigation.navigate("CompanyDetails", {
                           Item: item,
                           index: index,
                           nextItems: nextItems,
                         });
                       }}
                       style={{
-                        flexDirection: 'row',
+                        flexDirection: "row",
                         backgroundColor: colors.textinputBackgroundcolor,
                         padding: 10,
                         marginTop: 10,
                         marginBottom: 10,
                         borderRadius: 8,
-                        shadowColor: '#000',
+                        shadowColor: "#000",
                         shadowOpacity: 0.1,
                         shadowRadius: 5,
                         elevation: 2,
-                      }}>
+                      }}
+                    >
                       {/* Company Logo */}
                       <Image
                         source={
@@ -423,19 +439,20 @@ const CompanyProfiles = ({navigation, route}) => {
                             ? {
                                 uri: item?.companyLogo,
                               }
-                            : require('../../assets/noimageplaceholder.png')
+                            : require("../../assets/noimageplaceholder.png")
                         }
-                        style={{width: 80, height: 80, borderRadius: 5}}
+                        style={{ width: 80, height: 80, borderRadius: 5 }}
                         resizeMode="contain"
                       />
                       {/* Company Info */}
-                      <View style={{flex: 1, marginLeft: 10, marginTop: 10}}>
+                      <View style={{ flex: 1, marginLeft: 10, marginTop: 10 }}>
                         <Text
                           style={{
                             fontSize: 16,
-                            fontWeight: 'bold',
+                            fontWeight: "bold",
                             color: colors.AppmainColor,
-                          }}>
+                          }}
+                        >
                           {item.companyName}
                         </Text>
                         <Text
@@ -444,7 +461,8 @@ const CompanyProfiles = ({navigation, route}) => {
                             fontSize: 13,
                             marginTop: 5,
                             color: colors.textColor,
-                          }}>
+                          }}
+                        >
                           {item.aboutCompany}
                         </Text>
                       </View>
@@ -454,14 +472,15 @@ const CompanyProfiles = ({navigation, route}) => {
               )}
             </View>
 
-            <View style={{paddingVertical: 20}}>
+            <View style={{ paddingVertical: 20 }}>
               <Text
                 style={{
                   fontSize: 18,
-                  fontWeight: 'bold',
+                  fontWeight: "bold",
                   marginBottom: 10,
                   color: colors.textColor,
-                }}>
+                }}
+              >
                 Your Company Pages
               </Text>
               {loading ? (
@@ -470,50 +489,52 @@ const CompanyProfiles = ({navigation, route}) => {
                 <FlatList
                   data={youCompaniesPage}
                   keyExtractor={(item, index) => index.toString()}
-                  renderItem={({item, index}) => (
+                  renderItem={({ item, index }) => (
                     <TouchableOpacity
                       onPress={() => {
                         const nextItems = companyList.slice(
                           index + 1,
-                          index + 4,
+                          index + 4
                         );
-                        navigation.navigate('CompanyDetails', {
+                        navigation.navigate("CompanyDetails", {
                           Item: item,
                           index: index,
                           nextItems: nextItems,
                         });
                       }}
                       style={{
-                        flexDirection: 'row',
+                        flexDirection: "row",
                         backgroundColor: colors.textinputBackgroundcolor,
                         padding: 10,
                         marginTop: 10,
                         marginBottom: 10,
                         borderRadius: 8,
-                        shadowColor: '#000',
+                        shadowColor: "#000",
                         shadowOpacity: 0.1,
                         shadowRadius: 5,
                         elevation: 2,
-                      }}>
+                      }}
+                    >
                       <Image
                         source={
                           item?.companyLogo
                             ? {
                                 uri: item?.companyLogo,
                               }
-                            : require('../../assets/noimageplaceholder.png')
+                            : require("../../assets/noimageplaceholder.png")
                         }
-                        style={{width: 80, height: 80, borderRadius: 5}}
+                        style={{ width: 80, height: 80, borderRadius: 5 }}
                         resizeMode="contain"
                       />
 
-                      <View style={{flex: 1, marginLeft: 10, marginTop: 10}}>
+                      <View style={{ flex: 1, marginLeft: 10, marginTop: 10 }}>
                         <Text
                           style={{
                             fontSize: 16,
-                            fontWeight: 'bold',
+                            fontWeight: "bold",
                             color: colors.AppmainColor,
-                          }}>
+                          }}
+                        >
                           {item.companyName}
                         </Text>
                         <Text
@@ -522,7 +543,8 @@ const CompanyProfiles = ({navigation, route}) => {
                             fontSize: 13,
                             marginTop: 5,
                             color: colors.textColor,
-                          }}>
+                          }}
+                        >
                           {item.aboutCompany}
                         </Text>
                       </View>
@@ -532,14 +554,15 @@ const CompanyProfiles = ({navigation, route}) => {
               )}
             </View>
 
-            <View style={{paddingVertical: 20}}>
+            <View style={{ paddingVertical: 20 }}>
               <Text
                 style={{
                   fontSize: 18,
-                  fontWeight: 'bold',
+                  fontWeight: "bold",
                   marginBottom: 10,
                   color: colors.textColor,
-                }}>
+                }}
+              >
                 Companies You Are Following
               </Text>
               {loading ? (
@@ -548,31 +571,32 @@ const CompanyProfiles = ({navigation, route}) => {
                 <FlatList
                   data={followingCompanies}
                   keyExtractor={(item, index) => index.toString()}
-                  renderItem={({item, index}) => (
+                  renderItem={({ item, index }) => (
                     <TouchableOpacity
                       onPress={() => {
                         const nextItems = companyList.slice(
                           index + 1,
-                          index + 4,
+                          index + 4
                         );
-                        navigation.navigate('CompanyDetails', {
+                        navigation.navigate("CompanyDetails", {
                           Item: item,
                           index: index,
                           nextItems: nextItems,
                         });
                       }}
                       style={{
-                        flexDirection: 'row',
+                        flexDirection: "row",
                         backgroundColor: colors.textinputBackgroundcolor,
                         padding: 10,
                         marginTop: 10,
                         marginBottom: 10,
                         borderRadius: 8,
-                        shadowColor: '#000',
+                        shadowColor: "#000",
                         shadowOpacity: 0.1,
                         shadowRadius: 5,
                         elevation: 2,
-                      }}>
+                      }}
+                    >
                       {/* Company Logo */}
                       <Image
                         source={
@@ -580,20 +604,21 @@ const CompanyProfiles = ({navigation, route}) => {
                             ? {
                                 uri: item?.companyLogo,
                               }
-                            : require('../../assets/noimageplaceholder.png')
+                            : require("../../assets/noimageplaceholder.png")
                         }
-                        style={{width: 80, height: 80, borderRadius: 5}}
+                        style={{ width: 80, height: 80, borderRadius: 5 }}
                         resizeMode="contain"
                       />
 
                       {/* Company Info */}
-                      <View style={{flex: 1, marginLeft: 10, marginTop: 10}}>
+                      <View style={{ flex: 1, marginLeft: 10, marginTop: 10 }}>
                         <Text
                           style={{
                             fontSize: 16,
-                            fontWeight: 'bold',
+                            fontWeight: "bold",
                             color: colors.AppmainColor,
-                          }}>
+                          }}
+                        >
                           {item.companyName}
                         </Text>
                         <Text
@@ -602,7 +627,8 @@ const CompanyProfiles = ({navigation, route}) => {
                             fontSize: 13,
                             marginTop: 5,
                             color: colors.textColor,
-                          }}>
+                          }}
+                        >
                           {item.aboutCompany}
                         </Text>
                       </View>
@@ -612,14 +638,15 @@ const CompanyProfiles = ({navigation, route}) => {
               )}
             </View>
 
-            <View style={{paddingVertical: 20}}>
+            <View style={{ paddingVertical: 20 }}>
               <Text
                 style={{
                   fontSize: 18,
-                  fontWeight: 'bold',
+                  fontWeight: "bold",
                   marginBottom: 10,
                   color: colors.textColor,
-                }}>
+                }}
+              >
                 Featured Companies
               </Text>
               {loading ? (
@@ -628,31 +655,32 @@ const CompanyProfiles = ({navigation, route}) => {
                 <FlatList
                   data={featuredCompanies}
                   keyExtractor={(item, index) => index.toString()}
-                  renderItem={({item, index}) => (
+                  renderItem={({ item, index }) => (
                     <TouchableOpacity
                       onPress={() => {
                         const nextItems = companyList.slice(
                           index + 1,
-                          index + 4,
+                          index + 4
                         );
-                        navigation.navigate('CompanyDetails', {
+                        navigation.navigate("CompanyDetails", {
                           Item: item,
                           index: index,
                           nextItems: nextItems,
                         });
                       }}
                       style={{
-                        flexDirection: 'row',
+                        flexDirection: "row",
                         backgroundColor: colors.textinputBackgroundcolor,
                         padding: 10,
                         marginTop: 10,
                         marginBottom: 10,
                         borderRadius: 8,
-                        shadowColor: '#000',
+                        shadowColor: "#000",
                         shadowOpacity: 0.1,
                         shadowRadius: 5,
                         elevation: 2,
-                      }}>
+                      }}
+                    >
                       {/* Company Logo */}
                       <Image
                         source={
@@ -660,20 +688,21 @@ const CompanyProfiles = ({navigation, route}) => {
                             ? {
                                 uri: item?.companyLogo,
                               }
-                            : require('../../assets/noimageplaceholder.png')
+                            : require("../../assets/noimageplaceholder.png")
                         }
-                        style={{width: 80, height: 80, borderRadius: 5}}
+                        style={{ width: 80, height: 80, borderRadius: 5 }}
                         resizeMode="contain"
                       />
 
                       {/* Company Info */}
-                      <View style={{flex: 1, marginLeft: 10, marginTop: 10}}>
+                      <View style={{ flex: 1, marginLeft: 10, marginTop: 10 }}>
                         <Text
                           style={{
                             fontSize: 16,
-                            fontWeight: 'bold',
+                            fontWeight: "bold",
                             color: colors.AppmainColor,
-                          }}>
+                          }}
+                        >
                           {item.companyName}
                         </Text>
                         <Text
@@ -682,7 +711,8 @@ const CompanyProfiles = ({navigation, route}) => {
                             fontSize: 13,
                             marginTop: 5,
                             color: colors.textColor,
-                          }}>
+                          }}
+                        >
                           {item.aboutCompany}
                         </Text>
                       </View>
