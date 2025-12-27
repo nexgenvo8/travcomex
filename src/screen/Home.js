@@ -1024,9 +1024,13 @@ export default function ({ route, tabBarVisible }) {
               >
                 {item.UserName}
               </Text>
-              <Text style={{ color: colors.textColor }}>
+              <Text style={{ color: colors.textColor, flex: 1 }}>
                 <Image
-                  style={{ width: 12, height: 12, tintColor: colors.textColor }}
+                  style={{
+                    width: 12,
+                    height: 12,
+                    tintColor: colors.textColor,
+                  }}
                   source={require("../assets/globelearth.png")}
                 />{" "}
                 {getTimeAgo(item.DateAdded)}

@@ -180,7 +180,10 @@ const AddEvent = ({ navigation, route }) => {
   // }, [Item]);
   useEffect(() => {
     if (!Item?.id) return; // 👈 stop for Add mode
-
+    if (Item.Images && Item.Images.length > 0) {
+      const imageUrls = Item.Images.map((img) => img.imageName);
+      setLogoImage(imageUrls);
+    }
     onChangeNumber(Item.eventName || "");
     setSelectedValue2(Item.eventType || "Select");
     setDescription(Item.eventVenue || "");

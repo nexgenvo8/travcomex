@@ -700,11 +700,11 @@ const AddExperience = ({ navigation, route }) => {
                 <TouchableOpacity
                   style={globalStyles.dropdownItem}
                   onPress={() => {
-                    selectOption5(item);
+                    setIndustryValue(item?.Name);
                     setShowIndustryModal(false);
                   }}
                 >
-                  <Text style={{ color: colors.textColor }}>{item.Name}</Text>
+                  <Text style={{ color: colors.textColor }}>{item?.Name}</Text>
                 </TouchableOpacity>
               )}
               onEndReached={() => getIndustryList(page)}

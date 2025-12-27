@@ -443,8 +443,8 @@ const AddCareer = ({ navigation, route }) => {
     }
 
     const apiUrl = isEdit
-      ? `${baseUrl}${AddCareereBusiness}`
-      : `${baseUrl}${UpdateCareerbusiness}`;
+      ? `${baseUrl}${UpdateCareerbusiness}`
+      : `${baseUrl}${AddCareereBusiness}`;
     //const apiUrl = `${baseUrl}${AddCareereBusiness}`;
     console.log("API URL:", apiUrl);
     const dta = {
@@ -705,7 +705,7 @@ const AddCareer = ({ navigation, route }) => {
                         paddingBottom: 0,
                       }}
                     >
-                      {selectedValue6 || "Select Subcategory"}
+                      {selectedValue6 || "Select Sub Category"}
                     </Text>
                   </TouchableOpacity>
                 </View>

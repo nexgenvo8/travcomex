@@ -2065,7 +2065,7 @@ const IntershipProject = ({ navigation, route }) => {
                     <View
                       style={{
                         ...globalStyles.JobfiledSection,
-                        paddingHorizontal: 10,
+                        // paddingHorizontal: 10,
                       }}
                     >
                       <Text
@@ -2102,7 +2102,7 @@ const IntershipProject = ({ navigation, route }) => {
                     <TouchableOpacity
                       onPress={() => setDropdownVisible(!isDropdownVisible)}
                       style={{
-                        marginHorizontal: 10,
+                        // marginHorizontal: 10,
                         ...globalStyles.seclectIndiaView,
                         borderColor: colors.textinputbordercolor,
                         backgroundColor: colors.textinputBackgroundcolor,
