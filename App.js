@@ -584,7 +584,7 @@ export default function App() {
       body: remoteMessage?.notification?.body,
       android: {
         channelId,
-        smallIcon: "name-of-a-small-icon",
+        smallIcon: "ic_launcher",
         pressAction: {
           id: "default",
         },
