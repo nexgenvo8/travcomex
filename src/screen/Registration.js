@@ -41,7 +41,7 @@ import {
 const Registration = () => {
   const navigation = useNavigation();
   const { isDark, colors, toggleTheme } = useTheme();
-  const [selectedGender, setSelectedGender] = useState("male");
+  const [selectedGender, setSelectedGender] = useState("");
   const [selectedDay, setSelectedDay] = useState(null);
   const [selectedMonth, setSelectedMonth] = useState(null);
   const [selectedYear, setSelectedYear] = useState(null);

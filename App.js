@@ -76,7 +76,7 @@ import KnowledgeDetails from "./src/screen/KnowledgeHub/KnowledgeDetails";
 import GuestDetails from "./src/Guest_Seapker/GuestDetails";
 import AddTelentProfile from "./src/Guest_Seapker/AddTelentProfile";
 import { PermissionsAndroid } from "react-native";
-// import messaging from '@react-native-firebase/messaging';
+import messaging from "@react-native-firebase/messaging";
 import notifee, { EventType } from "@notifee/react-native";
 import NotificationsScreen from "./src/screen/Notifications/NotificationsList";
 import Toast from "react-native-toast-message";
@@ -530,8 +530,8 @@ export default function App() {
 
   useEffect(() => {
     requestPermissionAndroid();
-    // requestUserPermissionIos();
-    // handleNotificationClick();
+    requestUserPermissionIos();
+    handleNotificationClick();
   }, []);
 
   const requestPermissionAndroid = async () => {
@@ -541,35 +541,35 @@ export default function App() {
     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
     }
   };
-  // const requestUserPermissionIos = async () => {
-  //   const authStatus = await messaging().requestPermission();
-  //   const enabled =
-  //     authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-  //     authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+  const requestUserPermissionIos = async () => {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
-  //   if (enabled) {
-  //     console.log('Authorization status:', authStatus);
-  //     getToken();
-  //   }
-  // };
+    if (enabled) {
+      console.log("Authorization status:", authStatus);
+      getToken();
+    }
+  };
 
-  // useEffect(() => {
-  //   const unsubscribe = messaging().onMessage(async remoteMessage => {
-  //     if (remoteMessage?.notification) {
-  //       handleNotificationClick(remoteMessage);
-  //       if (remoteMessage.messageId) {
-  //         if (seenNotifications.has(remoteMessage.messageId)) {
-  //           return;
-  //         }
-  //         seenNotifications.add(remoteMessage.messageId);
-  //       }
+  useEffect(() => {
+    const unsubscribe = messaging().onMessage(async (remoteMessage) => {
+      if (remoteMessage?.notification) {
+        handleNotificationClick(remoteMessage);
+        if (remoteMessage.messageId) {
+          if (seenNotifications.has(remoteMessage.messageId)) {
+            return;
+          }
+          seenNotifications.add(remoteMessage.messageId);
+        }
 
-  //       onDisplayNotification(remoteMessage);
-  //     }
-  //   });
+        onDisplayNotification(remoteMessage);
+      }
+    });
 
-  //   return () => unsubscribe();
-  // }, []);
+    return () => unsubscribe();
+  }, []);
 
   const seenNotifications = new Set();
 
@@ -593,6 +593,8 @@ export default function App() {
   };
   const getToken = async () => {
     const token = await messaging().getToken();
+    console.log(token, "tokentokentokentokentokentokentokentokentoken");
+
     const userId = userData?.User?.userId;
     await sendFcmTokenToServer(userId, token);
   };
@@ -625,34 +627,34 @@ export default function App() {
       console.error("Network error in FCM token:", error);
     }
   };
-  // const handleNotificationClick = item => {
-  //   let handledMessageId = null;
+  const handleNotificationClick = (item) => {
+    let handledMessageId = null;
 
-  //   messaging().onNotificationOpenedApp(remoteMessage => {
-  //     if (remoteMessage && remoteMessage.messageId !== handledMessageId) {
-  //       handledMessageId = remoteMessage.messageId;
-  //     }
-  //   });
+    messaging().onNotificationOpenedApp((remoteMessage) => {
+      if (remoteMessage && remoteMessage.messageId !== handledMessageId) {
+        handledMessageId = remoteMessage.messageId;
+      }
+    });
 
-  //   messaging()
-  //     .getInitialNotification()
-  //     .then(remoteMessage => {
-  //       if (remoteMessage && remoteMessage.messageId !== handledMessageId) {
-  //         handledMessageId = remoteMessage.messageId;
-  //       }
-  //     });
+    messaging()
+      .getInitialNotification()
+      .then((remoteMessage) => {
+        if (remoteMessage && remoteMessage.messageId !== handledMessageId) {
+          handledMessageId = remoteMessage.messageId;
+        }
+      });
 
-  //   notifee.onForegroundEvent(({type, detail}) => {
-  //     if (
-  //       type === EventType.PRESS &&
-  //       detail.notification.id !== handledMessageId
-  //     ) {
-  //       handledMessageId = detail.notification.id;
-  //       console.log('User tapped the notification:', detail.notification);
-  //       // navigateToScreen(item);
-  //     }
-  //   });
-  // };
+    notifee.onForegroundEvent(({ type, detail }) => {
+      if (
+        type === EventType.PRESS &&
+        detail.notification.id !== handledMessageId
+      ) {
+        handledMessageId = detail.notification.id;
+        console.log("User tapped the notification:", detail.notification);
+        // navigateToScreen(item);
+      }
+    });
+  };
 
   if (isLoading || initialRoute === null) {
     return (
