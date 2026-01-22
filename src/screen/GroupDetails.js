@@ -40,6 +40,7 @@ import ImagePicker from "react-native-image-crop-picker";
 import Icon from "./Icons/Icons";
 import { showError, showSuccess } from "./components/Toast";
 import { useTheme } from "../theme/ThemeContext";
+import KeyboardAvoidingWrapper from "./components/KeyboardAvoidingWrapper";
 
 const GroupDetails = ({ navigation, route }) => {
   const { Item = {}, AdditionalData = [] } = route.params || {};
@@ -1543,18 +1544,19 @@ const GroupDetails = ({ navigation, route }) => {
               )}
 
               {selectedTab === "About this group" && (
-                <View>
-                  <Text
-                    style={{
-                      fontSize: 19,
-                      fontWeight: "bold",
-                      color: colors.textColor,
-                    }}
-                  >
-                    About Group
-                  </Text>
+                <KeyboardAvoidingWrapper offset={40}>
+                  <View>
+                    <Text
+                      style={{
+                        fontSize: 19,
+                        fontWeight: "bold",
+                        color: colors.textColor,
+                      }}
+                    >
+                      About Group
+                    </Text>
 
-                  {/* <View style={globalStyles.MT_20}>
+                    {/* <View style={globalStyles.MT_20}>
                     <Text
                       style={{
                         ...globalStyles.FS_16_FW_400,
@@ -1585,135 +1587,142 @@ const GroupDetails = ({ navigation, route }) => {
                     )}
                   </View> */}
 
-                  <View style={globalStyles.MT_20}>
-                    <Text
-                      style={{
-                        ...globalStyles.FS_16_FW_400,
-                        paddingVertical: 5,
-                        color: colors.textColor,
-                      }}
-                    >
-                      Group Name<Text style={{ color: "red" }}>*</Text>
-                    </Text>
-                    <TextInput
-                      style={{
-                        ...globalStyles.textInput,
-                        borderColor: colors.textinputbordercolor,
-                        color: colors.textColor,
-                        backgroundColor: colors.textinputBackgroundcolor,
-                        flex: 0,
-                        height: 40,
-                      }}
-                      value={GName}
-                      onChangeText={(value) => {
-                        setGName(value);
-                        // setErrorJov(value.trim().length === 0);
-                      }}
-                    />
-                  </View>
-                  <View style={globalStyles.MT_20}>
-                    <Text
-                      style={{
-                        ...globalStyles.FS_16_FW_400,
-                        paddingVertical: 5,
-                        color: colors.textColor,
-                      }}
-                    >
-                      Short Description<Text style={{ color: "red" }}>*</Text>
-                    </Text>
-                    <TextInput
-                      style={{
-                        ...globalStyles.textInput,
+                    <View style={globalStyles.MT_20}>
+                      <Text
+                        style={{
+                          ...globalStyles.FS_16_FW_400,
+                          paddingVertical: 5,
+                          color: colors.textColor,
+                        }}
+                      >
+                        Group Name<Text style={{ color: "red" }}>*</Text>
+                      </Text>
+                      <TextInput
+                        style={{
+                          ...globalStyles.textInput,
+                          borderColor: colors.textinputbordercolor,
+                          color: colors.textColor,
+                          backgroundColor: colors.textinputBackgroundcolor,
+                          flex: 0,
+                          height: 40,
+                        }}
+                        value={GName}
+                        onChangeText={(value) => {
+                          setGName(value);
+                          // setErrorJov(value.trim().length === 0);
+                        }}
+                      />
+                    </View>
+                    <View style={globalStyles.MT_20}>
+                      <Text
+                        style={{
+                          ...globalStyles.FS_16_FW_400,
+                          paddingVertical: 5,
+                          color: colors.textColor,
+                        }}
+                      >
+                        Short Description<Text style={{ color: "red" }}>*</Text>
+                      </Text>
+                      <TextInput
+                        style={{
+                          ...globalStyles.textInput,
 
-                        height: 40,
-                        // paddingTop: 0,
-                        //marginTop: 0,
-                        borderColor: errors.shortGDesciption
-                          ? "red"
-                          : colors.textinputbordercolor,
-                        color: colors.textColor,
-                        backgroundColor: colors.textinputBackgroundcolor,
-                        //flex: 1,
-                        borderWidth: errors.shortGDesciption ? 1 : 1,
+                          height: 40,
+                          // paddingTop: 0,
+                          //marginTop: 0,
+                          borderColor: errors.shortGDesciption
+                            ? "red"
+                            : colors.textinputbordercolor,
+                          color: colors.textColor,
+                          backgroundColor: colors.textinputBackgroundcolor,
+                          //flex: 1,
+                          borderWidth: errors.shortGDesciption ? 1 : 1,
+                        }}
+                        value={shortGDesciption}
+                        onChangeText={(value) => {
+                          setShortGDesciption(value);
+                          setErrors((prev) => ({
+                            ...prev,
+                            shortGDesciption: "",
+                          }));
+                        }}
+                      />
+                    </View>
+                    {errors.shortGDesciption && (
+                      <Text style={{ color: "red", fontSize: 12 }}>
+                        {errors.shortGDesciption}
+                      </Text>
+                    )}
+                    <View
+                      style={{
+                        // flex: 1,
+                        marginTop: 10,
                       }}
-                      value={shortGDesciption}
-                      onChangeText={(value) => {
-                        setShortGDesciption(value);
-                        setErrors((prev) => ({
-                          ...prev,
-                          shortGDesciption: "",
-                        }));
+                    >
+                      <Text
+                        style={{
+                          ...globalStyles.FS_16_FW_400,
+                          paddingVertical: 5,
+                          color: colors.textColor,
+                        }}
+                      >
+                        Long Description
+                      </Text>
+                      <TextInput
+                        style={{
+                          ...globalStyles.textInput,
+                          height: 120,
+                          marginBottom: 10,
+                          borderColor: errors.longDesciption
+                            ? "red"
+                            : colors.textinputbordercolor,
+                          color: colors.textColor,
+                          backgroundColor: colors.textinputBackgroundcolor,
+                          //flex: 1,
+                          borderWidth: errors.longDesciption ? 1 : 1,
+                        }}
+                        value={longDesciption}
+                        onChangeText={(value) => {
+                          setLongDesciption(value);
+                          setErrors((prev) => ({
+                            ...prev,
+                            longDesciption: "",
+                          }));
+                        }}
+                        multiline={true}
+                      />
+                      <Text
+                        style={{
+                          ...globalStyles.FS_15,
+                          color: colors.textColor,
+                        }}
+                      >
+                        Max 150 Characters
+                      </Text>
+                    </View>
+                    {errors.longDesciption && (
+                      <Text style={{ color: "red", fontSize: 12 }}>
+                        {errors.longDesciption}
+                      </Text>
+                    )}
+                    <TouchableOpacity
+                      style={{
+                        ...globalStyles.saveButton,
+                        backgroundColor: colors.AppmainColor,
                       }}
-                    />
+                      onPress={() => handleUpdateValue()}
+                    >
+                      <Text
+                        style={{
+                          ...globalStyles.saveButtonText,
+                          color: colors.ButtonTextColor,
+                        }}
+                      >
+                        Update
+                      </Text>
+                    </TouchableOpacity>
                   </View>
-                  {errors.shortGDesciption && (
-                    <Text style={{ color: "red", fontSize: 12 }}>
-                      {errors.shortGDesciption}
-                    </Text>
-                  )}
-                  <View
-                    style={{
-                      // flex: 1,
-                      marginTop: 10,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        ...globalStyles.FS_16_FW_400,
-                        paddingVertical: 5,
-                        color: colors.textColor,
-                      }}
-                    >
-                      Long Description
-                    </Text>
-                    <TextInput
-                      style={{
-                        ...globalStyles.textInput,
-                        height: 120,
-                        marginBottom: 10,
-                        borderColor: errors.longDesciption
-                          ? "red"
-                          : colors.textinputbordercolor,
-                        color: colors.textColor,
-                        backgroundColor: colors.textinputBackgroundcolor,
-                        //flex: 1,
-                        borderWidth: errors.longDesciption ? 1 : 1,
-                      }}
-                      value={longDesciption}
-                      onChangeText={(value) => {
-                        setLongDesciption(value);
-                        setErrors((prev) => ({ ...prev, longDesciption: "" }));
-                      }}
-                      multiline={true}
-                    />
-                    <Text
-                      style={{ ...globalStyles.FS_15, color: colors.textColor }}
-                    >
-                      Max 150 Characters
-                    </Text>
-                  </View>
-                  {errors.longDesciption && (
-                    <Text style={{ color: "red", fontSize: 12 }}>
-                      {errors.longDesciption}
-                    </Text>
-                  )}
-                  <TouchableOpacity
-                    style={{
-                      ...globalStyles.saveButton,
-                      backgroundColor: colors.AppmainColor,
-                    }}
-                    onPress={() => handleUpdateValue()}
-                  >
-                    <Text
-                      style={{
-                        ...globalStyles.saveButtonText,
-                        color: colors.ButtonTextColor,
-                      }}
-                    >
-                      Update
-                    </Text>
-                  </TouchableOpacity>
-                </View>
+                </KeyboardAvoidingWrapper>
               )}
 
               {selectedTab === "Group setting" && (

@@ -28,6 +28,7 @@ import { showError, showSuccess } from "../components/Toast";
 import { useTheme } from "../../theme/ThemeContext";
 import ImageViewer from "react-native-image-zoom-viewer";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const EventDetails = ({ navigation, route }) => {
   const { Item = {}, Career = {} } = route.params || {};
@@ -47,7 +48,16 @@ const EventDetails = ({ navigation, route }) => {
   const [modalImageVisible, setModalImageVisible] = useState(false);
   const [modalImages, setModalImages] = useState([]);
   const [modalIndex, setModalIndex] = useState(0);
+  const [userData, setUserData] = useState([]);
+  const UserValue = async () => {
+    const userDta = await AsyncStorage.getItem("userData");
+    const parsedData = JSON.parse(userDta);
+    setUserData(parsedData);
+  };
 
+  useEffect(() => {
+    UserValue();
+  }, []);
   const toggleDropdown2 = () => setIsOpen2(!isOpen2);
   const options2 = ["Yes", "Maybe", "No"];
   const statusMapping = { Yes: 1, Maybe: 2, No: 3 };
@@ -381,19 +391,20 @@ const EventDetails = ({ navigation, route }) => {
                 type="Octicons"
               />
             </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() =>
-                Career.id ? DeleteCareerBusinessApi() : handleDeleteComment()
-              }
-            >
-              <Icon
-                name="delete"
-                size={20}
-                color={colors.placeholderTextColor}
-                type="MaterialCommunityIcons"
-              />
-            </TouchableOpacity>
+            {userData?.User?.userId === Item?.Organiser?.UserId && (
+              <TouchableOpacity
+                onPress={() =>
+                  Career.id ? DeleteCareerBusinessApi() : handleDeleteComment()
+                }
+              >
+                <Icon
+                  name="delete"
+                  size={20}
+                  color={colors.placeholderTextColor}
+                  type="MaterialCommunityIcons"
+                />
+              </TouchableOpacity>
+            )}
           </View>
           <View
             style={{
@@ -998,7 +1009,6 @@ const EventDetails = ({ navigation, route }) => {
               </>
             ) : (
               <>
-                {" "}
                 <View style={{ padding: 17 }}>
                   <Icon
                     type="Entypo"

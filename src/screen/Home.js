@@ -205,7 +205,7 @@ export default function ({ route, tabBarVisible }) {
       if (result?.Status === 1 && result?.ShareUrl) {
         await Share.share({
           message: `Check this out: ${result.ShareUrl}`,
-          url: result.ShareUrl,
+          // url: result.ShareUrl,
           title: "Check this post on Vecospace",
         });
       } else {
@@ -1024,7 +1024,7 @@ export default function ({ route, tabBarVisible }) {
               >
                 {item.UserName}
               </Text>
-              <Text style={{ color: colors.textColor, flex: 1 }}>
+              <Text style={{ color: colors.textColor }}>
                 <Image
                   style={{
                     width: 12,
@@ -1095,6 +1095,9 @@ export default function ({ route, tabBarVisible }) {
             contentWidth={windowWidth}
             source={{ html: processedHTML }}
             ignoredDomTags={["table", "tbody", "tr", "td", "img"]}
+            defaultTextProps={{
+              style: { color: colors.textColor, fontSize: 14 },
+            }}
             tagsStyles={{
               a: {
                 color: colors.AppmainColor,

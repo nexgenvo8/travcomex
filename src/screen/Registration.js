@@ -3975,33 +3975,45 @@ const Registration = () => {
         <View
           style={{
             flexDirection: "row",
-            justifyContent: "space-evenly",
-            padding: 5,
+            justifyContent: "center",
+            padding: 6,
             marginTop: 10,
           }}
         >
           <TouchableOpacity
             onPress={() => navigation.navigate("PrivacyScreen")}
           >
-            <Text>Privacy |</Text>
+            <Text style={{ color: colors.textColor }}>Privacy</Text>
           </TouchableOpacity>
+          <Text style={{ marginHorizontal: 6, color: colors.textColor }}>
+            |
+          </Text>
 
           <TouchableOpacity onPress={() => navigation.navigate("TermsScreen")}>
-            <Text>Terms |</Text>
+            <Text style={{ color: colors.textColor }}>Terms</Text>
           </TouchableOpacity>
+          <Text style={{ marginHorizontal: 6, color: colors.textColor }}>
+            |
+          </Text>
 
           <TouchableOpacity onPress={() => navigation.navigate("AboutScreen")}>
-            <Text>About |</Text>
+            <Text style={{ color: colors.textColor }}>About</Text>
           </TouchableOpacity>
+          <Text style={{ marginHorizontal: 6, color: colors.textColor }}>
+            |
+          </Text>
 
           <TouchableOpacity
             onPress={() => navigation.navigate("ContactUsScreen")}
           >
-            <Text>Contact Us |</Text>
+            <Text style={{ color: colors.textColor }}>Contact Us</Text>
           </TouchableOpacity>
+          <Text style={{ marginHorizontal: 6, color: colors.textColor }}>
+            |
+          </Text>
 
           <TouchableOpacity onPress={() => navigation.navigate("FAQScreen")}>
-            <Text>FAQ's</Text>
+            <Text style={{ color: colors.textColor }}>FAQ's</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
