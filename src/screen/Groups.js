@@ -108,7 +108,7 @@ const Groups = ({ navigation, route, tabBarVisible }) => {
 
       fetchGroups("", 1, true);
       myGroupsPrivateList();
-    }, [userData])
+    }, [userData]),
   );
   const loadMoreGroups = () => {
     if (!hasMore || loading) return;
@@ -119,7 +119,7 @@ const Groups = ({ navigation, route, tabBarVisible }) => {
   const fetchGroups = async (
     searchValue = "",
     currentPage = 1,
-    showInitialLoader = false
+    showInitialLoader = false,
   ) => {
     console.log("📥 fetchGroups called with page:", currentPage);
 
@@ -162,7 +162,7 @@ const Groups = ({ navigation, route, tabBarVisible }) => {
       if (response.ok) {
         const newData = result?.Data || [];
         setGroups((prev) =>
-          currentPage === 1 ? newData : [...prev, ...newData]
+          currentPage === 1 ? newData : [...prev, ...newData],
         );
         setHasMore(newData.length === 10);
         setPage(currentPage);
@@ -180,7 +180,7 @@ const Groups = ({ navigation, route, tabBarVisible }) => {
   const myGroupsPrivateList = async (
     searchValue = "",
     pageNum = 1,
-    isLoadMore = false
+    isLoadMore = false,
   ) => {
     if (!userData || (!hasMore && isLoadMore)) return;
 
@@ -370,7 +370,7 @@ const Groups = ({ navigation, route, tabBarVisible }) => {
           },
         },
       ],
-      { cancelable: false }
+      { cancelable: false },
     );
   };
   const renderItem = ({ item }) => {
@@ -1095,7 +1095,7 @@ const Groups = ({ navigation, route, tabBarVisible }) => {
                     if (!checked) {
                       setCheckboxError(true);
                       showError(
-                        "Please accept the code of conduct to proceed."
+                        "Please accept the code of conduct to proceed.",
                       );
                       return;
                     }

@@ -127,7 +127,7 @@ const EventDetails = ({ navigation, route }) => {
           },
         },
       ],
-      { cancelable: false }
+      { cancelable: false },
     );
   };
 
@@ -155,7 +155,7 @@ const EventDetails = ({ navigation, route }) => {
                   body: JSON.stringify({
                     id: Career?.id,
                   }),
-                }
+                },
               );
 
               const data = await response.json();
@@ -171,7 +171,7 @@ const EventDetails = ({ navigation, route }) => {
           },
         },
       ],
-      { cancelable: false }
+      { cancelable: false },
     );
   };
 
@@ -272,7 +272,7 @@ const EventDetails = ({ navigation, route }) => {
   };
   const openURL = () => {
     Linking.openURL(Item?.websiteurl).catch((err) =>
-      console.error("Couldn't open URL", err)
+      console.error("Couldn't open URL", err),
     );
   };
   // const latitude = 28.6139; // Example Latitude (New Delhi)
@@ -290,11 +290,11 @@ const EventDetails = ({ navigation, route }) => {
   const location = Item?.eventVenue;
   const openMap = () => {
     const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-      location
+      location,
     )}`;
 
     Linking.openURL(url).catch((err) =>
-      console.error("Couldn't open map", err)
+      console.error("Couldn't open map", err),
     );
   };
   return (
@@ -372,25 +372,27 @@ const EventDetails = ({ navigation, route }) => {
               top: 10,
             }}
           >
-            <TouchableOpacity
-              onPress={() =>
-                navigation.navigate(
-                  Career?.CompanyBusinessName ? "AddCareer" : "AddEvent",
-                  {
-                    Item: Item,
-                    Career: Career,
-                  }
-                )
-              }
-            >
-              <Icon
-                name="pencil"
-                size={17}
-                style={{ paddingHorizontal: 5 }}
-                color={colors.placeholderTextColor}
-                type="Octicons"
-              />
-            </TouchableOpacity>
+            {userData?.User?.userId === Item?.Organiser?.UserId && (
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate(
+                    Career?.CompanyBusinessName ? "AddCareer" : "AddEvent",
+                    {
+                      Item: Item,
+                      Career: Career,
+                    },
+                  )
+                }
+              >
+                <Icon
+                  name="pencil"
+                  size={17}
+                  style={{ paddingHorizontal: 5 }}
+                  color={colors.placeholderTextColor}
+                  type="Octicons"
+                />
+              </TouchableOpacity>
+            )}
             {userData?.User?.userId === Item?.Organiser?.UserId && (
               <TouchableOpacity
                 onPress={() =>
@@ -808,7 +810,7 @@ const EventDetails = ({ navigation, route }) => {
                     onPress={() => {
                       setModalImageVisible(true); // open modal
                       setModalImages(
-                        Item.Images.map((i) => ({ url: i.imageName })) // format for ImageViewer
+                        Item.Images.map((i) => ({ url: i.imageName })), // format for ImageViewer
                       );
                       setModalIndex(index); // which image to show first
                     }}

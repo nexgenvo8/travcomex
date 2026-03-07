@@ -2,7 +2,7 @@ import { StyleSheet, Text, View, SafeAreaView, ScrollView } from "react-native";
 import React from "react";
 import Header from "./Header/Header";
 import { useTheme } from "../theme/ThemeContext";
-import { universityName } from "./constants";
+import { emailId, universityName } from "./constants";
 
 const PrivacyScreen = ({ navigation }) => {
   const { isDark, colors, toggleTheme } = useTheme();
@@ -161,7 +161,7 @@ const PrivacyScreen = ({ navigation }) => {
             obtain information about you from publicly and commercially
             available sources and other third parties as permitted by law. For
             more information about the data that we obtain from these providers,
-            please contact us at privacy@{universityName}.com.
+            please contact us at {emailId}.
           </Text>
         </Text>
         <Text style={styles.subsection}>2. Use of Information</Text>
@@ -461,12 +461,11 @@ const PrivacyScreen = ({ navigation }) => {
         </Text>
         <Text style={styles.text}>
           You may update or correct your account information by editing your
-          account settings or by sending a request to privacy@{universityName}
-          .com as described inYou may deactivate your account by editing your
-          account settings or by sending an email to privacy@{universityName}
-          .com. You will also be able to choose what information others see
-          about you and who may contact you by using the Privacy Settings
-          section in your Account.
+          account settings or by sending a request to {emailId} as described
+          inYou may deactivate your account by editing your account settings or
+          by sending an email to {emailId}. You will also be able to choose what
+          information others see about you and who may contact you by using the
+          Privacy Settings section in your Account.
         </Text>
         <Text style={styles.subsection}>
           5.2 Your Choices: Location Information
@@ -519,7 +518,7 @@ const PrivacyScreen = ({ navigation }) => {
           We respond to all requests that we receive from individuals who wish
           to exercise their data protection rights in accordance with applicable
           data protection laws. You can contact us by sending an email to
-          privacy@{universityName}.com.
+          {emailId}.
         </Text>
         <Text style={styles.subsection}>
           Rights that you may have, depending on the country in which you live,
@@ -566,7 +565,7 @@ const PrivacyScreen = ({ navigation }) => {
           Under Indian Subcontinent data protection law, the controller of your
           information is {universityName}, Inc.If you have any questions or
           complaints about this Privacy Policy or how we use your information,
-          please contact privacy@{universityName}.com.
+          please contact {emailId}.
         </Text>
         <View style={{ marginTop: 20 }} />
       </ScrollView>

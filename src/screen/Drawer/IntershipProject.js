@@ -302,7 +302,7 @@ const IntershipProject = ({ navigation, route }) => {
       setPrice(editMyInterShip?.proEstimatedBudget);
 
       const currencyObj = currencyOptions.find(
-        (item) => item.value === editMyInterShip?.proCurrency
+        (item) => item.value === editMyInterShip?.proCurrency,
       );
       setSelectedCurrency(currencyObj || null);
       setDescription(editMyInterShip?.projectDetails);
@@ -325,7 +325,7 @@ const IntershipProject = ({ navigation, route }) => {
       setPrice();
 
       const currencyObj = currencyOptions.find(
-        (item) => item.value === editMyInterShip?.proCurrency
+        (item) => item.value === editMyInterShip?.proCurrency,
       );
       setSelectedCurrency();
       setDescription();
@@ -454,7 +454,7 @@ const IntershipProject = ({ navigation, route }) => {
         const newData = data?.DataList || [];
 
         setIndustryData((prev) =>
-          pageNumber === 1 ? newData : [...prev, ...newData]
+          pageNumber === 1 ? newData : [...prev, ...newData],
         );
 
         setHasMore(newData.length === perPage);
@@ -615,7 +615,7 @@ const IntershipProject = ({ navigation, route }) => {
     if (isValid) {
       console.log(
         "All fields are valid",
-        `${baseUrl}${editMyInterShip ? updateproject : addproject}`
+        `${baseUrl}${editMyInterShip ? updateproject : addproject}`,
       );
 
       try {
@@ -646,7 +646,7 @@ const IntershipProject = ({ navigation, route }) => {
               proNature: selectedValue2,
               projectStatus: 1,
             }),
-          }
+          },
         );
         const text = await response.text();
         if (!response.ok) {
@@ -719,7 +719,7 @@ const IntershipProject = ({ navigation, route }) => {
           },
         },
       ],
-      { cancelable: false }
+      { cancelable: false },
     );
   };
   const renderItem = ({ item }) => {
@@ -1190,7 +1190,7 @@ const IntershipProject = ({ navigation, route }) => {
     // Deduplicate with latest list
     setSkillsList((prevSkills) => {
       const alreadyExists = prevSkills.some(
-        (s) => s.toLowerCase() === trimmedSkill.toLowerCase()
+        (s) => s.toLowerCase() === trimmedSkill.toLowerCase(),
       );
       if (alreadyExists) {
         setErrorSkill(true);
@@ -3531,7 +3531,7 @@ const IntershipProject = ({ navigation, route }) => {
                                   {skill.trim()}
                                 </Text>
                               </View>
-                            )
+                            ),
                           )}
                         </View>
                       </View>
@@ -3703,7 +3703,7 @@ const IntershipProject = ({ navigation, route }) => {
                                   {skill.trim()}
                                 </Text>
                               </View>
-                            )
+                            ),
                           )}
                         </View>
                       </View>

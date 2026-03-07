@@ -16,7 +16,8 @@ import React, { useState, useEffect } from "react";
 import Colors from "./color";
 import { TextInput } from "react-native-gesture-handler";
 import Icon from "./Icons/Icons";
-import PlaneIcon from "react-native-vector-icons/AntDesign";
+// import PlaneIcon from "react-native-vector-icons/AntDesign";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import {
   baseUrl,
   RegistrationApi,
@@ -37,6 +38,7 @@ import {
   universityFullName,
   universityName,
 } from "./constants";
+import KeyboardAvoidingWrapper from "./components/KeyboardAvoidingWrapper";
 
 const Registration = () => {
   const navigation = useNavigation();
@@ -56,6 +58,8 @@ const Registration = () => {
   const [selectedSegments, setSelectedSegments] = useState("");
   const [course, setCourse] = useState("");
   const [courseList, setCourseList] = useState(null);
+  const [checked, setChecked] = useState(false);
+  const [errorChecked, setErrorChecked] = useState(false);
   // const [departmentList, setDepartmentList] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [destinationList, setDestinationList] = useState([]);
@@ -663,7 +667,13 @@ const Registration = () => {
         }
       }
     }
-
+    if (!checked) {
+      setErrorChecked(true); // mark error
+      showError("You must accept the terms and conditions"); // optional
+      isValid = false;
+    } else {
+      setErrorChecked(false); // clear error if checked
+    }
     setErrors({});
     return true;
   };
@@ -3458,8 +3468,9 @@ const Registration = () => {
   };
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        {/* <View style={styles.header}>
+      <KeyboardAvoidingWrapper offset={40}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+          {/* <View style={styles.header}>
           <Image
             source={registrationlogoimage}
             style={{ width: 50, height: 50 }}
@@ -3473,254 +3484,260 @@ const Registration = () => {
             resizeMode="contain"
           />
         </View> */}
-        <View style={styles.header}>
-          <Image
-            source={registrationlogoimage}
-            style={{ width: 70, height: 72, marginTop: 30 }}
-            resizeMode="contain"
-          />
-          <Image
-            source={registrationtopTextImage}
-            style={{ width: 170, height: 60 }}
-            resizeMode="contain"
-          />
-        </View>
-        <ImageBackground
-          source={
-            isDark
-              ? registrationbackgroundimage_dark
-              : registrationbackgroundimage
-          }
-          resizeMode="cover"
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            paddingVertical: 40,
-          }}
-        >
-          <View
+          <View style={styles.header}>
+            <Image
+              source={registrationlogoimage}
+              style={{ width: 70, height: 72, marginTop: 30 }}
+              resizeMode="contain"
+            />
+            <Image
+              source={registrationtopTextImage}
+              style={{ width: 170, height: 60 }}
+              resizeMode="contain"
+            />
+          </View>
+          <ImageBackground
+            source={
+              isDark
+                ? registrationbackgroundimage_dark
+                : registrationbackgroundimage
+            }
+            resizeMode="cover"
             style={{
-              ...styles.whiteBox,
-              backgroundColor: colors.cardBackground,
+              flex: 1,
+              justifyContent: "center",
+              paddingVertical: 40,
             }}
           >
-            <Text
-              style={{ ...styles.registerText, color: colors.AppmainColor }}
+            <View
+              style={{
+                ...styles.whiteBox,
+                backgroundColor: colors.cardBackground,
+              }}
             >
-              Register Now !!!
-            </Text>
-            <View style={styles.nameBox}>
-              <TextInput
-                style={{
-                  ...styles.inputText,
-                  borderColor: errors.firstName
-                    ? "red"
-                    : colors.textinputbordercolor,
-                  color: colors.textColor,
-                }}
-                value={firstName}
-                onChangeText={(text) => {
-                  setFirstName(text);
-                  setErrors({ ...errors, firstName: null });
-                }}
-                placeholder="First name"
-                placeholderTextColor={colors.placeholderTextColor}
-              />
-              <TextInput
-                style={{
-                  ...styles.inputText,
-                  borderColor: errors.lastName
-                    ? "red"
-                    : colors.textinputbordercolor,
-                  color: colors.textColor,
-                }}
-                value={lastName}
-                onChangeText={(text) => {
-                  setLastName(text);
-                  setErrors({ ...errors, lastName: null });
-                }}
-                placeholder="Last name"
-                placeholderTextColor={colors.placeholderTextColor}
-              />
-            </View>
-            <TextInput
-              style={{
-                ...styles.emailTextInput,
-                borderColor: errors.email ? "red" : colors.textinputbordercolor,
-                color: colors.textColor,
-              }}
-              value={email}
-              onChangeText={(text) => {
-                setEmail(text);
-                setErrors({ ...errors, email: null });
-              }}
-              placeholder="Email"
-              placeholderTextColor={colors.placeholderTextColor}
-            />
-            <TextInput
-              maxLength={10}
-              keyboardType="numeric"
-              style={{
-                ...styles.emailTextInput,
-                borderColor: errors.phone ? "red" : colors.textinputbordercolor,
-                color: colors.textColor,
-              }}
-              value={phone}
-              onChangeText={(text) => {
-                setPhone(text);
-                setErrors({ ...errors, phone: null });
-              }}
-              placeholder="Phone "
-              placeholderTextColor={colors.placeholderTextColor}
-            />
-            <Text style={{ ...styles.birthdayText, color: colors.textColor }}>
-              Birthday
-            </Text>
-            <View style={styles.birthdayBox}>
-              <TouchableOpacity
-                style={{
-                  ...styles.dayBox,
-                  borderColor: errors.day ? "red" : colors.textinputbordercolor,
-                }}
-                onPress={() => setCurrentPicker("day")}
+              <Text
+                style={{ ...styles.registerText, color: colors.AppmainColor }}
               >
-                <Text style={{ ...styles.dayText, color: colors.textColor }}>
-                  {selectedDay || "Day"}
-                </Text>
-                <Icon
-                  name="down"
-                  type="AntDesign"
-                  size={15}
-                  color={colors.placeholderTextColor}
-                  style={{ paddingLeft: 10 }}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{
-                  ...styles.dayBox,
-                  borderColor: errors.month
-                    ? "red"
-                    : colors.textinputbordercolor,
-                }}
-                onPress={() => setCurrentPicker("month")}
-              >
-                <Text style={{ ...styles.dayText, color: colors.textColor }}>
-                  {selectedMonth || "Month"}
-                </Text>
-                <Icon
-                  name="down"
-                  type="AntDesign"
-                  size={15}
-                  color={colors.placeholderTextColor}
-                  style={{ paddingLeft: 10 }}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => setCurrentPicker("year")}
-                style={{
-                  ...styles.dayBox,
-                  borderColor: errors.year
-                    ? "red"
-                    : colors.textinputbordercolor,
-                }}
-              >
-                <Text style={{ ...styles.dayText, color: colors.textColor }}>
-                  {selectedYear || "Year"}
-                </Text>
-                <Icon
-                  name="down"
-                  type="AntDesign"
-                  size={15}
-                  color={colors.placeholderTextColor}
-                  style={{ paddingLeft: 10 }}
-                />
-              </TouchableOpacity>
-            </View>
-            <View style={styles.maleMainBox}>
-              <TouchableOpacity
-                style={styles.maleBox}
-                onPress={() =>
-                  setSelectedGender(selectedGender === "male" ? null : "male")
-                }
-              >
-                <View
+                Register Now !!!
+              </Text>
+              <View style={styles.nameBox}>
+                <TextInput
                   style={{
-                    ...styles.maleCircleBox,
-                    borderColor: colors.textinputbordercolor,
+                    ...styles.inputText,
+                    borderColor: errors.firstName
+                      ? "red"
+                      : colors.textinputbordercolor,
+                    color: colors.textColor,
+                  }}
+                  value={firstName}
+                  onChangeText={(text) => {
+                    setFirstName(text);
+                    setErrors({ ...errors, firstName: null });
+                  }}
+                  placeholder="First name"
+                  placeholderTextColor={colors.placeholderTextColor}
+                />
+                <TextInput
+                  style={{
+                    ...styles.inputText,
+                    borderColor: errors.lastName
+                      ? "red"
+                      : colors.textinputbordercolor,
+                    color: colors.textColor,
+                  }}
+                  value={lastName}
+                  onChangeText={(text) => {
+                    setLastName(text);
+                    setErrors({ ...errors, lastName: null });
+                  }}
+                  placeholder="Last name"
+                  placeholderTextColor={colors.placeholderTextColor}
+                />
+              </View>
+              <TextInput
+                style={{
+                  ...styles.emailTextInput,
+                  borderColor: errors.email
+                    ? "red"
+                    : colors.textinputbordercolor,
+                  color: colors.textColor,
+                }}
+                value={email}
+                onChangeText={(text) => {
+                  setEmail(text);
+                  setErrors({ ...errors, email: null });
+                }}
+                placeholder="Email"
+                placeholderTextColor={colors.placeholderTextColor}
+              />
+              <TextInput
+                maxLength={10}
+                keyboardType="numeric"
+                style={{
+                  ...styles.emailTextInput,
+                  borderColor: errors.phone
+                    ? "red"
+                    : colors.textinputbordercolor,
+                  color: colors.textColor,
+                }}
+                value={phone}
+                onChangeText={(text) => {
+                  setPhone(text);
+                  setErrors({ ...errors, phone: null });
+                }}
+                placeholder="Phone "
+                placeholderTextColor={colors.placeholderTextColor}
+              />
+              <Text style={{ ...styles.birthdayText, color: colors.textColor }}>
+                Birthday
+              </Text>
+              <View style={styles.birthdayBox}>
+                <TouchableOpacity
+                  style={{
+                    ...styles.dayBox,
+                    borderColor: errors.day
+                      ? "red"
+                      : colors.textinputbordercolor,
+                  }}
+                  onPress={() => setCurrentPicker("day")}
+                >
+                  <Text style={{ ...styles.dayText, color: colors.textColor }}>
+                    {selectedDay || "Day"}
+                  </Text>
+                  <Icon
+                    name="down"
+                    type="AntDesign"
+                    size={15}
+                    color={colors.placeholderTextColor}
+                    style={{ paddingLeft: 10 }}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    ...styles.dayBox,
+                    borderColor: errors.month
+                      ? "red"
+                      : colors.textinputbordercolor,
+                  }}
+                  onPress={() => setCurrentPicker("month")}
+                >
+                  <Text style={{ ...styles.dayText, color: colors.textColor }}>
+                    {selectedMonth || "Month"}
+                  </Text>
+                  <Icon
+                    name="down"
+                    type="AntDesign"
+                    size={15}
+                    color={colors.placeholderTextColor}
+                    style={{ paddingLeft: 10 }}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setCurrentPicker("year")}
+                  style={{
+                    ...styles.dayBox,
+                    borderColor: errors.year
+                      ? "red"
+                      : colors.textinputbordercolor,
                   }}
                 >
-                  {selectedGender === "male" && (
-                    <View
-                      style={{
-                        ...styles.selectedCircle,
-                        backgroundColor: colors.AppmainColor,
-                      }}
-                    />
-                  )}
-                </View>
-                <Text style={{ ...styles.maleText, color: colors.textColor }}>
-                  Male
-                </Text>
-              </TouchableOpacity>
+                  <Text style={{ ...styles.dayText, color: colors.textColor }}>
+                    {selectedYear || "Year"}
+                  </Text>
+                  <Icon
+                    name="down"
+                    type="AntDesign"
+                    size={15}
+                    color={colors.placeholderTextColor}
+                    style={{ paddingLeft: 10 }}
+                  />
+                </TouchableOpacity>
+              </View>
+              <View style={styles.maleMainBox}>
+                <TouchableOpacity
+                  style={styles.maleBox}
+                  onPress={() =>
+                    setSelectedGender(selectedGender === "male" ? null : "male")
+                  }
+                >
+                  <View
+                    style={{
+                      ...styles.maleCircleBox,
+                      borderColor: colors.textinputbordercolor,
+                    }}
+                  >
+                    {selectedGender === "male" && (
+                      <View
+                        style={{
+                          ...styles.selectedCircle,
+                          backgroundColor: colors.AppmainColor,
+                        }}
+                      />
+                    )}
+                  </View>
+                  <Text style={{ ...styles.maleText, color: colors.textColor }}>
+                    Male
+                  </Text>
+                </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.maleBox}
-                onPress={() =>
-                  setSelectedGender(
-                    selectedGender === "female" ? null : "female"
-                  )
-                }
-              >
-                <View
-                  style={{
-                    ...styles.maleCircleBox,
-                    borderColor: colors.textinputbordercolor,
-                  }}
+                <TouchableOpacity
+                  style={styles.maleBox}
+                  onPress={() =>
+                    setSelectedGender(
+                      selectedGender === "female" ? null : "female",
+                    )
+                  }
                 >
-                  {selectedGender === "female" && (
-                    <View
-                      style={{
-                        ...styles.selectedCircle,
-                        backgroundColor: colors.AppmainColor,
-                      }}
-                    />
-                  )}
-                </View>
-                <Text style={{ ...styles.maleText, color: colors.textColor }}>
-                  Female
-                </Text>
-              </TouchableOpacity>
-              {/* <View></View> */}
-              <TouchableOpacity
-                style={styles.maleBox}
-                onPress={() =>
-                  setSelectedGender(
-                    selectedGender === "Others" ? null : "Others"
-                  )
-                }
-              >
-                <View
-                  style={{
-                    ...styles.maleCircleBox,
-                    borderColor: colors.textinputbordercolor,
-                  }}
+                  <View
+                    style={{
+                      ...styles.maleCircleBox,
+                      borderColor: colors.textinputbordercolor,
+                    }}
+                  >
+                    {selectedGender === "female" && (
+                      <View
+                        style={{
+                          ...styles.selectedCircle,
+                          backgroundColor: colors.AppmainColor,
+                        }}
+                      />
+                    )}
+                  </View>
+                  <Text style={{ ...styles.maleText, color: colors.textColor }}>
+                    Female
+                  </Text>
+                </TouchableOpacity>
+                {/* <View></View> */}
+                <TouchableOpacity
+                  style={styles.maleBox}
+                  onPress={() =>
+                    setSelectedGender(
+                      selectedGender === "Others" ? null : "Others",
+                    )
+                  }
                 >
-                  {selectedGender === "Others" && (
-                    <View
-                      style={{
-                        ...styles.selectedCircle,
-                        backgroundColor: colors.AppmainColor,
-                      }}
-                    />
-                  )}
-                </View>
-                <Text style={{ ...styles.maleText, color: colors.textColor }}>
-                  Others
-                </Text>
-              </TouchableOpacity>
-            </View>
-            {renderRoleSpecificFields()}
-            {/* {selectedRole == "Faculty" && (
+                  <View
+                    style={{
+                      ...styles.maleCircleBox,
+                      borderColor: colors.textinputbordercolor,
+                    }}
+                  >
+                    {selectedGender === "Others" && (
+                      <View
+                        style={{
+                          ...styles.selectedCircle,
+                          backgroundColor: colors.AppmainColor,
+                        }}
+                      />
+                    )}
+                  </View>
+                  <Text style={{ ...styles.maleText, color: colors.textColor }}>
+                    Others
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              {renderRoleSpecificFields()}
+              {/* {selectedRole == "Faculty" && (
                 <TouchableOpacity
                   onPress={() => setCurrentPicker("department")}
                   style={{
@@ -3746,7 +3763,7 @@ const Registration = () => {
                   />
                 </TouchableOpacity>
               )} */}
-            {/* {selectedRole == "Industry Professional" && (
+              {/* {selectedRole == "Industry Professional" && (
                 <TouchableOpacity
                   onPress={() => setCurrentPicker("Industry")}
                   style={{
@@ -3771,7 +3788,7 @@ const Registration = () => {
                 </TouchableOpacity>
               )} */}
 
-            {/* {selectedRole !== "Faculty" &&
+              {/* {selectedRole !== "Faculty" &&
                 selectedRole !== "Industry Professional" && (
                   <TouchableOpacity
                     onPress={() => setCurrentPicker("course")}
@@ -3796,7 +3813,7 @@ const Registration = () => {
                   </TouchableOpacity>
                 )} */}
 
-            {/* {selectedRole !== "Faculty" &&
+              {/* {selectedRole !== "Faculty" &&
               selectedRole !== "Industry Professional" && (
                 <View style={styles.studentMainBox}>
                   <TouchableOpacity
@@ -3942,81 +3959,100 @@ const Registration = () => {
               />
             )} */}
 
-            <View style={styles.tickTextBox}>
-              <PlaneIcon
-                name="checksquare"
-                size={20}
-                color={colors.AppmainColor}
-                style={{ marginRight: 10 }}
-              />
-              <Text
-                style={{ fontSize: 14, flexShrink: 1, color: colors.textColor }}
+              <View style={styles.tickTextBox}>
+                <TouchableOpacity onPress={() => setChecked(!checked)}>
+                  <MaterialCommunityIcons
+                    name={
+                      checked ? "checkbox-marked" : "checkbox-blank-outline"
+                    }
+                    size={24}
+                    color={colors.AppmainColor}
+                    style={{ marginRight: 10 }}
+                  />
+                </TouchableOpacity>
+                {/* <PlaneIcon
+                  name="checksquare"
+                  size={20}
+                  color={colors.AppmainColor}
+                  style={{ marginRight: 10 }}
+                /> */}
+                <Text
+                  style={{
+                    fontSize: 14,
+                    flexShrink: 1,
+                    color: colors.textColor,
+                  }}
+                >
+                  I accept {universityFullName}'s Terms & Conditions
+                </Text>
+              </View>
+              <TouchableOpacity
+                onPress={handleRegister}
+                style={{
+                  alignItems: "center",
+                  backgroundColor: colors.AppmainColor,
+                  marginHorizontal: 12,
+                  padding: 10,
+                  borderRadius: 8,
+                  marginTop: 20,
+                }}
               >
-                I accept {universityFullName}'s Terms & Conditions
-              </Text>
+                <Text style={{ fontSize: 18, color: colors.ButtonTextColor }}>
+                  Register Now
+                </Text>
+              </TouchableOpacity>
             </View>
+          </ImageBackground>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "center",
+              padding: 6,
+              marginTop: 10,
+            }}
+          >
             <TouchableOpacity
-              onPress={handleRegister}
-              style={{
-                alignItems: "center",
-                backgroundColor: colors.AppmainColor,
-                marginHorizontal: 12,
-                padding: 10,
-                borderRadius: 8,
-                marginTop: 20,
-              }}
+              onPress={() => navigation.navigate("PrivacyScreen")}
             >
-              <Text style={{ fontSize: 18, color: colors.ButtonTextColor }}>
-                Register Now
-              </Text>
+              <Text style={{ color: colors.textColor }}>Privacy</Text>
+            </TouchableOpacity>
+            <Text style={{ marginHorizontal: 6, color: colors.textColor }}>
+              |
+            </Text>
+
+            <TouchableOpacity
+              onPress={() => navigation.navigate("TermsScreen")}
+            >
+              <Text style={{ color: colors.textColor }}>Terms</Text>
+            </TouchableOpacity>
+            <Text style={{ marginHorizontal: 6, color: colors.textColor }}>
+              |
+            </Text>
+
+            <TouchableOpacity
+              onPress={() => navigation.navigate("AboutScreen")}
+            >
+              <Text style={{ color: colors.textColor }}>About</Text>
+            </TouchableOpacity>
+            <Text style={{ marginHorizontal: 6, color: colors.textColor }}>
+              |
+            </Text>
+
+            <TouchableOpacity
+              onPress={() => navigation.navigate("ContactUsScreen")}
+            >
+              <Text style={{ color: colors.textColor }}>Contact Us</Text>
+            </TouchableOpacity>
+            <Text style={{ marginHorizontal: 6, color: colors.textColor }}>
+              |
+            </Text>
+
+            <TouchableOpacity onPress={() => navigation.navigate("FAQScreen")}>
+              <Text style={{ color: colors.textColor }}>FAQ's</Text>
             </TouchableOpacity>
           </View>
-        </ImageBackground>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "center",
-            padding: 6,
-            marginTop: 10,
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => navigation.navigate("PrivacyScreen")}
-          >
-            <Text style={{ color: colors.textColor }}>Privacy</Text>
-          </TouchableOpacity>
-          <Text style={{ marginHorizontal: 6, color: colors.textColor }}>
-            |
-          </Text>
-
-          <TouchableOpacity onPress={() => navigation.navigate("TermsScreen")}>
-            <Text style={{ color: colors.textColor }}>Terms</Text>
-          </TouchableOpacity>
-          <Text style={{ marginHorizontal: 6, color: colors.textColor }}>
-            |
-          </Text>
-
-          <TouchableOpacity onPress={() => navigation.navigate("AboutScreen")}>
-            <Text style={{ color: colors.textColor }}>About</Text>
-          </TouchableOpacity>
-          <Text style={{ marginHorizontal: 6, color: colors.textColor }}>
-            |
-          </Text>
-
-          <TouchableOpacity
-            onPress={() => navigation.navigate("ContactUsScreen")}
-          >
-            <Text style={{ color: colors.textColor }}>Contact Us</Text>
-          </TouchableOpacity>
-          <Text style={{ marginHorizontal: 6, color: colors.textColor }}>
-            |
-          </Text>
-
-          <TouchableOpacity onPress={() => navigation.navigate("FAQScreen")}>
-            <Text style={{ color: colors.textColor }}>FAQ's</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingWrapper>
       <Modal visible={!!currentPicker} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View
@@ -4073,7 +4109,7 @@ const Registration = () => {
                   "Restaurant",
                   "Activity Company",
                 ],
-                setSelectedRole
+                setSelectedRole,
               )}
 
             {currentPicker === "Segments" &&
@@ -4090,7 +4126,7 @@ const Registration = () => {
                   "Logistic",
                   "Others",
                 ],
-                setSelectedSegments
+                setSelectedSegments,
               )}
 
             {/* {currentPicker === 'course' &&
@@ -4102,26 +4138,26 @@ const Registration = () => {
                 industryList.filter(
                   (c) =>
                     c?.Name &&
-                    c.Name.toLowerCase().includes(searchQuery.toLowerCase())
+                    c.Name.toLowerCase().includes(searchQuery.toLowerCase()),
                 ),
                 (c) => {
                   setSelectedIndustry(c);
                   setCurrentPicker(null);
                   setSearchQuery("");
-                }
+                },
               )}
             {currentPicker === "course" &&
               renderOptions(
                 courseList.filter(
                   (c) =>
                     c?.Name &&
-                    c.Name.toLowerCase().includes(searchQuery.toLowerCase())
+                    c.Name.toLowerCase().includes(searchQuery.toLowerCase()),
                 ),
                 (c) => {
                   setSelectedCourse(c);
                   setCurrentPicker(null);
                   setSearchQuery("");
-                }
+                },
               )}
 
             {/* {currentPicker === "Destination" &&

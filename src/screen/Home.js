@@ -103,7 +103,7 @@ export default function ({ route, tabBarVisible }) {
         flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
         navigation.setParams({ scrollToTop: false });
       }
-    }, [route.params?.scrollToTop])
+    }, [route.params?.scrollToTop]),
   );
   const commentSheetRef = useRef(null);
   const handleSheetChange = (index) => {
@@ -243,8 +243,8 @@ export default function ({ route, tabBarVisible }) {
     setLikedPosts((prev) => ({ ...prev, [postId]: updatedLikeStatus }));
     setPostData((prevData) =>
       prevData.map((item) =>
-        item.id === postId ? { ...item, TotalLike: updatedLikeCount } : item
-      )
+        item.id === postId ? { ...item, TotalLike: updatedLikeCount } : item,
+      ),
     );
     try {
       const response = await fetch(
@@ -257,7 +257,7 @@ export default function ({ route, tabBarVisible }) {
             postType: post.PostType,
             userId: userData?.User?.userId,
           }),
-        }
+        },
       );
       const data = await response.json();
       console.log("Add Like Response:", data);
@@ -276,13 +276,13 @@ export default function ({ route, tabBarVisible }) {
                 ...item,
                 TotalLike: finalLikeCount,
               }
-            : item
-        )
+            : item,
+        ),
       );
 
       await AsyncStorage.setItem(
         "likedPosts",
-        JSON.stringify({ ...likedPosts, [postId]: finalIsLiked })
+        JSON.stringify({ ...likedPosts, [postId]: finalIsLiked }),
       );
     } catch (error) {
       console.error("Like API Error:", error);
@@ -296,8 +296,8 @@ export default function ({ route, tabBarVisible }) {
                   ? post.TotalLike
                   : Math.max(post.TotalLike - 1, 0),
               }
-            : item
-        )
+            : item,
+        ),
       );
     }
   };
@@ -335,7 +335,7 @@ export default function ({ route, tabBarVisible }) {
   const fetchPosts = async (
     page = 1,
     isRefresh = false,
-    isAfterPost = false
+    isAfterPost = false,
   ) => {
     if (loading && !isRefresh && !isAfterPost) return;
     if (!hasMoreData && !isRefresh && !isAfterPost) return;
@@ -371,7 +371,7 @@ export default function ({ route, tabBarVisible }) {
         if (data.Data && data.Data.length > 0) {
           // If there is new data, update the state correctly
           setPostData((prev) =>
-            isRefresh || page === 1 ? data.Data : [...prev, ...data.Data]
+            isRefresh || page === 1 ? data.Data : [...prev, ...data.Data],
           );
           setHasMoreData(data.Data.length === 20);
           setCurrentPage(page);
@@ -476,7 +476,7 @@ export default function ({ route, tabBarVisible }) {
           if (response.ok) {
             await AsyncStorage.setItem(
               "userProfileData",
-              JSON.stringify(profile)
+              JSON.stringify(profile),
             );
             setUserProfileData(profile);
           } else {
@@ -488,7 +488,7 @@ export default function ({ route, tabBarVisible }) {
       };
 
       fetchLatestProfile();
-    }, [])
+    }, []),
   );
 
   const isFirstLoad = useRef(true);
@@ -671,7 +671,7 @@ export default function ({ route, tabBarVisible }) {
           setContacts(res);
           setFilteredContacts(res);
         },
-        setLoadingContacts
+        setLoadingContacts,
       );
     }
   }, [modalVisibleShare]);
@@ -766,7 +766,7 @@ export default function ({ route, tabBarVisible }) {
 
       if (response.ok) {
         setCommentList((prev) =>
-          pageNumber === 1 ? newData : [...prev, ...newData]
+          pageNumber === 1 ? newData : [...prev, ...newData],
         );
         setPage(pageNumber);
         setHasMoreData(newData.length > 0);
@@ -852,7 +852,7 @@ export default function ({ route, tabBarVisible }) {
           },
         },
       ],
-      { cancelable: false }
+      { cancelable: false },
     );
   };
   const handleUpdateComment = async () => {
@@ -923,7 +923,7 @@ export default function ({ route, tabBarVisible }) {
           },
         },
       ],
-      { cancelable: false }
+      { cancelable: false },
     );
   };
   const toggleExpand = (index) => {
@@ -984,7 +984,7 @@ export default function ({ route, tabBarVisible }) {
       return text.replace(urlRegex, (url) => `<a href="${url}">${url}</a>`);
     }
     const processedHTML = convertUrlsToLinks(
-      isExpanded ? fullFormattedText : shortFormattedText
+      isExpanded ? fullFormattedText : shortFormattedText,
     );
     return (
       <View
@@ -1202,7 +1202,7 @@ export default function ({ route, tabBarVisible }) {
                               setModalImages(
                                 item.Images.map((img) => ({
                                   url: img.PostImage,
-                                }))
+                                })),
                               );
                               setModalIndex(index + 1);
                               setModalImageVisible(true);
@@ -1515,7 +1515,7 @@ export default function ({ route, tabBarVisible }) {
               oldPostText: passImageInModal?.PostText,
               userId: userData?.User?.userId,
             }),
-          }
+          },
         );
         const data = await response.json();
 
@@ -1545,7 +1545,7 @@ export default function ({ route, tabBarVisible }) {
     }
 
     const filtered = contacts.filter((user) =>
-      user?.UserName?.toLowerCase().includes(trimmed)
+      user?.UserName?.toLowerCase().includes(trimmed),
     );
     setFilteredContacts(filtered);
   };
@@ -1554,7 +1554,7 @@ export default function ({ route, tabBarVisible }) {
     setSelectedUsers((prevSelected) =>
       prevSelected.includes(userId)
         ? prevSelected.filter((id) => id !== userId)
-        : [...prevSelected, userId]
+        : [...prevSelected, userId],
     );
   };
   const sendMessage = async (receiverId, selectedUsers) => {
@@ -1606,8 +1606,8 @@ export default function ({ route, tabBarVisible }) {
     formData.append(
       "chatText",
       cleanHtmlWithSpacing(
-        selectedUsers?.PostText || selectedUsers?.PostTitle || "No message"
-      )
+        selectedUsers?.PostText || selectedUsers?.PostTitle || "No message",
+      ),
     );
 
     formData.append("optionalType", "PostShare");
@@ -1665,7 +1665,7 @@ export default function ({ route, tabBarVisible }) {
   };
   const handleRemoveUser = (user) => {
     setSelectedUsers((prevUsers) =>
-      prevUsers.filter((u) => u.UserId !== user.UserId)
+      prevUsers.filter((u) => u.UserId !== user.UserId),
     );
   };
   if (initialLoading) {
@@ -2079,7 +2079,7 @@ export default function ({ route, tabBarVisible }) {
                                     const formattedImages = images.map(
                                       (img) => ({
                                         url: img.uri,
-                                      })
+                                      }),
                                     );
                                     setModalImages(formattedImages);
                                     setModalIndex(3);
@@ -2551,7 +2551,7 @@ export default function ({ route, tabBarVisible }) {
                                   ? colors.AppmainColor
                                   : colors.placeholderTextColor,
                                 backgroundColor: selectedUsers.includes(
-                                  item.UserId
+                                  item.UserId,
                                 )
                                   ? colors.AppmainColor
                                   : "transparent",

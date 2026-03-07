@@ -73,7 +73,7 @@ const GroupDetails = ({ navigation, route }) => {
   const [commentCounts, setCommentCounts] = useState({});
   const [replyUserName, setReplyUserName] = useState("");
   const [joinRequestSent, setJoinRequestSent] = useState(
-    Item?.JoinRequest?.toLowerCase() === "yes"
+    Item?.JoinRequest?.toLowerCase() === "yes",
   );
 
   const [commitID, setCommitID] = useState([]);
@@ -558,11 +558,11 @@ const GroupDetails = ({ navigation, route }) => {
                     style={{ marginBottom: 5, flexDirection: "row" }}
                   >
                     <Image
-                      source={{
-                        uri: item?.UserDetail?.ProfilePhoto
-                          ? item?.UserDetail?.ProfilePhoto
-                          : require("../assets/placeholderprofileimage.png"),
-                      }}
+                      source={
+                        item?.UserDetail?.ProfilePhoto
+                          ? { uri: item?.UserDetail?.ProfilePhoto }
+                          : require("../assets/placeholderprofileimage.png")
+                      }
                       style={{ width: 50, height: 50, borderRadius: 30 }}
                     />
                     <View style={{ margin: 10 }}>
@@ -726,7 +726,7 @@ const GroupDetails = ({ navigation, route }) => {
           },
         },
       ],
-      { cancelable: false }
+      { cancelable: false },
     );
   };
   const handleUpdateComment = async () => {
@@ -785,8 +785,8 @@ const GroupDetails = ({ navigation, route }) => {
     setLikedPosts((prev) => ({ ...prev, [postId]: updatedLikeStatus }));
     setPostData((prevData) =>
       prevData.map((item) =>
-        item.id === postId ? { ...item, TotalLike: updatedLikeCount } : item
-      )
+        item.id === postId ? { ...item, TotalLike: updatedLikeCount } : item,
+      ),
     );
 
     try {
@@ -800,7 +800,7 @@ const GroupDetails = ({ navigation, route }) => {
             postType: post.PostType,
             userId: userData?.User?.userId,
           }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -819,13 +819,13 @@ const GroupDetails = ({ navigation, route }) => {
                 ...item,
                 TotalLike: data.IsLiked ? item.TotalLike : item.TotalLike,
               }
-            : item
-        )
+            : item,
+        ),
       );
       // Store liked posts in AsyncStorage
       await AsyncStorage.setItem(
         "likedPosts",
-        JSON.stringify({ ...likedPosts, [postId]: data.IsLiked })
+        JSON.stringify({ ...likedPosts, [postId]: data.IsLiked }),
       );
     } catch (error) {
       console.error("Like API Error:", error);
@@ -838,8 +838,8 @@ const GroupDetails = ({ navigation, route }) => {
                 ...item,
                 TotalLike: isLiked ? item.TotalLike + 1 : item.TotalLike - 1,
               }
-            : item
-        )
+            : item,
+        ),
       );
     }
   };
@@ -858,7 +858,7 @@ const GroupDetails = ({ navigation, route }) => {
   }, []);
 
   const isUserMember = Item?.memberList?.some(
-    (member) => member?.UserId === userData?.User?.userId
+    (member) => member?.UserId === userData?.User?.userId,
   );
 
   return (
@@ -1287,11 +1287,11 @@ const GroupDetails = ({ navigation, route }) => {
                   >
                     <Image
                       style={globalStyles.GroupModeratorImg}
-                      source={{
-                        uri: Item?.groupModerator?.ProfilePhoto
-                          ? Item?.groupModerator?.ProfilePhoto
-                          : require("../assets/placeholderprofileimage.png"),
-                      }}
+                      source={
+                        Item?.groupModerator?.ProfilePhoto
+                          ? { uri: Item?.groupModerator?.ProfilePhoto }
+                          : require("../assets/placeholderprofileimage.png")
+                      }
                     />
                     <View style={{ paddingLeft: 10 }}>
                       <Text
@@ -1342,11 +1342,11 @@ const GroupDetails = ({ navigation, route }) => {
                           }
                         >
                           <Image
-                            source={{
-                              uri: member.ProfilePhoto
-                                ? member.ProfilePhoto
-                                : require("../assets/placeholderprofileimage.png"),
-                            }}
+                            source={
+                              member.ProfilePhoto
+                                ? { uri: member.ProfilePhoto }
+                                : require("../assets/placeholderprofileimage.png")
+                            }
                             style={{
                               width: 30,
                               height: 30,
@@ -1458,11 +1458,11 @@ const GroupDetails = ({ navigation, route }) => {
                         }}
                       >
                         <Image
-                          source={{
-                            uri: request.SenderUserDetail.ProfilePhoto
-                              ? request.SenderUserDetail.ProfilePhoto
-                              : require("../assets/placeholderprofileimage.png"),
-                          }}
+                          source={
+                            request.SenderUserDetail.ProfilePhoto
+                              ? { uri: request.SenderUserDetail.ProfilePhoto }
+                              : require("../assets/placeholderprofileimage.png")
+                          }
                           style={{
                             width: 50,
                             height: 50,
