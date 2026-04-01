@@ -3983,7 +3983,17 @@ const Registration = () => {
                     color: colors.textColor,
                   }}
                 >
-                  I accept {universityFullName}'s Terms & Conditions
+                  I accept {universityFullName}'s{" "}
+                  <Text
+                    onPress={() => navigation.navigate("TermsScreen")}
+                    style={{
+                      fontSize: 14,
+                      flexShrink: 1,
+                      color: colors.AppmainColor,
+                    }}
+                  >
+                    Terms & Conditions
+                  </Text>
                 </Text>
               </View>
               <TouchableOpacity
